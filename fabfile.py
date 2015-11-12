@@ -3,15 +3,25 @@ from fabric.api import local, put, get, env, run, cd, lcd
 from fabric.contrib.project import rsync_project
 from config import *
 
+
+LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD
+LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD
+
+REMOTE_MYSQL = 'mysql -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD
+REMOTE_MYSQLDUMP = 'mysqldump -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD
+
+TMP_SQL_FILE = 'tmp.sql'
+
+
 def execute_mysql_local(statement):
-	local('echo "' + statement + '">' + TMP_FILE)
-	local(LOCAL_MYSQL + ' ' + LOCAL_DB_NAME + ' <' + TMP_FILE)
-	local('rm ' + TMP_FILE)
+	local('echo "' + statement + '">' + TMP_SQL_FILE)
+	local(LOCAL_MYSQL + ' ' + LOCAL_DB_NAME + ' <' + TMP_SQL_FILE)
+	local('rm ' + TMP_SQL_FILE)
 
 def execute_mysql_remote(statement):
-	run('echo "' + statement + '">' + TMP_FILE)
-	run(REMOTE_MYSQL + ' ' + REMOTE_DB_NAME + ' <' + TMP_FILE)
-	run('rm ' + TMP_FILE)
+	run('echo "' + statement + '">' + TMP_SQL_FILE)
+	run(REMOTE_MYSQL + ' ' + REMOTE_DB_NAME + ' <' + TMP_SQL_FILE)
+	run('rm ' + TMP_SQL_FILE)
 
 def execute_file_remote(filename):
 	put(filename, 'fabric-tmp-dir/tmp.sql')
