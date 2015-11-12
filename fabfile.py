@@ -63,7 +63,7 @@ def create_symlink():
 
 def update_remote_files():
 	with cd(REMOTE_ROOT_FOLDER):
-		run('git checkout')
+		run('git checkout -f')
 		run('git clean -f wp-content/uploads/*')
 		run('git pull')
 		run('git submodule init')
