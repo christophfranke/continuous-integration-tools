@@ -74,6 +74,10 @@ def update_local_db():
 	#cleanup local
 	local('rm -rf ' + FABRIC_TMP_DIR)
 
+def execute(command):
+	with cd(REMOTE_ROOT_FOLDER):
+		run(command)
+
 def update_db():
 	update_local_db()
 
