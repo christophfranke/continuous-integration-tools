@@ -2,7 +2,10 @@
 from fabric.api import local, put, get, env, run, cd, lcd
 from fabric.contrib.project import rsync_project
 from config import *
+from project_config import *
 
+
+LOCAL_ROOT_FOLDER = os.path.dirname(os.path.realpath(__file__)) + LOCAL_WWW_FOLDER
 
 LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
 LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
@@ -13,6 +16,10 @@ REMOTE_MYSQLDUMP = 'mysqldump -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB
 FABRIC_TMP_DIR = 'fabric-tmp-dir'
 TMP_SQL_FILE = 'fabric-tmp.sql'
 
+try:
+	GIT_CURRENT_BRANCH = GIT_BRANCH
+except:
+	GIT_CURRENT_BRANCH = '' #default to no specific branch
 
 TRUNCATE_LOCAL_DB_SQL = 'DROP DATABASE `' + LOCAL_DB_NAME + '`;CREATE DATABASE `' + LOCAL_DB_NAME + '`;'
 TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
@@ -78,13 +85,16 @@ def setup_ssh_key():
 	run('cat ~/tmp >> ~/.ssh/authorized_keys')
 	run('rm ~/tmp')
 
+def print_server_key():
+	run('cat ~/.ssh/id_rsa.pub')
+
 def create_symlink():
 	local('ln -s .. ~/www/' + LOCAL_HTTP_NAME)
 
 
 def update_remote_files():
 	with cd(REMOTE_ROOT_FOLDER):
-		run('git checkout -f')
+		run('git checkout -f ' + GIT_CURRENT_BRANCH)
 		run('git clean -f wp-content/uploads/*')
 		run('git pull')
 		run('git submodule init')
