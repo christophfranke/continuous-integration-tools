@@ -5,7 +5,7 @@ from config import *
 from project_config import *
 
 
-LOCAL_ROOT_FOLDER = os.path.dirname(os.path.realpath(__file__)) + LOCAL_WWW_FOLDER
+LOCAL_ROOT_FOLDER = os.path.dirname(os.path.realpath(__file__)) + '/' + LOCAL_WWW_FOLDER
 
 LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
 LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
@@ -87,9 +87,6 @@ def setup_ssh_key():
 
 def print_server_key():
 	run('cat ~/.ssh/id_rsa.pub')
-
-def create_symlink():
-	local('ln -s .. ~/www/' + LOCAL_HTTP_NAME)
 
 
 def update_remote_files():
