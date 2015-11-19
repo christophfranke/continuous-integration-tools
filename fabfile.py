@@ -55,12 +55,13 @@ def update_local_db():
 	#cleanup remote
 	run('rm -rf ' + FABRIC_TMP_DIR)
 
+	#drop local db and recreate it
+	execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)
+
 	#unpack db
 	with lcd(FABRIC_TMP_DIR):
 		#extract db dump
 		local('tar xf dump.tar.gz')
-		#drop local db and recreate it
-		execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)
 		local(LOCAL_MYSQL + '<dump.sql')
 
 	#cleanup local
