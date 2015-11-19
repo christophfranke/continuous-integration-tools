@@ -4,57 +4,60 @@ from fabric.contrib.project import rsync_project
 from config import *
 
 
-LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD
-LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD
+LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
+LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
 
-REMOTE_MYSQL = 'mysql -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD
-REMOTE_MYSQLDUMP = 'mysqldump -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD
+REMOTE_MYSQL = 'mysql -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' ' + REMOTE_DB_NAME + ' '
+REMOTE_MYSQLDUMP = 'mysqldump -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' ' + REMOTE_DB_NAME + ' '
 
-TMP_SQL_FILE = 'tmp.sql'
+FABRIC_TMP_DIR = 'fabric-tmp-dir'
+TMP_SQL_FILE = 'fabric-tmp.sql'
 
 
 def execute_mysql_local(statement):
 	local('echo "' + statement + '">' + TMP_SQL_FILE)
-	local(LOCAL_MYSQL + ' ' + LOCAL_DB_NAME + ' <' + TMP_SQL_FILE)
+	local(LOCAL_MYSQL + '<' + TMP_SQL_FILE)
 	local('rm ' + TMP_SQL_FILE)
 
 def execute_mysql_remote(statement):
 	run('echo "' + statement + '">' + TMP_SQL_FILE)
-	run(REMOTE_MYSQL + ' ' + REMOTE_DB_NAME + ' <' + TMP_SQL_FILE)
+	run(REMOTE_MYSQL + '<' + TMP_SQL_FILE)
 	run('rm ' + TMP_SQL_FILE)
 
 def execute_file_remote(filename):
-	put(filename, 'fabric-tmp-dir/tmp.sql')
-	run(REMOTE_MYSQL + ' ' + REMOTE_DB_NAME + ' <fabric-tmp-dir/tmp.sql')
-	run('rm fabric-tmp-dir/tmp.sql')
+	put(filename, TMP_SQL_FILE)
+	run(REMOTE_MYSQL + '<' + TMP_SQL_FILE)
+	run('rm ' + TMP_SQL_FILE)
 
+def execute_file_local(filename):
+	local(LOCAL_MYSQL + '<' + filename)
 
 
 def update_local_db():
 	#create fabric tmp dir
-	run('mkdir -p fabric-tmp-dir')
-	with cd('fabric-tmp-dir'):
+	run('mkdir -p ' + FABRIC_TMP_DIR)
+	with cd(FABRIC_TMP_DIR):
 		#dump database before changing
-		run('mysqldump -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' ' + REMOTE_DB_NAME + ' >dump.sql')
+		run(REMOTE_MYSQLDUMP + ' >dump.sql')
 		#compress before downloading
 		run('tar -acf dump.tar.gz dump.sql')
 	#create local tmp dir
-	local('mkdir -p fabric-tmp-dir')
+	local('mkdir -p ' + FABRIC_TMP_DIR)
 	#download db
-	get('fabric-tmp-dir/dump.tar.gz', 'fabric-tmp-dir/dump.tar.gz')
+	get(FABRIC_TMP_DIR + '/dump.tar.gz', FABRIC_TMP_DIR + '/dump.tar.gz')
 	#cleanup remote
-	run('rm -rf fabric-tmp-dir')
+	run('rm -rf ' + FABRIC_TMP_DIR)
 
 	#unpack db
-	with lcd('fabric-tmp-dir'):
+	with lcd(FABRIC_TMP_DIR):
 		#extract db dump
 		local('tar xf dump.tar.gz')
 		#drop local db and recreate it
 		execute_mysql_local('DROP DATABASE \\`' + LOCAL_DB_NAME + '\\`;CREATE DATABASE \\`' + LOCAL_DB_NAME + '\\`;')
-		local(LOCAL_MYSQL + ' ' + LOCAL_DB_NAME + ' < dump.sql')
+		local(LOCAL_MYSQL + '<dump.sql')
 
 	#cleanup local
-	local('rm -rf fabric-tmp-dir')
+	local('rm -rf ' + FABRIC_TMP_DIR)
 
 def update_db():
 	update_local_db()
@@ -85,11 +88,11 @@ def export_local_db(filename):
 	local(LOCAL_MYSQLDUMP + '>' + filename)
 
 def backup_db(filename):
-	run('mkdir -p fabric-tmp-dir')
-	with cd('fabric-tmp-dir'):
+	run('mkdir -p ' + FABRIC_TMP_DIR)
+	with cd(FABRIC_TMP_DIR):
 		run(REMOTE_MYSQLDUMP + '>dump.sql')
-	get('fabric-tmp-dir/dump.sql', filename)
-	run('rm- rf fabric-tmp-dir')
+	get(FABRIC_TMP_DIR + '/dump.sql', filename)
+	run('rm- rf ' + FABRIC_TMP_DIR)
 
 
 def setup():
