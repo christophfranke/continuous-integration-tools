@@ -14,15 +14,8 @@ FABRIC_TMP_DIR = 'fabric-tmp-dir'
 TMP_SQL_FILE = 'fabric-tmp.sql'
 
 
-def execute_mysql_local(statement):
-	local('echo "' + statement + '">' + TMP_SQL_FILE)
-	local(LOCAL_MYSQL + '<' + TMP_SQL_FILE)
-	local('rm ' + TMP_SQL_FILE)
-
-def execute_mysql_remote(statement):
-	run('echo "' + statement + '">' + TMP_SQL_FILE)
-	run(REMOTE_MYSQL + '<' + TMP_SQL_FILE)
-	run('rm ' + TMP_SQL_FILE)
+TRUNCATE_LOCAL_DB_SQL = 'DROP DATABASE `' + LOCAL_DB_NAME + '`;CREATE DATABASE `' + LOCAL_DB_NAME + '`;'
+TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
 
 def execute_file_remote(filename):
 	put(filename, TMP_SQL_FILE)
@@ -31,6 +24,20 @@ def execute_file_remote(filename):
 
 def execute_file_local(filename):
 	local(LOCAL_MYSQL + '<' + filename)
+
+def execute_mysql_local(statement):
+	file = open(TMP_SQL_FILE, 'w')
+	file.write(statement)
+	file.close()
+	execute_file_local(TMP_SQL_FILE)
+	local('rm ' + TMP_SQL_FILE)
+
+def execute_mysql_remote(statement):
+	file = open(TMP_SQL_FILE, 'w')
+	file.write(statement)
+	file.close()
+	execute_file_remote(TMP_SQL_FILE)
+	run('rm ' + TMP_SQL_FILE)
 
 
 def update_local_db():
@@ -53,7 +60,7 @@ def update_local_db():
 		#extract db dump
 		local('tar xf dump.tar.gz')
 		#drop local db and recreate it
-		execute_mysql_local('DROP DATABASE \\`' + LOCAL_DB_NAME + '\\`;CREATE DATABASE \\`' + LOCAL_DB_NAME + '\\`;')
+		execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)
 		local(LOCAL_MYSQL + '<dump.sql')
 
 	#cleanup local
@@ -87,6 +94,10 @@ def update_remote_files():
 def export_local_db(filename):
 	local(LOCAL_MYSQLDUMP + '>' + filename)
 
+def import_local_db(filename):
+	execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)	
+	execute_file_local(filename)
+
 def backup_db(filename):
 	run('mkdir -p ' + FABRIC_TMP_DIR)
 	with cd(FABRIC_TMP_DIR):
@@ -94,14 +105,6 @@ def backup_db(filename):
 	get(FABRIC_TMP_DIR + '/dump.sql', filename)
 	run('rm- rf ' + FABRIC_TMP_DIR)
 
-
-def setup():
-	setup_ssh_key()
-	local('rm -rf ' + LOCAL_ROOT_FOLDER + '/wp-contents/uploads/')
-	sync_media()
-	local(LOCAL_MYSQL + ' -e "CREATE DATABASE \\`' + LOCAL_DB_NAME + '\\`;"')
-	update_local_db()
-	create_symlink()
 
 def sync():
 	update_local_db()
