@@ -81,6 +81,16 @@ def update_remote_files():
 		run('git submodule update')
 		custom_after_deploy_script()
 
+def export_local_db(filename):
+	local(LOCAL_MYSQLDUMP + '>' + filename)
+
+def backup_db(filename):
+	run('mkdir -p fabric-tmp-dir')
+	with cd('fabric-tmp-dir'):
+		run(REMOTE_MYSQLDUMP + '>dump.sql')
+	get('fabric-tmp-dir/dump.sql', filename)
+	run('rm- rf fabric-tmp-dir')
+
 
 def setup():
 	setup_ssh_key()
