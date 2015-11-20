@@ -44,8 +44,26 @@ def execute_mysql_remote(statement):
 	file.write(statement)
 	file.close()
 	execute_file_remote(TMP_SQL_FILE)
-	run('rm ' + TMP_SQL_FILE)
+	local('rm ' + TMP_SQL_FILE)
 
+def create_tmp_dirs():
+	local('mkdir -p ' + FABRIC_TMP_DIR)
+	run('mkdir -p ' + FABRIC_TMP_DIR)
+
+def remove_tmp_dirs():
+	local('rm -rf ' + FABRIC_TMP_DIR)
+	run('rm -rf ' + FABRIC_TMP_DIR)
+
+
+#decorator for tmp dirs
+def auto_tmp_dirs(func):
+	def result(*args):
+		#create tmp dirs
+		create_tmp_dirs()
+		#run function
+		func(*args)
+		#remove tmp dirs
+		remove_tmp_dirs()
 
 def update_local_db():
 	#create fabric tmp dir
@@ -73,6 +91,26 @@ def update_local_db():
 
 	#cleanup local
 	local('rm -rf ' + FABRIC_TMP_DIR)
+
+def upload_file_to_remote_db(filename):
+	backup_db()
+	execute_mysql_remote(TRUNCATE_REMOTE_DB_SQL)
+	execute_file_remote(filename)
+
+
+def upload_to_remote_db(filename=None):
+	#dump local db if needed
+	if filename == None:
+		create_tmp_dirs()
+		export_local_db(FABRIC_TMP_DIR + '/dump.sql')
+		filename = FABRIC_TMP_DIR + '/dump.sql'
+
+	#deploy to server
+	upload_file_to_remote_db(filename)
+
+	#cleanup
+	remove_tmp_dirs()
+
 
 def execute(command):
 	with cd(REMOTE_ROOT_FOLDER):
@@ -110,12 +148,22 @@ def import_local_db(filename):
 	execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)	
 	execute_file_local(filename)
 
-def backup_db(filename):
+def backup_db(filename=LOCAL_ROOT_FOLDER + '/dump.tar.gz'):
+	#create tmp dir
 	run('mkdir -p ' + FABRIC_TMP_DIR)
 	with cd(FABRIC_TMP_DIR):
+		#export
 		run(REMOTE_MYSQLDUMP + '>dump.sql')
-	get(FABRIC_TMP_DIR + '/dump.sql', filename)
-	run('rm- rf ' + FABRIC_TMP_DIR)
+		#compress before downloading
+		run('tar -acf dump.tar.gz dump.sql')
+	#download
+	get(FABRIC_TMP_DIR + '/dump.tar.gz', filename)
+	#cleanup
+	run('rm -rf ' + FABRIC_TMP_DIR)
+
+#alias for backup_db
+def backup_remote_db(filename):
+	backup_db(filename)
 
 
 def sync():
