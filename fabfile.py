@@ -54,7 +54,6 @@ def remove_tmp_dirs():
 	local('rm -rf ' + FABRIC_TMP_DIR)
 	run('rm -rf ' + FABRIC_TMP_DIR)
 
-
 #decorator for tmp dirs
 def auto_tmp_dirs(func):
 	def result(*args):
@@ -64,6 +63,7 @@ def auto_tmp_dirs(func):
 		func(*args)
 		#remove tmp dirs
 		remove_tmp_dirs()
+
 
 def update_local_db():
 	#create fabric tmp dir
@@ -111,6 +111,52 @@ def upload_to_remote_db(filename=None):
 	#cleanup
 	remove_tmp_dirs()
 
+#merge users into local db assuming we are using wordpress
+def wp_sync_users():
+	create_tmp_dirs()
+
+	#this is the user sql file
+	sql_file = FABRIC_TMP_DIR + '/users.sql'
+
+	#make a backup first
+	export_local_db(LOCAL_ROOT_FOLDER + '/wp_sync_users_backup.sql')
+
+	#export user and usermeta tables
+	run(REMOTE_MYSQLDUMP + ' wp_users wp_usermeta >' + sql_file)
+	#download them 
+	get(sql_file, sql_file)
+	#remove foreign key check
+	execute_mysql_local("SET FOREIGN_KEY_CHECKS=0;")
+	#remove those tables form local db
+	execute_mysql_local("DROP TABLE `wp_users`;DROP TABLE `wp_usermeta`;")
+	#import users from remote db
+	execute_file_local(sql_file)
+
+	remove_tmp_dirs()
+
+def wp_sync_orders():
+	create_tmp_dirs()
+
+	#this is the user sql file
+	sql_file = FABRIC_TMP_DIR + '/orders.sql'
+
+	#make a backup first
+	export_local_db(LOCAL_ROOT_FOLDER + '/wp_sync_orders_backup.sql')
+
+	#export user and usermeta tables
+	run(REMOTE_MYSQLDUMP + ' wp_woocommerce_order_items wp_woocommerce_order_itemmeta >' + sql_file)
+	#download them 
+	get(sql_file, sql_file)
+	#remove foreign key check
+	execute_mysql_local("SET FOREIGN_KEY_CHECKS=0;")
+	#remove those tables form local db
+	execute_mysql_local("DROP TABLE `wp_woocommerce_order_items`;DROP TABLE `wp_woocommerce_order_itemmeta`;")
+	#import users from remote db
+	execute_file_local(sql_file)
+
+def wp_sync_users_and_orders():
+	wp_merge_users()
+	wp_merge_orders()
 
 def execute(command):
 	with cd(REMOTE_ROOT_FOLDER):
@@ -141,7 +187,7 @@ def update_remote_files():
 		run('git submodule update')
 		custom_after_deploy_script()
 
-def export_local_db(filename):
+def export_local_db(filename=LOCAL_ROOT_FOLDER + '/local_dump.sql'):
 	local(LOCAL_MYSQLDUMP + '>' + filename)
 
 def import_local_db(filename):
