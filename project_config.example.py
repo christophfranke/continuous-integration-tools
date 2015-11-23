@@ -16,7 +16,7 @@ REMOTE_DB_HOST = 'localhost' #this is almost always localhost
 REMOTE_ROOT_FOLDER = 'tondeo-test-www' #this is your remote www folder (might be a subfolder of the project root)
 
 #here you can put project related custom commands that will be executed after deploying.
-#this function will be executed within the with(REMOTE_ROOT_FOLDER)-block, so that is the folder your in.
+#this function will be executed within the with cd(REMOTE_ROOT_FOLDER)-block, so that is the folder your in.
 def custom_after_deploy_script():
 	pass
 
