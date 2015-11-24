@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from fabric.api import local, put, get, env, run, cd, lcd
 from fabric.contrib.project import rsync_project
+import fnmatch, os, time
+
 from config import *
 from project_config import *
 
@@ -221,7 +223,14 @@ def deploy():
 	update_remote_files()
 
 
+def update_mo():
+	files = []
+	for root, dirnames, filenames in os.walk(LOCAL_ROOT_FOLDER):
+	    for filename in fnmatch.filter(filenames, '*.po'):
+	        files.append(os.path.join(root, filename))
 
-
-
-
+	for po in files:
+		mo = po[:-3] + '.mo'
+		# needs to be refreshed
+		if not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo):
+			local('msgfmt -o ' + mo + ' ' + po)
