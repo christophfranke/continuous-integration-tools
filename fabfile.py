@@ -7,7 +7,10 @@ from config import *
 from project_config import *
 
 
-LOCAL_ROOT_FOLDER = os.path.dirname(os.path.realpath(__file__)) + '/' + LOCAL_WWW_FOLDER
+LOCAL_ROOT_FOLDER = os.path.dirname(os.path.realpath(__file__)) + '/' + RELATIVE_LOCAL_PROJECT_ROOT
+LOCAL_WWW_FOLDER = LOCAL_ROOT_FOLDER + '/' + WWW_FOLDER
+
+REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
 
 LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
 LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
@@ -168,7 +171,7 @@ def update_db():
 	update_local_db()
 
 def sync_media():
-	rsync_project(remote_dir=REMOTE_ROOT_FOLDER + '/wp-content/uploads/*', local_dir=LOCAL_ROOT_FOLDER + '/wp-content/uploads/', delete=False, upload=False)
+	rsync_project(remote_dir=REMOTE_WWW_FOLDER + '/wp-content/uploads/*', local_dir=LOCAL_WWW_FOLDER + '/wp-content/uploads/', delete=False, upload=False)
 
 def setup_ssh_key():
 	put('~/.ssh/id_rsa.pub', '~/tmp')
@@ -182,7 +185,7 @@ def print_server_key():
 def update_remote_files():
 	with cd(REMOTE_ROOT_FOLDER):
 		run('git checkout -f ' + GIT_CURRENT_BRANCH)
-		run('git clean -f wp-content/uploads/*')
+		run('git clean -f ' + WWW_FOLDER + '/wp-content/uploads/*')
 		run('git pull')
 		run('git submodule init')
 		run('git submodule sync')
@@ -225,7 +228,7 @@ def deploy():
 
 def update_mo():
 	files = []
-	for root, dirnames, filenames in os.walk(LOCAL_ROOT_FOLDER):
+	for root, dirnames, filenames in os.walk(LOCAL_WWW_FOLDER):
 	    for filename in fnmatch.filter(filenames, '*.po'):
 	        files.append(os.path.join(root, filename))
 
