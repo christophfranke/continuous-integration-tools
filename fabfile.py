@@ -190,6 +190,7 @@ def update_remote_files():
 		run('git submodule init')
 		run('git submodule sync')
 		run('git submodule update')
+	with cd(REMOTE_WWW_FOLDER):
 		custom_after_deploy_script()
 
 def export_local_db(filename=LOCAL_ROOT_FOLDER + '/local_dump.sql'):
