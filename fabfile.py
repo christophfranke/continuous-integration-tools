@@ -159,9 +159,11 @@ def wp_sync_orders():
 	#import users from remote db
 	execute_file_local(sql_file)
 
+	remove_tmp_dirs()
+
 def wp_sync_users_and_orders():
-	wp_merge_users()
-	wp_merge_orders()
+	wp_sync_users()
+	wp_sync_orders()
 
 def execute(command):
 	with cd(REMOTE_ROOT_FOLDER):
