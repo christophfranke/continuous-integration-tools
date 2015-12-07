@@ -6,8 +6,9 @@ import fnmatch, os, time
 from config import *
 from project_config import *
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
-LOCAL_ROOT_FOLDER = os.path.dirname(os.path.realpath(__file__)) + '/' + RELATIVE_LOCAL_PROJECT_ROOT
+LOCAL_ROOT_FOLDER = SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT
 LOCAL_WWW_FOLDER = LOCAL_ROOT_FOLDER + '/' + WWW_FOLDER
 
 REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
@@ -20,6 +21,10 @@ REMOTE_MYSQLDUMP = 'mysqldump -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB
 
 FABRIC_TMP_DIR = 'fabric-tmp-dir'
 TMP_SQL_FILE = 'fabric-tmp.sql'
+
+SRC_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_SRC_DIR
+BUILD_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_BUILD_DIR
+
 
 try:
 	GIT_CURRENT_BRANCH = GIT_BRANCH
@@ -240,3 +245,16 @@ def update_mo():
 		# needs to be refreshed
 		if not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo):
 			local('msgfmt -o ' + mo + ' ' + po)
+
+def update_less():
+	local('cd ' + SCRIPT_DIR + ' && make SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' less')
+
+def update_js():
+	local('cd ' + SCRIPT_DIR + ' && make SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' js')
+
+def update_all():
+	local('cd ' + SCRIPT_DIR + ' && make SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' js less')
+
+def compile():
+	update_mo()
+	update_all()
