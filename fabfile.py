@@ -258,3 +258,6 @@ def update_all():
 def compile():
 	update_mo()
 	update_all()
+
+def crawl():
+	local('node crawl.js ' + LOCAL_HTTP_ROOT + ' >' + LOCAL_ROOT_FOLDER + '/broken_links')
