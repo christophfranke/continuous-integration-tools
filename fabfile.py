@@ -22,14 +22,26 @@ REMOTE_MYSQLDUMP = 'mysqldump -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB
 FABRIC_TMP_DIR = 'fabric-tmp-dir'
 TMP_SQL_FILE = 'fabric-tmp.sql'
 
-SRC_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_SRC_DIR
-BUILD_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_BUILD_DIR
-
+try:
+	SRC_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_SRC_DIR
+	BUILD_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_BUILD_DIR
+except:
+	SRC_DIR = LOCAL_ROOT_FOLDER
+	BUILD_DIR = LOCAL_ROOT_FOLDER
 
 try:
 	GIT_CURRENT_BRANCH = GIT_BRANCH
 except:
 	GIT_CURRENT_BRANCH = '' #default to no specific branch
+
+
+try:
+	LOCAL_WP_FOLDER = LOCAL_ROOT_FOLDER + '/' + WP_FOLDER
+	REMOTE_WP_FOLDER = REMOTE_ROOT_FOLDER + '/' + WP_FOLDER
+except:
+	LOCAL_WP_FOLDER = LOCAL_WWW_FOLDER
+	REMOTE_WP_FOLDER = REMOTE_WWW_FOLDER
+
 
 TRUNCATE_LOCAL_DB_SQL = 'DROP DATABASE `' + LOCAL_DB_NAME + '`;CREATE DATABASE `' + LOCAL_DB_NAME + '`;'
 TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
@@ -178,7 +190,7 @@ def update_db():
 	update_local_db()
 
 def sync_media():
-	rsync_project(remote_dir=REMOTE_WWW_FOLDER + '/wp-content/uploads/*', local_dir=LOCAL_WWW_FOLDER + '/wp-content/uploads/', delete=False, upload=False)
+	rsync_project(remote_dir=REMOTE_WP_FOLDER + '/wp-content/uploads/*', local_dir=LOCAL_WP_FOLDER + '/wp-content/uploads/', delete=False, upload=False)
 
 def setup_ssh_key():
 	put('~/.ssh/id_rsa.pub', '~/tmp')

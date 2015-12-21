@@ -16,6 +16,7 @@ REMOTE_DB_HOST = 'localhost' #this is almost always localhost
 
 REMOTE_ROOT_FOLDER = 'remote root folder' #this is your remote www folder (must be the project root)
 WWW_FOLDER = 'www' #the www folder relative to the project root
+#WP_FOLDER = 'www/blog' #the wordpress root folder relative to the project root, must not be set, defaults to WWW_FOLDER
 
 GIT_BRANCH = 'master'
 
