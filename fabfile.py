@@ -42,6 +42,12 @@ except:
 	LOCAL_WP_FOLDER = LOCAL_WWW_FOLDER
 	REMOTE_WP_FOLDER = REMOTE_WWW_FOLDER
 
+try:
+	WP_FOLDER
+except:
+	WP_FOLDER = WWW_FOLDER
+
+
 
 TRUNCATE_LOCAL_DB_SQL = 'DROP DATABASE `' + LOCAL_DB_NAME + '`;CREATE DATABASE `' + LOCAL_DB_NAME + '`;'
 TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
@@ -204,7 +210,7 @@ def print_server_key():
 def update_remote_files():
 	with cd(REMOTE_ROOT_FOLDER):
 		run('git checkout -f ' + GIT_CURRENT_BRANCH)
-		run('git clean -f ' + WWW_FOLDER + '/wp-content/uploads/*')
+		run('git clean -df ' + WP_FOLDER + '/wp-content/uploads/*')
 		run('git pull')
 		run('git submodule init')
 		run('git submodule sync')
