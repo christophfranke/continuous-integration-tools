@@ -279,3 +279,6 @@ def compile():
 
 def crawl():
 	local('node crawl.js ' + LOCAL_HTTP_ROOT + ' >' + LOCAL_ROOT_FOLDER + '/broken_links')
+
+def error_log():
+	local('tail /var/log/apache2/error_log')
