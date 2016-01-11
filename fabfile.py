@@ -7,7 +7,7 @@ from project_config import *
 try:
 	from config import *
 except:
-	from config_example.py import *
+	from config_example import *
 
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
