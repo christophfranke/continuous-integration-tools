@@ -201,6 +201,11 @@ def update_db():
 
 def sync_media():
 	rsync_project(remote_dir=REMOTE_WP_FOLDER + '/wp-content/uploads/*', local_dir=LOCAL_WP_FOLDER + '/wp-content/uploads/', delete=False, upload=False)
+	with lcd(LOCAL_WWW_FOLDER):
+		try:
+			custom_after_sync_script()
+		except NameError:
+			print "No custom sync script function"
 
 def setup_ssh_key():
 	put('~/.ssh/id_rsa.pub', '~/tmp')
@@ -250,11 +255,6 @@ def backup_remote_db(filename):
 def sync():
 	update_local_db()
 	sync_media()
-	with lcd(LOCAL_WWW_FOLDER):
-		try:
-			custom_after_sync_script()
-		except NameError:
-			print "No custom sync script function"
 
 def deploy():
 	sync_media()
