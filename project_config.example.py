@@ -25,3 +25,6 @@ GIT_BRANCH = 'master'
 def custom_after_deploy_script():
 	pass
 
+#will be executed after syncing in local www-folder
+def custom_after_sync_script():
+	pass

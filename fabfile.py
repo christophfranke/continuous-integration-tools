@@ -250,6 +250,11 @@ def backup_remote_db(filename):
 def sync():
 	update_local_db()
 	sync_media()
+	with lcd(LOCAL_WWW_FOLDER):
+		try:
+			custom_after_sync_script()
+		except NameError:
+			print "No custom sync script function"
 
 def deploy():
 	sync_media()
