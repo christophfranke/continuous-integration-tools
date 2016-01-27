@@ -13,17 +13,17 @@ LESS_SRC = $(wildcard $(SRC)/less/*.less)
 COMPILER = compiler.jar
 
 ESCAPED_SRC_DIR = $(shell echo $(SRC)|sed 's\#/\#\\/\#g')
-ESCAPED_SRC_URL = $(shell echo $(SRC_URL)|sed 's\#/\#\\/\#g')
+ESCAPED_SRC_URL = $(shell echo /$(SRC_URL)|sed 's\#/\#\\/\#g')
 
 ESCAPED_BUILD_DIR = $(shell echo $(BUILD)|sed 's\#/\#\\/\#g')
-ESCAPED_BUILD_URL = $(shell echo $(BUILD_URL)|sed 's\#/\#\\/\#g')
+ESCAPED_BUILD_URL = $(shell echo /$(BUILD_URL)|sed 's\#/\#\\/\#g')
 
 js: $(JS_FILE) $(JS_MAP_FILE)
 
 
 $(JS_FILE) $(JS_MAP_FILE): $(JS_SRC)
 	java -jar $(COMPILER) --js $(JS_SRC) --create_source_map $(JS_MAP_FILE) --js_output_file $(JS_FILE)
-	echo "//# sourceMapLocation=$(MAIN_JS_MAP)" >> $(JS_FILE)
+	echo "//# sourceMappingURL=$(MAIN_JS_MAP)" >> $(JS_FILE)
 	sed -i '' -e 's/$(ESCAPED_SRC_DIR)/$(ESCAPED_SRC_URL)/g' $(JS_MAP_FILE)
 	sed -i '' -e 's/$(ESCAPED_BUILD_DIR)/$(ESCAPED_BUILD_URL)/g' $(JS_MAP_FILE)
 
