@@ -27,11 +27,18 @@ FABRIC_TMP_DIR = 'fabric-tmp-dir'
 TMP_SQL_FILE = 'fabric-tmp.sql'
 
 try:
+	RELATIVE_SRC_DIR = WWW_FOLDER + '/' + SRC_URL
+	RELATIVE_BUILD_DIR = WWW_FOLDER + '/' + BUILD_URL
+
 	SRC_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_SRC_DIR
 	BUILD_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_BUILD_DIR
+
+	MAKEFILE_VARS = 'SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' SRC_URL=' + SRC_URL + ' BUILD_URL=' + BUILD_URL + ' WWW_FOLDER=' + LOCAL_WWW_FOLDER
 except:
 	SRC_DIR = LOCAL_ROOT_FOLDER
 	BUILD_DIR = LOCAL_ROOT_FOLDER
+
+	MAKEFILE_VARS = ''
 
 try:
 	GIT_CURRENT_BRANCH = GIT_BRANCH
@@ -273,14 +280,15 @@ def update_mo():
 		if not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo):
 			local('msgfmt -o ' + mo + ' ' + po)
 
+
 def update_less():
-	local('cd ' + SCRIPT_DIR + ' && make SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' less')
+	local('cd ' + SCRIPT_DIR + ' && make ' + MAKEFILE_VARS + ' less')
 
 def update_js():
-	local('cd ' + SCRIPT_DIR + ' && make SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' js')
+	local('cd ' + SCRIPT_DIR + ' && make ' + MAKEFILE_VARS + ' js')
 
 def update_all():
-	local('cd ' + SCRIPT_DIR + ' && make SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' js less')
+	local('cd ' + SCRIPT_DIR + ' && make ' + MAKEFILE_VARS + ' js less')
 
 def compile():
 	update_mo()
