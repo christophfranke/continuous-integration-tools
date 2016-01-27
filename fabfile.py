@@ -33,6 +33,8 @@ try:
 	SRC_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_SRC_DIR
 	BUILD_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_BUILD_DIR
 
+	REMOTE_BUILD_DIR = REMOTE_ROOT_FOLDER + '/' + RELATIVE_BUILD_DIR
+
 	MAKEFILE_VARS = 'SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' SRC_URL=' + SRC_URL + ' BUILD_URL=' + BUILD_URL + ' WWW_FOLDER=' + LOCAL_WWW_FOLDER
 except:
 	SRC_DIR = LOCAL_ROOT_FOLDER
@@ -231,6 +233,13 @@ def update_remote_files():
 		run('git submodule init')
 		run('git submodule sync')
 		run('git submodule update')
+	try:
+		BUILD_DIR
+		compile()
+		run('mkdir -p ' + REMOTE_BUILD_DIR)
+		put(BUILD_DIR + '/', REMOTE_BUILD_DIR + '/../')
+	except NameError:
+		pass
 	with cd(REMOTE_WWW_FOLDER):
 		custom_after_deploy_script()
 
