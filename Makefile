@@ -30,6 +30,6 @@ $(JS_FILE) $(JS_MAP_FILE): $(JS_SRC)
 less: $(CSS_FILE)
 
 $(CSS_FILE): $(LESS_SRC)
-	lessc $(LESS_FILE) $(CSS_FILE)
+	lessc --source-map --verbose $(LESS_FILE) $(CSS_FILE)
 
 all: js less
