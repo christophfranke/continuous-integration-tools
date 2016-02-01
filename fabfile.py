@@ -12,6 +12,11 @@ except:
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
+try:
+	RELATIVE_LOCAL_PROJECT_ROOT
+except NameError:
+	RELATIVE_LOCAL_PROJECT_ROOT = '..'
+
 LOCAL_ROOT_FOLDER = SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT
 LOCAL_WWW_FOLDER = LOCAL_ROOT_FOLDER + '/' + WWW_FOLDER
 
@@ -20,11 +25,26 @@ REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
 LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
 LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
 
-REMOTE_MYSQL = 'mysql -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' ' + REMOTE_DB_NAME + ' '
-REMOTE_MYSQLDUMP = 'mysqldump -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' ' + REMOTE_DB_NAME + ' '
+#concatenate mysql command strings
+REMOTE_MYSQL_PARAMS = ' -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' '
+try:
+	REMOTE_DB_PORT
+	REMOTE_MYSQL_PARAMS += '--port=' + REMOTE_DB_PORT + ' '
+except NameError:
+	pass
+try:
+	REMOTE_DB_SOCKET
+	REMOTE_MYSQL_PARAMS += '--socket=' + REMOTE_DB_SOCKET + ' '
+except NameError:
+	pass
+REMOTE_MYSQL_PARAMS += REMOTE_DB_NAME + ' '
+
+REMOTE_MYSQL = 'mysql' + REMOTE_MYSQL_PARAMS
+REMOTE_MYSQLDUMP = 'mysqldump' + REMOTE_MYSQL_PARAMS
 
 FABRIC_TMP_DIR = 'fabric-tmp-dir'
 TMP_SQL_FILE = 'fabric-tmp.sql'
+SSH_TMP_FILE = FABRIC_TMP_DIR + '/ssh-key-tmp-file'
 
 try:
 	RELATIVE_SRC_DIR = WWW_FOLDER + '/' + SRC_URL
@@ -217,9 +237,12 @@ def sync_media():
 			print "No custom sync script function"
 
 def setup_ssh_key():
-	put('~/.ssh/id_rsa.pub', '~/tmp')
-	run('cat ~/tmp >> ~/.ssh/authorized_keys')
-	run('rm ~/tmp')
+	create_tmp_dirs()
+	put('~/.ssh/id_rsa.pub', SSH_TMP_FILE)
+	run('mkdir -p ~/.ssh')
+	run('cat ' + SSH_TMP_FILE + ' >> ~/.ssh/authorized_keys')
+	run('rm ' + SSH_TMP_FILE)
+	remove_tmp_dirs()
 
 def print_server_key():
 	run('cat ~/.ssh/id_rsa.pub')
