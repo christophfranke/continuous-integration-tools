@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from fabric.api import local, put, get, env, run, cd, lcd
 from fabric.contrib.project import rsync_project
+from datetime import datetime
 import fnmatch, os, time
 
 from project_config import *
@@ -19,6 +20,15 @@ except NameError:
 
 LOCAL_ROOT_FOLDER = SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT
 LOCAL_WWW_FOLDER = LOCAL_ROOT_FOLDER + '/' + WWW_FOLDER
+
+try:
+	DB_FOLDER
+except NameError:
+	DB_FOLDER = LOCAL_ROOT_FOLDER + '/Datenbank'
+
+SQL_DUMP_FILE = DB_FOLDER + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql'
+SQL_GZ_DUMP_FILE = SQL_DUMP_FILE + '.gz'
+
 
 REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
 
@@ -112,16 +122,6 @@ def remove_tmp_dirs():
 	local('rm -rf ' + FABRIC_TMP_DIR)
 	run('rm -rf ' + FABRIC_TMP_DIR)
 
-#decorator for tmp dirs
-def auto_tmp_dirs(func):
-	def result(*args):
-		#create tmp dirs
-		create_tmp_dirs()
-		#run function
-		func(*args)
-		#remove tmp dirs
-		remove_tmp_dirs()
-
 
 def update_local_db():
 	#create fabric tmp dir
@@ -169,54 +169,6 @@ def upload_to_remote_db(filename=None):
 	#cleanup
 	remove_tmp_dirs()
 
-#merge users into local db assuming we are using wordpress
-def wp_sync_users():
-	create_tmp_dirs()
-
-	#this is the user sql file
-	sql_file = FABRIC_TMP_DIR + '/users.sql'
-
-	#make a backup first
-	export_local_db(LOCAL_ROOT_FOLDER + '/wp_sync_users_backup.sql')
-
-	#export user and usermeta tables
-	run(REMOTE_MYSQLDUMP + ' wp_users wp_usermeta >' + sql_file)
-	#download them 
-	get(sql_file, sql_file)
-	#remove foreign key check
-	execute_mysql_local("SET FOREIGN_KEY_CHECKS=0;")
-	#remove those tables form local db
-	execute_mysql_local("DROP TABLE `wp_users`;DROP TABLE `wp_usermeta`;")
-	#import users from remote db
-	execute_file_local(sql_file)
-
-	remove_tmp_dirs()
-
-def wp_sync_orders():
-	create_tmp_dirs()
-
-	#this is the user sql file
-	sql_file = FABRIC_TMP_DIR + '/orders.sql'
-
-	#make a backup first
-	export_local_db(LOCAL_ROOT_FOLDER + '/wp_sync_orders_backup.sql')
-
-	#export user and usermeta tables
-	run(REMOTE_MYSQLDUMP + ' wp_woocommerce_order_items wp_woocommerce_order_itemmeta >' + sql_file)
-	#download them 
-	get(sql_file, sql_file)
-	#remove foreign key check
-	execute_mysql_local("SET FOREIGN_KEY_CHECKS=0;")
-	#remove those tables form local db
-	execute_mysql_local("DROP TABLE `wp_woocommerce_order_items`;DROP TABLE `wp_woocommerce_order_itemmeta`;")
-	#import users from remote db
-	execute_file_local(sql_file)
-
-	remove_tmp_dirs()
-
-def wp_sync_users_and_orders():
-	wp_sync_users()
-	wp_sync_orders()
 
 def execute(command):
 	with cd(REMOTE_ROOT_FOLDER):
@@ -263,14 +215,14 @@ def update_remote_files():
 	with cd(REMOTE_WWW_FOLDER):
 		custom_after_deploy_script()
 
-def export_local_db(filename=LOCAL_ROOT_FOLDER + '/local_dump.sql'):
+def export_local_db(filename=SQL_DUMP_FILE):
 	local(LOCAL_MYSQLDUMP + '>' + filename)
 
 def import_local_db(filename):
 	execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)	
 	execute_file_local(filename)
 
-def backup_db(filename=LOCAL_ROOT_FOLDER + '/dump.tar.gz'):
+def backup_db(filename=SQL_GZ_DUMP_FILE):
 	#create tmp dir
 	run('mkdir -p ' + FABRIC_TMP_DIR)
 	with cd(FABRIC_TMP_DIR):

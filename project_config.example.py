@@ -30,6 +30,9 @@ GIT_BRANCH = 'master' #optional, but it's good practice to set this to the corre
 #the project root folder relative to the script folder. Optional, defaults to '..', which is the usual case when we have the script folder in a direct subfolder of the project root
 #RELATIVE_LOCAL_PROJECT_ROOT = '..'
 
+#database folder, defaults to 'Datenbank'
+#DB_FOLDER = 'Datenbank'
+
 #here you can put project related custom commands that will be executed after deploying.
 #this function will be executed within the with cd(REMOTE_WWW_FOLDER)-block, so that is the folder your in.
 def custom_after_deploy_script():
