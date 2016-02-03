@@ -66,11 +66,9 @@ function recursive_search_and_replace($obj, $find, $replace, $depth = 0)
                 echo "$obj -> $new_obj\n";
         }
 
-        //reset obj with replaced value
-        $obj = $new_obj;
-
-        if($find === $replace && strstr($obj, $find) !== false)
-            $replaced++;
+        //do the update (but not in dry run)
+        if( $replace !== NULL)
+            $obj = $new_obj;
     }
 
     return $obj;
@@ -84,7 +82,7 @@ function prepare_for_mysql_statement($obj)
     return $obj;
 }
 
-function search_and_replace($database, $find, $replace)
+function search_and_replace($find, $replace, $host, $user, $password, $database, $port = 3306, $socket = '/var/mysql/mysql.sock')
 {
     global $replaced, $reached_max_recursion, $skip_tables, $conn, $whitelist_tables;
 
@@ -97,7 +95,7 @@ function search_and_replace($database, $find, $replace)
 
     $time = microtime(true);
 
-    $conn = new mysqli('localhost', 'root', '51515151', $database, 3306, '/var/mysql/mysql.sock');
+    $conn = new mysqli($host, $user, $password, $database, $port, $socket);
     $sql = "SET NAMES 'utf8';";
     $result = $conn->query($sql);
     if($result === false)
@@ -184,7 +182,7 @@ function search_and_replace($database, $find, $replace)
 
 
                 //create mysql query if there was something we found
-                if($replaced_old < $replaced || DEBUG)
+                if($replace !== NULL && ($replaced_old < $replaced || DEBUG))
                 {
                     //serialize if necessary
                     if($serialized)
@@ -239,16 +237,36 @@ function search_and_replace($database, $find, $replace)
         }
         if($reached_max_recursion > 0)
             echo "Reached max recursion depth $reached_max_recursion times...";
-        echo "Done. Replaced $replaced values\n";
+        if($replace === NULL)
+            echo "Done. Found $replaced Values.\n";
+        else
+            echo "Done. Replaced $replaced values\n";
         $reached_max_recursion = 0;
         $replaced_total += $replaced;
     }
 
     $time = (microtime(true) - $time);
-    echo "Took $time seconds to search $db_entries_searched keys ($db_entries_serialized serialized) and replace $replaced_total values by updating $db_entries_changed keys.\n";
+    echo "Took $time seconds to search $db_entries_searched keys ($db_entries_serialized serialized) and " . ($replace === NULL ? 'found':'replaced') . " $replaced_total values by updating $db_entries_changed keys.\n";
 }
+if(sizeof($argv) < 6 or sizeof($argv) > 7)
+{
+    echo "Usage: php search-and-replace.php <host> <user> <password> <database> <find> [replace]\n";
+    echo "Parameters in <> are obligatory, parameters in [] are optional.\n";
+    echo "You can use two doublequotes to declare an empty replace string. In that case, all occurences of <find> will be replaced with an empty string.\n";
+    echo "If no replace is given, no changes will be made in the database (aka dry run).\n";
+    exit;
+}
+$host = $argv[1];
+$user = $argv[2];
+$password = $argv[3];
+$database = $argv[4];
+$find = $argv[5];
+if(sizeof($argv) >6)
+    $replace = $argv[6];
+else
+    $replace = NULL;
 
-//var_dump($argv);
-//search_and_replace('tondeo.de', 'http://tondeo.local/', 'http://tondeo.de/www/');
-//search_and_replace('tondeo.de', 'http://tondeo.de/www/', 'http://tondeo.local/');
-search_and_replace('tondeo.de', 'http://tondeo.local/', '/');
+search_and_replace($find, $replace, $host, $user, $password, $database);
+
+
+
