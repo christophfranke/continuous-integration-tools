@@ -280,3 +280,13 @@ def crawl():
 
 def error_log():
 	local('tail /var/log/apache2/error_log')
+
+def search_db(find):
+	local('php search-and-replace-db.php ' + LOCAL_DB_HOST + ' ' + LOCAL_DB_USER + ' ' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' "' + find + '"')
+
+def replace_in_db(find, replace):
+	local('php search-and-replace-db.php ' + LOCAL_DB_HOST + ' ' + LOCAL_DB_USER + ' ' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' "' + find + '" "' + replace + '"')
+
+def remove_hostname_from_db(hostname):
+	replace_in_db('http://' + hostname + '/', '/')
+	replace_in_db('http://www.' + hostname + '/', '/')
