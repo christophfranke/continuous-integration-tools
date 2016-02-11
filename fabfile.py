@@ -4,10 +4,15 @@ from fabric.contrib.project import rsync_project
 from datetime import datetime
 import fnmatch, os, time
 
-from project_config import *
+try:
+	from project_config import *
+except ImportError:
+	print "No Project config found. Using example config instead."
+	from project_config_example import *
+
 try:
 	from config import *
-except:
+except ImportError:
 	from config_example import *
 
 
@@ -290,3 +295,11 @@ def replace_in_db(find, replace):
 def remove_hostname_from_db(hostname):
 	replace_in_db('http://' + hostname + '/', '/')
 	replace_in_db('http://www.' + hostname + '/', '/')
+
+def mount_passwords(PASSWORD_DIRECTORY='~/Zugangsdaten'):
+	local('mkdir -p ' + PASSWORD_DIRECTORY)
+	local('chmod 700 ' + PASSWORD_DIRECTORY)
+	local('sshfs macmini@Mac-minis-Mac-mini.local:Zugangsdaten ' + PASSWORD_DIRECTORY)
+
+
+
