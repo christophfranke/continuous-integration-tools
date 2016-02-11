@@ -299,7 +299,7 @@ def remove_hostname_from_db(hostname):
 def mount_passwords(PASSWORD_DIRECTORY='~/Zugangsdaten'):
 	local('mkdir -p ' + PASSWORD_DIRECTORY)
 	local('chmod 700 ' + PASSWORD_DIRECTORY)
-	local('sshfs macmini@Mac-minis-Mac-mini.local:Zugangsdaten ' + PASSWORD_DIRECTORY)
+	local('sshfs macmini@Mac-minis-Mac-mini.local:Zugangsdaten ' + PASSWORD_DIRECTORY + ' -o volname=Zugangsdaten')
 
 
 
