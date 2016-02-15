@@ -42,6 +42,8 @@ def sync_db():
 def update_db():
 	update_local_db()
 
+def execute_mysql_file(filename):
+	helper.execute_file_local(filename)
 
 #uploads the current db to the remote db. if a filename is given, this file will be treated as the db dump file that will be uploaded instead.
 def upload_to_remote_db(filename=None):
