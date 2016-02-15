@@ -3,4 +3,6 @@ config.py
 *.sublime-project
 *.sublime-workspace
 
+search_and_replace.sql
+
 *.pyc

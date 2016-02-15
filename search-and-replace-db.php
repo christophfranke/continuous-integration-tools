@@ -1,11 +1,12 @@
 <?php
 /* CONFIGURATION AREA */
-define('MAX_RECURSION_DEPTH', 15);
+define('MAX_RECURSION_DEPTH', 50);
 define('VERBOSE', false);
 define('DEBUG', false);
+define('WRITE_SQL_FILE_INSTEAD', false);
 
 $skip_tables = array();
-//$whitelist_tables = array('wp_options');
+$whitelist_tables = array('wp_options');
 /*************************/
 
 function errorHandler($errNo, $errStr, $errFile, $errLine)
@@ -27,9 +28,28 @@ function recursive_search_and_replace($obj, $find, $replace, $depth = 0)
     global $reached_max_recursion;
     global $conn;
 
+    static $parsed;
+    if($depth === 0)
+        $parsed = array();
+
     //don't work on empty objects
     if(empty($obj))
         return $obj;
+
+    //have we parsed this object already?
+    if(is_object($obj) || gettype($obj) == 'object' || is_array($obj))
+    {
+        if(is_array($obj))
+            $hash = 'array_' . md5( json_encode( $obj ) );
+        else
+            $hash = 'object_' . spl_object_hash( $obj );
+
+        if(isset($parsed[$hash]))
+            return $obj;
+
+        //now save the hash to the parsed array, so we won't parse it again
+        $parsed[$hash] = true;
+    }
 
     //break on max recursion depth (note: this should NEVER happen)
     if($depth > MAX_RECURSION_DEPTH && !(is_string($obj)))
@@ -63,7 +83,12 @@ function recursive_search_and_replace($obj, $find, $replace, $depth = 0)
         {
             $replaced++;
             if(VERBOSE)
-                echo "$obj -> $new_obj\n";
+            {
+                if($replace === NULL)
+                    echo "found: $obj\n";
+                else
+                    echo "$obj -> $new_obj\n";
+            }
         }
 
         //do the update (but not in dry run)
@@ -74,12 +99,12 @@ function recursive_search_and_replace($obj, $find, $replace, $depth = 0)
     return $obj;
 }
 
-function prepare_for_mysql_statement($obj)
+function prepare_for_mysql_statement($str)
 {
-    $obj = str_replace("'", "''", $obj);
-    $obj = str_replace("\\", "\\\\", $obj);
+    $str = str_replace("'", "''", $str);
+    $str = str_replace("\\", "\\\\", $str);
 
-    return $obj;
+    return $str;
 }
 
 function search_and_replace($find, $replace, $host, $user, $password, $database, $port = 3306, $socket = '/var/mysql/mysql.sock')
@@ -93,6 +118,9 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
     $db_entries_serialized = 0;
     $db_entries_changed = 0;
 
+    $out_file_content = "SET NAMES 'utf8';\n";
+    $made_sql_statement = false;
+
     $time = microtime(true);
 
     $conn = new mysqli($host, $user, $password, $database, $port, $socket);
@@ -100,7 +128,6 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
     $result = $conn->query($sql);
     if($result === false)
         die("$sql failed.\n");
-
 
     $sql = "SHOW TABLES;";
 
@@ -129,24 +156,23 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
             $sql = "SHOW KEYS FROM $table WHERE Key_name = 'UNIQUE';";
             $key_result = $conn->query($sql);
             $primary_key = @$key_result->fetch_assoc()['Column_name'];
-
-            if($primary_key == NULL)
-            {
-                echo "Could not find primary or unique key, skipping $table\n";
-                continue;
-            }
         }
 
         //fetch table
         $sql = "SELECT * FROM $table;";
         echo "Traversing $table...";
+        if(WRITE_SQL_FILE_INSTEAD)
+            $out_file_content .= "#Traversing $table...\n";
         $result = $conn->query($sql);
         $result->fetch_all();
 
         //traverse all rows
         foreach($result as $row)
         {
-            $id = $row[$primary_key];
+            if($primary_key == NULL)
+                $id = NULL;
+            else
+                $id = $row[$primary_key];
 
             //traverse all keys
             foreach($row as $col=>$key)
@@ -195,8 +221,21 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
                     //escape characters
                     $new_data = prepare_for_mysql_statement($new_data);
 
-                    $sql = "UPDATE `$table` SET $col='$new_data' WHERE $primary_key=$id;";
-                    $update_result = $conn->query($sql);
+                    if($primary_key == NULL)
+                    {
+                        $old_data = prepare_for_mysql_statement($key);
+                        $where = "$col='$old_data'";
+                    }
+                    else
+                        $where = "$primary_key=$id";
+                    $sql = "UPDATE `$table` SET $col='$new_data' WHERE $where;";
+                    if(WRITE_SQL_FILE_INSTEAD)
+                    {
+                        $out_file_content .= $sql . "\n";
+                        $made_sql_statement = true;
+                    }
+                    else
+                        $update_result = $conn->query($sql);
 
                     //tell about failed result but recover
                     if($update_result === false)
@@ -238,11 +277,26 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
         if($reached_max_recursion > 0)
             echo "Reached max recursion depth $reached_max_recursion times...";
         if($replace === NULL)
-            echo "Done. Found $replaced Values.\n";
+            echo "Done. Found $replaced values.\n";
         else
-            echo "Done. Replaced $replaced values\n";
+        {
+            echo "Done. Replaced $replaced values.\n";
+            if (WRITE_SQL_FILE_INSTEAD)
+                $out_file_content .= "#Done. Replaced $replaced values.\n";
+        }
         $reached_max_recursion = 0;
         $replaced_total += $replaced;
+    }
+
+    if(WRITE_SQL_FILE_INSTEAD)
+    {
+        if($made_sql_statement)
+        {
+            file_put_contents('search_and_replace.sql', $out_file_content);
+            echo "SQL Statements written to search_and_replace.sql\n";
+        }
+        else
+            echo "No SQL Statements were created by your query. No SQL File has been written.\n";
     }
 
     $time = (microtime(true) - $time);
