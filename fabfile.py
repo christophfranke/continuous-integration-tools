@@ -34,6 +34,11 @@ def update_local_db():
 	#cleanup local
 	local('rm -rf ' + FABRIC_TMP_DIR)
 
+	try:
+		custom_after_sync_db()
+	except NameError:
+		pass
+
 #just an alias of update_local_db
 def sync_db():
 	update_local_db()
