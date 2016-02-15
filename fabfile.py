@@ -94,6 +94,19 @@ def copy_server_key():
 
 #updates the files on the remote using git
 def update_remote_files():
+
+	#do we have to compile?
+	try:
+		BUILD_DIR
+		has_build_dir = True
+	except NameError:
+		has_build_dir = False
+
+	#compile first, so if something goes wrong we have not deployed anything yet
+	if has_build_dir:
+		compile()
+
+	#deploy files form git
 	with cd(REMOTE_ROOT_FOLDER):
 		run('git checkout -f ' + GIT_CURRENT_BRANCH)
 		run('git clean -df ' + WP_FOLDER + '/wp-content/uploads/*')
@@ -101,13 +114,13 @@ def update_remote_files():
 		run('git submodule init')
 		run('git submodule sync')
 		run('git submodule update')
-	try:
-		BUILD_DIR
-		compile()
+
+	#copy files form build folder
+	if has_build_dir:
 		run('mkdir -p ' + REMOTE_BUILD_DIR)
 		put(BUILD_DIR + '/', REMOTE_BUILD_DIR + '/../')
-	except NameError:
-		pass
+
+	#apply custom script
 	with cd(REMOTE_WWW_FOLDER):
 		custom_after_deploy_script()
 
