@@ -1,133 +1,12 @@
 # -*- coding: utf-8 -*-
 from fabric.api import local, put, get, env, run, cd, lcd
 from fabric.contrib.project import rsync_project
-from datetime import datetime
 import fnmatch, os, time
 
-try:
-	from project_config import *
-except ImportError:
-	print "No Project config found. Using example config instead."
-	from project_config_example import *
+from constants import *
+import helper
 
-try:
-	from config import *
-except ImportError:
-	from config_example import *
-
-
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-
-try:
-	RELATIVE_LOCAL_PROJECT_ROOT
-except NameError:
-	RELATIVE_LOCAL_PROJECT_ROOT = '..'
-
-LOCAL_ROOT_FOLDER = SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT
-LOCAL_WWW_FOLDER = LOCAL_ROOT_FOLDER + '/' + WWW_FOLDER
-
-try:
-	DB_FOLDER
-except NameError:
-	DB_FOLDER = LOCAL_ROOT_FOLDER + '/Datenbank'
-
-SQL_DUMP_FILE = DB_FOLDER + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql'
-SQL_GZ_DUMP_FILE = SQL_DUMP_FILE + '.gz'
-
-
-REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
-
-LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
-LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
-
-#concatenate mysql command strings
-REMOTE_MYSQL_PARAMS = ' -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' '
-try:
-	REMOTE_DB_PORT
-	REMOTE_MYSQL_PARAMS += '--port=' + REMOTE_DB_PORT + ' '
-except NameError:
-	pass
-try:
-	REMOTE_DB_SOCKET
-	REMOTE_MYSQL_PARAMS += '--socket=' + REMOTE_DB_SOCKET + ' '
-except NameError:
-	pass
-REMOTE_MYSQL_PARAMS += REMOTE_DB_NAME + ' '
-
-REMOTE_MYSQL = 'mysql' + REMOTE_MYSQL_PARAMS
-REMOTE_MYSQLDUMP = 'mysqldump' + REMOTE_MYSQL_PARAMS
-
-FABRIC_TMP_DIR = 'fabric-tmp-dir'
-TMP_SQL_FILE = 'fabric-tmp.sql'
-SSH_TMP_FILE = FABRIC_TMP_DIR + '/ssh-key-tmp-file'
-
-try:
-	RELATIVE_SRC_DIR = WWW_FOLDER + '/' + SRC_URL
-	RELATIVE_BUILD_DIR = WWW_FOLDER + '/' + BUILD_URL
-
-	SRC_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_SRC_DIR
-	BUILD_DIR = LOCAL_ROOT_FOLDER + '/' + RELATIVE_BUILD_DIR
-
-	REMOTE_BUILD_DIR = REMOTE_ROOT_FOLDER + '/' + RELATIVE_BUILD_DIR
-
-	MAKEFILE_VARS = 'SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' SRC_URL=' + SRC_URL + ' BUILD_URL=' + BUILD_URL + ' WWW_FOLDER=' + LOCAL_WWW_FOLDER
-except:
-	pass
-
-try:
-	GIT_CURRENT_BRANCH = GIT_BRANCH
-except:
-	GIT_CURRENT_BRANCH = '' #default to no specific branch
-
-
-try:
-	LOCAL_WP_FOLDER = LOCAL_ROOT_FOLDER + '/' + WP_FOLDER
-	REMOTE_WP_FOLDER = REMOTE_ROOT_FOLDER + '/' + WP_FOLDER
-except:
-	LOCAL_WP_FOLDER = LOCAL_WWW_FOLDER
-	REMOTE_WP_FOLDER = REMOTE_WWW_FOLDER
-
-try:
-	WP_FOLDER
-except:
-	WP_FOLDER = WWW_FOLDER
-
-
-
-TRUNCATE_LOCAL_DB_SQL = 'DROP DATABASE `' + LOCAL_DB_NAME + '`;CREATE DATABASE `' + LOCAL_DB_NAME + '`;'
-TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
-
-def execute_file_remote(filename):
-	put(filename, TMP_SQL_FILE)
-	run(REMOTE_MYSQL + '<' + TMP_SQL_FILE)
-	run('rm ' + TMP_SQL_FILE)
-
-def execute_file_local(filename):
-	local(LOCAL_MYSQL + '<' + filename)
-
-def execute_mysql_local(statement):
-	file = open(TMP_SQL_FILE, 'w')
-	file.write(statement)
-	file.close()
-	execute_file_local(TMP_SQL_FILE)
-	local('rm ' + TMP_SQL_FILE)
-
-def execute_mysql_remote(statement):
-	file = open(TMP_SQL_FILE, 'w')
-	file.write(statement)
-	file.close()
-	execute_file_remote(TMP_SQL_FILE)
-	local('rm ' + TMP_SQL_FILE)
-
-def create_tmp_dirs():
-	local('mkdir -p ' + FABRIC_TMP_DIR)
-	run('mkdir -p ' + FABRIC_TMP_DIR)
-
-def remove_tmp_dirs():
-	local('rm -rf ' + FABRIC_TMP_DIR)
-	run('rm -rf ' + FABRIC_TMP_DIR)
-
-
+#downloads the remote db and installs it locally
 def update_local_db():
 	#create fabric tmp dir
 	run('mkdir -p ' + FABRIC_TMP_DIR)
@@ -144,7 +23,7 @@ def update_local_db():
 	run('rm -rf ' + FABRIC_TMP_DIR)
 
 	#drop local db and recreate it
-	execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)
+	helper.execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)
 
 	#unpack db
 	with lcd(FABRIC_TMP_DIR):
@@ -155,33 +34,35 @@ def update_local_db():
 	#cleanup local
 	local('rm -rf ' + FABRIC_TMP_DIR)
 
-def upload_file_to_remote_db(filename):
-	backup_db()
-	execute_mysql_remote(TRUNCATE_REMOTE_DB_SQL)
-	execute_file_remote(filename)
+#just an alias of update_local_db
+def sync_db():
+	update_local_db()
+
+#another alias of update_local_db
+def update_db():
+	update_local_db()
 
 
+#uploads the current db to the remote db. if a filename is given, this file will be treated as the db dump file that will be uploaded instead.
 def upload_to_remote_db(filename=None):
 	#dump local db if needed
 	if filename == None:
-		create_tmp_dirs()
+		helper.create_tmp_dirs()
 		export_local_db(FABRIC_TMP_DIR + '/dump.sql')
 		filename = FABRIC_TMP_DIR + '/dump.sql'
 
 	#deploy to server
-	upload_file_to_remote_db(filename)
+	helper.upload_file_to_remote_db(filename)
 
 	#cleanup
-	remove_tmp_dirs()
+	helper.remove_tmp_dirs()
 
-
+#runs a command on the server
 def execute(command):
 	with cd(REMOTE_ROOT_FOLDER):
 		run(command)
 
-def update_db():
-	update_local_db()
-
+#syncs the uploads folder using rsync
 def sync_media():
 	rsync_project(remote_dir=REMOTE_WP_FOLDER + '/wp-content/uploads/*', local_dir=LOCAL_WP_FOLDER + '/wp-content/uploads/', delete=False, upload=False)
 	with lcd(LOCAL_WWW_FOLDER):
@@ -190,18 +71,21 @@ def sync_media():
 		except NameError:
 			print "No custom sync script function"
 
+#appends the local key to the authorized_keys file on the servers .ssh folder (no pasword needs to be typed when connected, useful for rsync)
 def setup_ssh_key():
-	create_tmp_dirs()
+	helper.create_tmp_dirs()
 	put('~/.ssh/id_rsa.pub', SSH_TMP_FILE)
 	run('mkdir -p ~/.ssh')
 	run('cat ' + SSH_TMP_FILE + ' >> ~/.ssh/authorized_keys')
 	run('rm ' + SSH_TMP_FILE)
-	remove_tmp_dirs()
+	helper.remove_tmp_dirs()
 
-def print_server_key():
-	run('cat ~/.ssh/id_rsa.pub')
+#copies the server key to the clipboard, so it can be put into the deployment keys configuration
+def copy_server_key():
+	run('cat ~/.ssh/id_rsa.pub | pbcopy')
 
 
+#updates the files on the remote using git
 def update_remote_files():
 	with cd(REMOTE_ROOT_FOLDER):
 		run('git checkout -f ' + GIT_CURRENT_BRANCH)
@@ -220,41 +104,40 @@ def update_remote_files():
 	with cd(REMOTE_WWW_FOLDER):
 		custom_after_deploy_script()
 
+#alias of update_remote_files
+def deploy_files():
+	update_remote_files()
+
+#exports the local db
 def export_local_db(filename=SQL_DUMP_FILE):
 	local(LOCAL_MYSQLDUMP + '>' + filename)
 
+#imports a db dump file to the local db
 def import_local_db(filename):
 	execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)	
-	execute_file_local(filename)
+	helper.execute_file_local(filename)
 
+#makes a backup of the remote db. A filename can be specified. The standard filename contains a timestamp
 def backup_db(filename=SQL_GZ_DUMP_FILE):
-	#create tmp dir
-	run('mkdir -p ' + FABRIC_TMP_DIR)
-	with cd(FABRIC_TMP_DIR):
-		#export
-		run(REMOTE_MYSQLDUMP + '>dump.sql')
-		#compress before downloading
-		run('tar -acf dump.tar.gz dump.sql')
-	#download
-	get(FABRIC_TMP_DIR + '/dump.tar.gz', filename)
-	#cleanup
-	run('rm -rf ' + FABRIC_TMP_DIR)
+	helper.backup_db(filename)
 
 #alias for backup_db
 def backup_remote_db(filename):
 	backup_db(filename)
 
-
+#syncs the db and the media files
 def sync():
-	update_local_db()
+	sync_db()
 	sync_media()
 
+#sync media first, then deploy the files. sync media is done, because any uploaded by someone else will be overwritten. The sync ensures, that these files are available locally then.
 def deploy():
 	sync_media()
-	update_remote_files()
+	deploy_files()
 
 
-def update_mo():
+#compiles all .po files to .mo files
+def compile_mo():
 	files = []
 	for root, dirnames, filenames in os.walk(LOCAL_WWW_FOLDER):
 	    for filename in fnmatch.filter(filenames, '*.po'):
@@ -266,40 +149,49 @@ def update_mo():
 		if not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo):
 			local('msgfmt -o ' + mo + ' ' + po)
 
-
-def update_less():
+#compiles the less files
+def compile_less():
 	local('cd ' + SCRIPT_DIR + ' && make ' + MAKEFILE_VARS + ' less')
 
-def update_js():
+#compiles the js files
+def compile_js():
 	local('cd ' + SCRIPT_DIR + ' && make ' + MAKEFILE_VARS + ' js')
 
-def update_all():
+#compiles the all target
+def compile_target_all():
 	local('cd ' + SCRIPT_DIR + ' && make ' + MAKEFILE_VARS + ' js less')
 
+#runs a complete compile of everything that possibly needs to be comiled
 def compile():
-	update_mo()
-	update_all()
+	compile_mo()
+	compile_target_all()
 
+#starts the crawler and puts the reulst into a file called broken_links. takes a long time and has no referrer url...
 def crawl():
 	local('node crawl.js ' + LOCAL_HTTP_ROOT + ' >' + LOCAL_ROOT_FOLDER + '/broken_links')
 
+#prints the error log
 def error_log():
 	local('tail /var/log/apache2/error_log')
 
+#search the db for a given string
 def search_db(find):
 	local('php search-and-replace-db.php ' + LOCAL_DB_HOST + ' ' + LOCAL_DB_USER + ' ' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' "' + find + '"')
 
+#search and replace in the db for a given string. takes care of php serialize/unserialize data
 def replace_in_db(find, replace):
 	local('php search-and-replace-db.php ' + LOCAL_DB_HOST + ' ' + LOCAL_DB_USER + ' ' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' "' + find + '" "' + replace + '"')
 
+#removes the hostname from the db
 def remove_hostname_from_db(hostname):
 	replace_in_db('http://' + hostname + '/', '/')
 	replace_in_db('http://www.' + hostname + '/', '/')
 
+
+#mounts the passwords. they are on the mac mini remote in a protected folder.
 def mount_passwords(PASSWORD_DIRECTORY='~/Zugangsdaten'):
 	local('mkdir -p ' + PASSWORD_DIRECTORY)
 	local('chmod 700 ' + PASSWORD_DIRECTORY)
 	local('sshfs macmini@Mac-minis-Mac-mini.local:Zugangsdaten ' + PASSWORD_DIRECTORY + ' -o volname=Zugangsdaten')
-
 
 
