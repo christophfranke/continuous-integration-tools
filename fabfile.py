@@ -88,8 +88,11 @@ def setup_ssh_key():
 	helper.remove_tmp_dirs()
 
 #copies the server key to the clipboard, so it can be put into the deployment keys configuration
-def copy_server_key():
-	run('cat ~/.ssh/id_rsa.pub | pbcopy')
+def print_server_key():
+	run('cat ~/.ssh/id_rsa.pub')
+
+def copy_livereload_command():
+	local('echo "fab -f ' + FAB_FILE + ' compile" | pbcopy')
 
 
 #updates the files on the remote using git

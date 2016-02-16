@@ -6,7 +6,7 @@ define('DEBUG', false);
 define('WRITE_SQL_FILE_INSTEAD', false);
 
 $skip_tables = array();
-$whitelist_tables = array('wp_options');
+//$whitelist_tables = array('wp_options');
 /*************************/
 
 function errorHandler($errNo, $errStr, $errFile, $errLine)

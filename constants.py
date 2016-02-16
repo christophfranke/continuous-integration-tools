@@ -22,8 +22,9 @@ except ImportError:
 
 #now we should have the configuration ready to setup all the constants we need
 
-SCRIPT_FILE = __file__
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+FAB_FILE = SCRIPT_DIR + '/fabfile.py'
+
 
 try:
     RELATIVE_LOCAL_PROJECT_ROOT
