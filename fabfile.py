@@ -210,7 +210,7 @@ def crawl():
 
 #prints the error log
 def error_log():
-    local('tail /var/log/apache2/error_log')
+    local('tail ' + LOCAL_APACHE_ERROR_LOG)
 
 #search the db for a given string
 def search_db(find):
