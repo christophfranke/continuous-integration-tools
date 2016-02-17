@@ -201,15 +201,26 @@ def error_log():
 def search_db(find):
 	local('php search-and-replace-db.php ' + LOCAL_DB_HOST + ' ' + LOCAL_DB_USER + ' ' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' "' + find + '"')
 
+#alias of search_db
+def search(find):
+	search_db(find)
+
 #search and replace in the db for a given string. takes care of php serialize/unserialize data
 def replace_in_db(find, replace):
 	local('php search-and-replace-db.php ' + LOCAL_DB_HOST + ' ' + LOCAL_DB_USER + ' ' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' "' + find + '" "' + replace + '"')
+
+#alias of replace_in_db
+def replace(find, replace):
+	replace_in_db(find, replace)
 
 #removes the hostname from the db
 def remove_hostname_from_db(hostname):
 	replace_in_db('http://' + hostname + '/', '/')
 	replace_in_db('http://www.' + hostname + '/', '/')
 
+#alias of remove_hostname_from_db
+def remove_host(hostname):
+	remove_hostname_from_db(hostname)
 
 #mounts the passwords. they are on the mac mini remote in a protected folder.
 def mount_passwords(PASSWORD_DIRECTORY='~/Zugangsdaten'):
