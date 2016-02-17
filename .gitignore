@@ -4,5 +4,6 @@ config.py
 *.sublime-workspace
 
 search_and_replace.sql
+search.log
 
 *.pyc
