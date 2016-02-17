@@ -22,7 +22,6 @@ REMOTE_DB_HOST = 'localhost' #this is almost always localhost
 #All file actions (deploy, sync_media, etc.) RELY on the projects root folder to be set correctly.
 REMOTE_ROOT_FOLDER = 'remote root folder' #this is your remote root folder (must be the git project root). Should be an absolute path, but relative paths usually also work.
 WWW_FOLDER = 'www' #the www folder relative to the project root
-#WP_FOLDER = 'www' #the wordpress root folder relative to the project root, must not be set, defaults to WWW_FOLDER if not set.
 
 #If not set the current branch is used.
 GIT_BRANCH = 'master' #optional, but it's good practice to set this to the correct branch to avoid chaos.
@@ -31,7 +30,20 @@ GIT_BRANCH = 'master' #optional, but it's good practice to set this to the corre
 #RELATIVE_LOCAL_PROJECT_ROOT = '..'
 
 #database folder, defaults to 'Datenbank'
-#DB_FOLDER = 'Datenbank'
+DB_FOLDER = 'Datenbank'
+
+#Do we have a Wordpress install here?
+IS_WORDPRESS = True
+
+#the wordpress root folder relative to the project root. Only needed if IS_WORDPRESS is set to True. If WP_FOLDER is set to None, it will be set to the final value of WWW_FOLDER.
+WP_FOLDER = None
+
+#For the crawler, so it can crawl this domain. Use http:// without trailing slash, example: http://ragusescheer.local
+LCOAL_HTTP_ROOT = None #it is not possible to provide a meaningful default here
+
+#This is the relative directory of the git project root. Do not use starting or trailing slash here.
+RELATIVE_LOCAL_PROJECT_ROOT = '..' #the default config is valid, if your script folder is a direct subfolder of your project root
+
 
 #here you can put project related custom commands that will be executed after deploying.
 #this function will be executed within the with cd(REMOTE_WWW_FOLDER)-block, so that is the folder your in.

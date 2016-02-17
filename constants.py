@@ -7,11 +7,14 @@ from datetime import datetime
 from config_example import *
 from project_config_example import *
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+FAB_FILE = SCRIPT_DIR + '/fabfile.py'
+
 #then try to import project configs in project folder
 try:
     from project_config import *
 except ImportError:
-    pass
+    print 'Warning: You don\'t have a project_config.py or your project_config.py could not be found. It is expected to be found in ' + SCRIPT_DIR + '/..'
 
 #finally, try to get config.py file in this folder
 try:
@@ -22,14 +25,6 @@ except ImportError:
 
 #now we should have the configuration ready to setup all the constants we need
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-FAB_FILE = SCRIPT_DIR + '/fabfile.py'
-
-
-try:
-    RELATIVE_LOCAL_PROJECT_ROOT
-except NameError:
-    RELATIVE_LOCAL_PROJECT_ROOT = '..'
 
 LOCAL_ROOT_FOLDER = SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT
 LOCAL_WWW_FOLDER = LOCAL_ROOT_FOLDER + '/' + WWW_FOLDER
@@ -88,12 +83,11 @@ except:
     GIT_CURRENT_BRANCH = '' #default to no specific branch
 
 
-try:
+if IS_WORDPRESS:
+    if WP_FOLDER is None:
+        WP_FOLDER = WWW_FOLDER
     LOCAL_WP_FOLDER = LOCAL_ROOT_FOLDER + '/' + WP_FOLDER
     REMOTE_WP_FOLDER = REMOTE_ROOT_FOLDER + '/' + WP_FOLDER
-except:
-    LOCAL_WP_FOLDER = LOCAL_WWW_FOLDER
-    REMOTE_WP_FOLDER = REMOTE_WWW_FOLDER
 
 try:
     WP_FOLDER
