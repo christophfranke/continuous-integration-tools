@@ -206,7 +206,7 @@ def crawl():
     if LOCAL_HTTP_ROOT is None:
         print "Please provide a LOCAL_HTTP_ROOT in your project_config.py, so the crawler can find the project."
     else:
-        local('node crawl.js ' + LOCAL_HTTP_ROOT + ' >' + LOCAL_ROOT_FOLDER + '/broken_links')
+        local('node crawl.js ' + LOCAL_HTTP_ROOT + ' 2>' + LOCAL_ROOT_FOLDER + '/broken_links')
 
 #prints the error log
 def error_log():
