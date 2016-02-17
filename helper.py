@@ -46,7 +46,7 @@ def upload_file_to_remote_db(filename):
     execute_file_remote(filename)
 
 #makes a backup of the remote db. A filename can be specified. The standard filename contains a timestamp
-def backup_db(filename):
+def backup_db(filename=SQL_GZ_DUMP_FILE):
     #create tmp dir
     run('mkdir -p ' + FABRIC_TMP_DIR)
     with cd(FABRIC_TMP_DIR):
