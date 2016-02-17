@@ -4,6 +4,7 @@ define('MAX_RECURSION_DEPTH', 50);
 define('VERBOSE', false);
 define('DEBUG', false);
 define('WRITE_SQL_FILE_INSTEAD', false);
+define('SEARCH_LOG_FILE', 'search.log');
 
 $skip_tables = array();
 //$whitelist_tables = array('wp_options');
@@ -118,6 +119,8 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
     $db_entries_serialized = 0;
     $db_entries_changed = 0;
 
+    $log_file_content = "";
+
     $out_file_content = "SET NAMES 'utf8';\n";
     $made_sql_statement = false;
 
@@ -180,7 +183,7 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
                 $db_entries_searched++;
 
                 //we are only interested in strings
-                if(!is_string($key) || $col === $primary_key || is_numeric($key))
+                if(!(is_string($key) || is_numeric($key)) || $col === $primary_key)
                     continue;
 
                 //skip the case where we have serialized a false boolean value, because we cannot catch this with the unserialize return value
@@ -205,6 +208,17 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
                 //search and replace the data
                 $replaced_old = $replaced;
                 $out = recursive_search_and_replace($data, $find, $replace);
+
+                //write to search log file if search only
+                $found_in_obj = $replaced - $replaced_old;
+                if($replace === NULL && $found_in_obj > 0)
+                {
+                    if($found_in_obj === 1)
+                        $log_file_content .= "Found once";
+                    else
+                        $log_file_content .= "Found $found_in_obj times";
+                    $log_file_content .= " with id=$id: `$table`.`$col`=$key\n";
+                }
 
 
                 //create mysql query if there was something we found
@@ -297,6 +311,17 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
         }
         else
             echo "No SQL Statements were created by your query. No SQL File has been written.\n";
+    }
+
+    if($replace === NULL)
+    {
+        if(!empty($log_file_content))
+        {
+            file_put_contents(SEARCH_LOG_FILE, $log_file_content);
+            echo "Search results have been written to " . SEARCH_LOG_FILE . "\n";
+        }
+        else
+            echo "Search string not found, no logfile has been created.\n";
     }
 
     $time = (microtime(true) - $time);
