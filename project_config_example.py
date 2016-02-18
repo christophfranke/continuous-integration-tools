@@ -29,7 +29,7 @@ GIT_BRANCH = 'master' #optional, but it's good practice to set this to the corre
 #the project root folder relative to the script folder. Optional, defaults to '..', which is the usual case when we have the script folder in a direct subfolder of the project root
 #RELATIVE_LOCAL_PROJECT_ROOT = '..'
 
-#database folder, defaults to 'Datenbank'
+#database folder, relative to the project root
 DB_FOLDER = 'Datenbank'
 
 #Do we have a Wordpress install here?

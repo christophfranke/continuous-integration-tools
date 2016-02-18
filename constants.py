@@ -29,12 +29,9 @@ except ImportError:
 LOCAL_ROOT_FOLDER = SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT
 LOCAL_WWW_FOLDER = LOCAL_ROOT_FOLDER + '/' + WWW_FOLDER
 
-try:
-    DB_FOLDER
-except NameError:
-    DB_FOLDER = LOCAL_ROOT_FOLDER + '/Datenbank'
+LOCAL_DB_FOLDER = LOCAL_ROOT_FOLDER + '/' + DB_FOLDER
 
-SQL_DUMP_FILE = DB_FOLDER + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql'
+SQL_DUMP_FILE = LOCAL_DB_FOLDER + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql'
 SQL_GZ_DUMP_FILE = SQL_DUMP_FILE + '.gz'
 
 
