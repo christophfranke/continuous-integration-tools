@@ -202,11 +202,11 @@ def compile():
     compile_target_all()
 
 #starts the crawler and puts the reulst into a file called broken_links. takes a long time and has no referrer url...
-def crawl():
-    if LOCAL_HTTP_ROOT is None:
+def crawl(domain=LOCAL_HTTP_ROOT):
+    if domain is None:
         print "Please provide a LOCAL_HTTP_ROOT in your project_config.py, so the crawler can find the project."
     else:
-        local('node crawl.js ' + LOCAL_HTTP_ROOT + ' 2>' + LOCAL_ROOT_FOLDER + '/broken_links')
+        local('node crawl.js ' + domain + ' 2>' + LOCAL_ROOT_FOLDER + '/broken_links')
 
 #prints the error log
 def error_log():

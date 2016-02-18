@@ -11,9 +11,9 @@ var crawled = 0;
 var error404 = 0;
 
 crawler.on("fetchcomplete", function(queueItem) {
-    var queueSize = crawler.queue.length - crawled;
+    var queueSize = crawler.queue.length;
     crawled++;
-    console.log("200 Ok (", queueItem.stateData.requestTime, "ms ) " + queueSize + " urls left: ", queueItem.url);
+    console.log("200 Ok (", queueItem.stateData.requestTime, "ms ) " + crawled + " of " + queueSize + " urls left: ", queueItem.url);
 });
 
 crawler.on("fetch404", function(queueItem) {
@@ -21,7 +21,7 @@ crawler.on("fetch404", function(queueItem) {
     crawled++;
     error404++;
     console.error("404 Not Found: ", queueItem.url, " referrer: ", queueItem.referrer);
-    console.log("404 Not Found (", queueItem.stateData.requestTime, "ms ) " + queueSize + " urls left: ", queueItem.url);
+    console.log("404 Not Found " + crawled + " of " + queueSize + " urls left: ", queueItem.url);
 });
 
 crawler.on("complete", function(){
@@ -30,6 +30,8 @@ crawler.on("complete", function(){
     console.log("The average resource size received is %d bytes.", crawler.queue.avg("actualDataSize"));
     if(error404 > 0)
         console.log("There have been 404 errors. You can find the 404 links and its first referrer in {PROJECT_ROOT}/broken_links.");
+    else
+        console.log("There were no internal stuido-ash.de404 errors.");
 });
 
 crawler.parseScriptTags = false;
