@@ -39,7 +39,7 @@ IS_WORDPRESS = True
 WP_FOLDER = None
 
 #For the crawler, so it can crawl this domain. Use http:// without trailing slash, example: http://ragusescheer.local
-LCOAL_HTTP_ROOT = None #it is not possible to provide a meaningful default here
+LOCAL_HTTP_ROOT = None #it is not possible to provide a meaningful default here
 
 #This is the relative directory of the git project root. Do not use starting or trailing slash here.
 RELATIVE_LOCAL_PROJECT_ROOT = '..' #the default config is valid, if your script folder is a direct subfolder of your project root
