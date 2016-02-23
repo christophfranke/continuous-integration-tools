@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from fabric.api import local, put, get, env, run, cd, lcd
 from fabric.contrib.project import rsync_project
+import project_config_setup
 import fnmatch, os, time
 
 from constants import *
@@ -243,4 +244,41 @@ def mount_passwords(PASSWORD_DIRECTORY='~/Zugangsdaten'):
     local('chmod 700 ' + PASSWORD_DIRECTORY)
     local('sshfs macmini@Mac-minis-Mac-mini.local:Zugangsdaten ' + PASSWORD_DIRECTORY + ' -o volname=Zugangsdaten')
 
+
+def setup_project():
+    project_config_setup.run()
+
+
+def create_production_setup_file():
+    filename = LOCAL_WP_FOLDER + '/production-settings.php'
+    file = open(filename, 'w')
+    file.truncate()
+    file.write("<?php\n")
+    file.write("define('DB_NAME, '" + REMOTE_DB_NAME + "');\n")
+    file.write("define('DB_USER, '" + REMOTE_DB_USER + "');\n")
+    file.write("define('DB_PASSWORD, '" + REMOTE_DB_PASSWORD + "');\n")
+    file.write("define('DB_HOST, '" + REMOTE_DB_HOST + "');\n")
+    file.write("define('WP_SITEURL, '" + REMOTE_HTTP_ROOT + "');\n")
+    file.close()
+
+def create_salt_file():
+    local('echo "<?php">' + LOCAL_WP_FOLDER + '/salt.php')
+    local('curl ' + WORDPRESS_SALT_URL + ' >>' + LOCAL_WP_FOLDER + '/salt.php')
+
+def create_config_local_file():
+    filename = LOCAL_WP_FODLER + '/wp-config-local.php'
+    file = open(filename, 'w')
+    file.truncate()
+    file.write("<?php\n")
+    file.write("define('DB_NAME, '" + LOCAL_DB_NAME + "');\n")
+    file.write("define('DB_USER, '" + LOCAL_DB_USER + "');\n")
+    file.write("define('DB_PASSWORD, '" + LOCAL_DB_PASSWORD + "');\n")
+    file.write("define('DB_HOST, '" + LOCAL_DB_HOST + "');\n")
+    file.write("define('WP_SITEURL, '" + LOCAL_HTTP_ROOT + "');\n")
+    file.close()
+
+def create_wp_files():
+    create_production_setup_file()
+    create_salt_file()
+    create_config_local_file()
 
