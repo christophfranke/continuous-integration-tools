@@ -34,7 +34,7 @@ env.user = SSH_USER or ''
 env.password = SSH_PASSWORD or ''
 
 
-LOCAL_ROOT_FOLDER = SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT
+LOCAL_ROOT_FOLDER = os.path.abspath(SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT)
 LOCAL_WWW_FOLDER = LOCAL_ROOT_FOLDER + '/' + WWW_FOLDER
 
 LOCAL_DB_FOLDER = LOCAL_ROOT_FOLDER + '/' + DB_FOLDER
@@ -61,6 +61,7 @@ REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
 try:
     LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
     LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
+    LOCAL_MYSQL_NO_DB = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' '
 except:
     print "Warning: LOCAL_MYSQL could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
 
