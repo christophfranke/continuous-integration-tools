@@ -14,7 +14,12 @@ FAB_FILE = SCRIPT_DIR + '/fabfile.py'
 try:
     from project_config import *
 except ImportError:
-    print 'Warning: You don\'t have a project_config.py or your project_config.py could not be found. It is expected to be found in ' + SCRIPT_DIR + '/..'
+    #if there is no project config, run the setup wizard
+    import project_config_setup
+    project_config_setup.run()
+
+    #now we can safely import it, because it has been created by the setup wizard
+    import project_config
 
 #finally, try to get config.py file in this folder
 try:
@@ -24,6 +29,9 @@ except ImportError:
 
 
 #now we should have the configuration ready to setup all the constants we need
+env.hosts = [SSH_HOST or '']
+env.user = SSH_USER or ''
+env.password = SSH_PASSWORD or ''
 
 
 LOCAL_ROOT_FOLDER = SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT
@@ -34,28 +42,48 @@ LOCAL_DB_FOLDER = LOCAL_ROOT_FOLDER + '/' + DB_FOLDER
 SQL_DUMP_FILE = LOCAL_DB_FOLDER + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql'
 SQL_GZ_DUMP_FILE = SQL_DUMP_FILE + '.gz'
 
+try:
+    LOCAL_HTTP_ROOT
+    print "Warning: LOCAL_HTTP_ROOT is deprecated. Use LOCAL_DOMAIN instead (and omit the http:// there)."
+except NameError:
+    try:
+        LOCAL_HTTP_ROOT = 'http://' + LOCAL_DOMAIN
+    except:
+        LOCAL_HTTP_ROOT = None
+        print "Warning: LOCAL_HTTP_ROOT could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+
+try:
+    REMOTE_HTTP_ROOT = 'http://' + LIVE_DOMAIN
+except:
+    print "Warning: REMOTE_HTTP_ROOT could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
 
 REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
-
-LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
-LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
+try:
+    LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
+    LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
+except:
+    print "Warning: LOCAL_MYSQL could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
 
 #concatenate mysql command strings
-REMOTE_MYSQL_PARAMS = ' -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' '
 try:
-    REMOTE_DB_PORT
-    REMOTE_MYSQL_PARAMS += '--port=' + REMOTE_DB_PORT + ' '
-except NameError:
-    pass
-try:
-    REMOTE_DB_SOCKET
-    REMOTE_MYSQL_PARAMS += '--socket=' + REMOTE_DB_SOCKET + ' '
-except NameError:
-    pass
-REMOTE_MYSQL_PARAMS += REMOTE_DB_NAME + ' '
+    REMOTE_MYSQL_PARAMS = ' -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' '
+    try:
+        REMOTE_DB_PORT
+        REMOTE_MYSQL_PARAMS += '--port=' + REMOTE_DB_PORT + ' '
+    except NameError:
+        pass
+    try:
+        REMOTE_DB_SOCKET
+        REMOTE_MYSQL_PARAMS += '--socket=' + REMOTE_DB_SOCKET + ' '
+    except NameError:
+        pass
+    REMOTE_MYSQL_PARAMS += REMOTE_DB_NAME + ' '
 
-REMOTE_MYSQL = 'mysql' + REMOTE_MYSQL_PARAMS
-REMOTE_MYSQLDUMP = 'mysqldump' + REMOTE_MYSQL_PARAMS
+    REMOTE_MYSQL = 'mysql' + REMOTE_MYSQL_PARAMS
+    REMOTE_MYSQLDUMP = 'mysqldump' + REMOTE_MYSQL_PARAMS
+except:
+    print "Warning: REMOTE_MYSQL_PARAMS could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+
 
 FABRIC_TMP_DIR = 'fabric-tmp-dir'
 TMP_SQL_FILE = 'fabric-tmp.sql'
@@ -92,7 +120,13 @@ except:
     WP_FOLDER = WWW_FOLDER
 
 
+try:
+    TRUNCATE_LOCAL_DB_SQL = 'DROP DATABASE `' + LOCAL_DB_NAME + '`;CREATE DATABASE `' + LOCAL_DB_NAME + '`;'
+except:
+    print "Warning: TRUNCATE_LOCAL_DB_SQL could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+try:
+    TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
+except:
+    print "Warning: TRUNCATE_REMOTE_DB_SQL could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
 
-TRUNCATE_LOCAL_DB_SQL = 'DROP DATABASE `' + LOCAL_DB_NAME + '`;CREATE DATABASE `' + LOCAL_DB_NAME + '`;'
-TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
 

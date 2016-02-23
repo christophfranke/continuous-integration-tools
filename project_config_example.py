@@ -4,23 +4,24 @@ from fabric.api import env
 #this way you can put this file under version control (and change it based on branching)
 
 #The Local DB Name MUST be filled in, if you want to use any database function
-LOCAL_DB_NAME = 'local database name'
+LOCAL_DB_NAME = None
 
 #these MUST be filled in, otherwise the whole process does not work. If there is no SSH-connection available, use the ragusescheer.de preview server
-env.hosts = ['ssh server name']
-env.user = 'ssh user name'
-env.password = 'ssh password'
+SSH_HOST = None
+SSH_USER = None
+SSH_PASSWORD = None
+
 
 #Remote DB Name, User and Password MUST be used, if you want to do any database function
-REMOTE_DB_NAME = 'remote database name'
-REMOTE_DB_USER = 'remote database user'
-REMOTE_DB_PASSWORD = 'remote database password'
+REMOTE_DB_NAME = None
+REMOTE_DB_USER = None
+REMOTE_DB_PASSWORD = None
 REMOTE_DB_HOST = 'localhost' #this is almost always localhost
 #REMOTE_DB_PORT = '3306' #optional parameter, usually standard port 3306 is used automatically by server and client
 #REMOTE_DB_SOCKET = '' #also optional, because sometimes the mysql client is misconfiguered and then cannot find the socket file by itsself
 
 #All file actions (deploy, sync_media, etc.) RELY on the projects root folder to be set correctly.
-REMOTE_ROOT_FOLDER = 'remote root folder' #this is your remote root folder (must be the git project root). Should be an absolute path, but relative paths usually also work.
+REMOTE_ROOT_FOLDER = '.' #this is your remote root folder (must be the git project root). Should be an absolute path, but relative paths usually also work.
 WWW_FOLDER = 'www' #the www folder relative to the project root
 
 #If not set the current branch is used.
@@ -38,8 +39,14 @@ IS_WORDPRESS = True
 #the wordpress root folder relative to the project root. Only needed if IS_WORDPRESS is set to True. If WP_FOLDER is set to None, it will be set to the final value of WWW_FOLDER.
 WP_FOLDER = None
 
-#For the crawler, so it can crawl this domain. Use http:// without trailing slash, example: http://ragusescheer.local
-LOCAL_HTTP_ROOT = None #it is not possible to provide a meaningful default here
+#This is also important for setting up the local production environment. Overwrites LOCAL_HTTP_ROOT
+LOCAL_DOMAIN = None
+
+#This is the live domain of your production server
+LIVE_DOMAIN = None
+
+#This var is deprecated. Don't use it in new projects. For backward compatibility we will keep it, but warn if present.
+#LOCAL_HTTP_ROOT = None #it is not possible to provide a meaningful default here
 
 #This is the relative directory of the git project root. Do not use starting or trailing slash here.
 RELATIVE_LOCAL_PROJECT_ROOT = '..' #the default config is valid, if your script folder is a direct subfolder of your project root
