@@ -247,18 +247,24 @@ def mount_passwords(PASSWORD_DIRECTORY='~/Zugangsdaten'):
 
 def setup_project():
     project_config_setup.run()
+    print "To setup you local machine type: sudo fab setup_environment"
 
+def setup_environment():
+    if IS_WORDPRESS:
+        create_wp_files()
+    create_local_db()
+    setup_local_domain()
 
 def create_production_setup_file():
     filename = LOCAL_WP_FOLDER + '/production-settings.php'
     file = open(filename, 'w')
     file.truncate()
     file.write("<?php\n")
-    file.write("define('DB_NAME, '" + REMOTE_DB_NAME + "');\n")
-    file.write("define('DB_USER, '" + REMOTE_DB_USER + "');\n")
-    file.write("define('DB_PASSWORD, '" + REMOTE_DB_PASSWORD + "');\n")
-    file.write("define('DB_HOST, '" + REMOTE_DB_HOST + "');\n")
-    file.write("define('WP_SITEURL, '" + REMOTE_HTTP_ROOT + "');\n")
+    file.write("define('DB_NAME', '" + REMOTE_DB_NAME + "');\n")
+    file.write("define('DB_USER', '" + REMOTE_DB_USER + "');\n")
+    file.write("define('DB_PASSWORD', '" + REMOTE_DB_PASSWORD + "');\n")
+    file.write("define('DB_HOST', '" + REMOTE_DB_HOST + "');\n")
+    file.write("define('WP_SITEURL', '" + REMOTE_HTTP_ROOT + "');\n")
     file.close()
 
 def create_salt_file():
@@ -266,19 +272,63 @@ def create_salt_file():
     local('curl ' + WORDPRESS_SALT_URL + ' >>' + LOCAL_WP_FOLDER + '/salt.php')
 
 def create_config_local_file():
-    filename = LOCAL_WP_FODLER + '/wp-config-local.php'
+    filename = LOCAL_WP_FOLDER + '/wp-config-local.php'
     file = open(filename, 'w')
     file.truncate()
     file.write("<?php\n")
-    file.write("define('DB_NAME, '" + LOCAL_DB_NAME + "');\n")
-    file.write("define('DB_USER, '" + LOCAL_DB_USER + "');\n")
-    file.write("define('DB_PASSWORD, '" + LOCAL_DB_PASSWORD + "');\n")
-    file.write("define('DB_HOST, '" + LOCAL_DB_HOST + "');\n")
-    file.write("define('WP_SITEURL, '" + LOCAL_HTTP_ROOT + "');\n")
+    file.write("define('DB_NAME', '" + LOCAL_DB_NAME + "');\n")
+    file.write("define('DB_USER', '" + LOCAL_DB_USER + "');\n")
+    file.write("define('DB_PASSWORD', '" + LOCAL_DB_PASSWORD + "');\n")
+    file.write("define('DB_HOST', '" + LOCAL_DB_HOST + "');\n")
+    file.write("define('WP_SITEURL', '" + LOCAL_HTTP_ROOT + "');\n")
     file.close()
 
 def create_wp_files():
     create_production_setup_file()
     create_salt_file()
     create_config_local_file()
+
+def local_domain_ok():
+    try:
+        local('curl --head ' + LOCAL_HTTP_ROOT)
+        return True
+    except:
+        return False
+
+
+#todo: needs a safeguard to not append twice
+def append_to_hosts():
+    local('echo "127.0.0.1  ' + LOCAL_DOMAIN + ' # appended by fabric deploy script." >>' + LOCAL_ETC_HOSTS)
+
+#todo: needs a safeguard to not append twice
+def append_to_server_conf():
+    local('echo "# virtual host set up by fabric deploy script." >>' + LOCAL_HTTPD_CONF)
+    local('echo "<VirtualHost *:80>" >>' + LOCAL_HTTPD_CONF)
+    local('echo "    DocumentRoot ' + LOCAL_WWW_FOLDER + '" >>' + LOCAL_HTTPD_CONF)
+    local('echo "    ServerName ' + LOCAL_DOMAIN + '" >>' + LOCAL_HTTPD_CONF)
+    local('echo "</VirtualHost>" >>' + LOCAL_HTTPD_CONF)
+    local('echo "" >>' + LOCAL_HTTPD_CONF)
+    local('echo "<Directory ' + LOCAL_WWW_FOLDER + '>" >>' + LOCAL_HTTPD_CONF)
+    local('echo "    Options FollowSymLinks Multiviews" >>' + LOCAL_HTTPD_CONF)
+    local('echo "    MultiviewsMatch Any" >>' + LOCAL_HTTPD_CONF)
+    local('echo "    AllowOverride All" >>' + LOCAL_HTTPD_CONF)
+    local('echo "    Require all granted" >>' + LOCAL_HTTPD_CONF)
+    local('echo "</Directory>" >>' + LOCAL_HTTPD_CONF)
+    local('echo "# virtual host setup end" >>' + LOCAL_HTTPD_CONF)
+    local('echo "" >>' + LOCAL_HTTPD_CONF)
+
+def restart_server():
+   local('apachectl graceful')
+
+def setup_local_domain():
+    if not local_domain_ok():
+        append_to_hosts()
+        append_to_server_conf()
+        restart_server()
+
+def create_local_db():
+    helper.execute_mysql_local_no_db('CREATE DATABASE `' + LOCAL_DB_NAME + '`;')
+
+
+
 
