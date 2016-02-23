@@ -246,14 +246,18 @@ def mount_passwords(PASSWORD_DIRECTORY='~/Zugangsdaten'):
 
 
 def setup_project():
-    project_config_setup.run()
-    print "To setup you local machine type: sudo fab setup_environment"
+    if helper.ask_user('Do you want to update your project config now?'):
+        project_config_setup.run()
+        from project_config import *
 
-def setup_environment():
     if IS_WORDPRESS:
-        create_wp_files()
-    create_local_db()
-    setup_local_domain()
+        if helper.ask_user('Do you want to create the project specific wordpress files now?'):
+            create_wp_files()
+
+    if helper.ask_user('Do you want to create the local database now?'):
+        create_local_db()
+    if helper.ask_user('Do you want to set up your desired local domain now?'):
+        setup_local_domain()
 
 def create_production_setup_file():
     filename = LOCAL_WP_FOLDER + '/production-settings.php'
@@ -290,11 +294,17 @@ def create_wp_files():
 
 def local_domain_ok():
     try:
-        local('curl --head ' + LOCAL_HTTP_ROOT)
+        local('curl --head ' + LOCAL_HTTP_ROOT + '/')
         return True
     except:
         return False
 
+def local_db_ok():
+    try:
+        helper.execute_mysql_local('SHOW TABLES;')
+        return True
+    except:
+        return False
 
 #todo: needs a safeguard to not append twice
 def append_to_hosts():
@@ -327,7 +337,10 @@ def setup_local_domain():
         restart_server()
 
 def create_local_db():
-    helper.execute_mysql_local_no_db('CREATE DATABASE `' + LOCAL_DB_NAME + '`;')
+    if not local_db_ok():
+        helper.execute_mysql_local_no_db('CREATE DATABASE `' + LOCAL_DB_NAME + '`;')
+    else:
+        print "local db already exists. Nothing to do."
 
 
 

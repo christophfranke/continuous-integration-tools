@@ -65,3 +65,7 @@ def backup_db(filename=SQL_GZ_DUMP_FILE):
     get(FABRIC_TMP_DIR + '/dump.tar.gz', filename)
     #cleanup
     run('rm -rf ' + FABRIC_TMP_DIR)
+
+def ask_user(question, hint='[y/n]'):
+    value = raw_input(question + ' ' + hint + ': ')
+    return value.lower() == 'y'
