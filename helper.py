@@ -21,6 +21,13 @@ def execute_mysql_local(statement):
     execute_file_local(TMP_SQL_FILE)
     local('rm ' + TMP_SQL_FILE)
 
+def execute_mysql_local_no_db(statement):
+    file = open(TMP_SQL_FILE, 'w')
+    file.write(statement)
+    file.close()
+    local(LOCAL_MYSQL_NO_DB + '<' + TMP_SQL_FILE)
+    local('rm ' + TMP_SQL_FILE)
+
 #executes a mysql statement remotely
 def execute_mysql_remote(statement):
     file = open(TMP_SQL_FILE, 'w')
