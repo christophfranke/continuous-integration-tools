@@ -27,17 +27,24 @@ except ImportError:
 
 #now we should have the configuration ready to setup all the constants we need
 try:
-    env.hosts
+    SSH_HOST
+    if not SSH_HOST is None:
+        env.hosts = [SSH_HOST]
 except NameError:
-    env.hosts = [SSH_HOST or '']
+    pass
+
 try:
-    env.user
+    SSH_USER
+    if not SSH_USER is None:
+        env.user = SSH_USER
 except NameError:
-    env.user = SSH_USER or ''
+    pass
 try:
-    env.password
+    SSH_PASSWORD
+    if not SSH_PASSWORD is None:
+        env.password = SSH_PASSWORD
 except NameError:
-    env.password = SSH_PASSWORD or ''
+    pass
 
 
 LOCAL_ROOT_FOLDER = os.path.abspath(SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT)
