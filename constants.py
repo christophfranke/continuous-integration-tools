@@ -18,9 +18,6 @@ except ImportError:
     import project_config_setup
     project_config_setup.run()
 
-    #now we can safely import it, because it has been created by the setup wizard
-    import project_config
-
 #finally, try to get config.py file in this folder
 try:
     from config import *
@@ -50,12 +47,12 @@ except NameError:
         LOCAL_HTTP_ROOT = 'http://' + LOCAL_DOMAIN
     except:
         LOCAL_HTTP_ROOT = None
-        print "Warning: LOCAL_HTTP_ROOT could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+        print "Warning: LOCAL_HTTP_ROOT could not be assembled by script. Try running update_config to have them set automatically or edit your project_config.py."
 
 try:
     REMOTE_HTTP_ROOT = 'http://' + LIVE_DOMAIN
 except:
-    print "Warning: REMOTE_HTTP_ROOT could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+    print "Warning: REMOTE_HTTP_ROOT could not be assembled by script. Try running update_config to have them set automatically or edit your project_config.py."
 
 REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
 try:
@@ -63,7 +60,7 @@ try:
     LOCAL_MYSQLDUMP = 'mysqldump -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '
     LOCAL_MYSQL_NO_DB = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' '
 except:
-    print "Warning: LOCAL_MYSQL could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+    print "Warning: LOCAL_MYSQL could not be assembled by script. Try running update_config to have them set automatically or edit your project_config.py."
 
 #concatenate mysql command strings
 try:
@@ -83,7 +80,7 @@ try:
     REMOTE_MYSQL = 'mysql' + REMOTE_MYSQL_PARAMS
     REMOTE_MYSQLDUMP = 'mysqldump' + REMOTE_MYSQL_PARAMS
 except:
-    print "Warning: REMOTE_MYSQL_PARAMS could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+    print "Warning: REMOTE_MYSQL_PARAMS could not be assembled by script. Try running update_config to have them set automatically or edit your project_config.py."
 
 
 FABRIC_TMP_DIR = 'fabric-tmp-dir'
@@ -124,10 +121,10 @@ except:
 try:
     TRUNCATE_LOCAL_DB_SQL = 'DROP DATABASE `' + LOCAL_DB_NAME + '`;CREATE DATABASE `' + LOCAL_DB_NAME + '`;'
 except:
-    print "Warning: TRUNCATE_LOCAL_DB_SQL could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+    print "Warning: TRUNCATE_LOCAL_DB_SQL could not be assembled by script. Try running update_config to have them set automatically or edit your project_config.py."
 try:
     TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
 except:
-    print "Warning: TRUNCATE_REMOTE_DB_SQL could not be assembled by script. Try running setup_project to have them set automatically or edit your project_config.py."
+    print "Warning: TRUNCATE_REMOTE_DB_SQL could not be assembled by script. Try running update_config to have them set automatically or edit your project_config.py."
 
 

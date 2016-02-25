@@ -1,6 +1,7 @@
 from getpass import getpass
 from fabric.api import local
 from project_config_example import *
+from datetime import datetime
 import re
 
 
@@ -61,7 +62,6 @@ current_conf_dict = read_project_config_vars()
 
 def run():
 
-
     #print some info
     print "You will be asked some setup questions. Those Configs will be written to ../project_config.py"
     print "If you mistyped something or want to change something later on, just open it and change the setting."
@@ -84,7 +84,7 @@ def run():
 
     #remote folders
     get_input('REMOTE_ROOT_FOLDER', 'is the remote root folder. It is recommmended to use an absolute path, though possible to use a relative path')
-    get_input('REMOTE_WWW_FOLDER', 'is the project subfolder the webserver points to')
+    get_input('WWW_FOLDER', 'is the project subfolder the webserver points to')
 
     #http urls
     get_input('LOCAL_DOMAIN', 'is the domain name that will be set up in your local environment. Do NOT use http://')
@@ -92,9 +92,12 @@ def run():
 
     #write project config file
     filename = '../project_config.py'
-    file = open(filename, 'w')
-    file.truncate()
-    file.write("#config file automatically created by project config setup wizard.\n\n")
+    file = open(filename, 'a')
+    file.write("#config below was automatically created by project config setup wizard.\n#Timestamp: " + str(datetime.now()) + ".\n\n")
     for const in new_conf_dict:
-        file.write(const + " = '" + new_conf_dict[const] + "'\n")
+        command = const + " = '" + new_conf_dict[const] + "'"
+        file.write(command + "\n")
+    file.write("PROJECT_CONFIG_OK = True\n")
     file.close()
+    print "New project_config file has been written. To use the new project config settungs, please run the command again."
+    exit()

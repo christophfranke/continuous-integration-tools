@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from fabric.api import local, put, get, env, run, cd, lcd
+from fabric.api import local, put, get, env, run, cd, lcd, hide
 from fabric.contrib.project import rsync_project
 import project_config_setup
 import fnmatch, os, time
@@ -245,11 +245,8 @@ def mount_passwords(PASSWORD_DIRECTORY='~/Zugangsdaten'):
     local('sshfs macmini@Mac-minis-Mac-mini.local:Zugangsdaten ' + PASSWORD_DIRECTORY + ' -o volname=Zugangsdaten')
 
 
+#run all the tasks necessary to setup your local development environment for this project
 def setup_project():
-    if helper.ask_user('Do you want to update your project config now?'):
-        project_config_setup.run()
-        from project_config import *
-
     if IS_WORDPRESS:
         if helper.ask_user('Do you want to create the project specific wordpress files now?'):
             create_wp_files()
@@ -258,6 +255,14 @@ def setup_project():
         create_local_db()
     if helper.ask_user('Do you want to set up your desired local domain now?'):
         setup_local_domain()
+
+#run the project config wizard
+def update_project_config():
+    project_config_setup.run()
+
+#alias of update_project_config
+def update_config():
+    update_project_config()
 
 def create_production_setup_file():
     filename = LOCAL_WP_FOLDER + '/production-settings.php'
@@ -288,20 +293,31 @@ def create_config_local_file():
     file.close()
 
 def create_wp_files():
-    create_production_setup_file()
-    create_salt_file()
-    create_config_local_file()
+    try:
+        create_salt_file()
+    except:
+        print("Warning: Could not create salt file. Is your project config set up correctly?")
+    try:
+        create_config_local_file()
+    except:
+        print("Warning: Could not create local config file. Is your project config set up correctly?")
+    try:
+        create_production_setup_file()
+    except:
+        print("Warning: Could not create production setup file. Is your project config set up correctly?")
 
 def local_domain_ok():
     try:
-        local('curl --head ' + LOCAL_HTTP_ROOT + '/')
+        with hide('aborts'):
+            local('curl --head ' + LOCAL_HTTP_ROOT + '/')
         return True
     except:
         return False
 
 def local_db_ok():
     try:
-        helper.execute_mysql_local('SHOW TABLES;')
+        with hide('aborts'):
+            helper.execute_mysql_local('SHOW TABLES;')
         return True
     except:
         return False
@@ -342,6 +358,17 @@ def create_local_db():
     else:
         print "local db already exists. Nothing to do."
 
+def test_local_domain():
+    ok = local_domain_ok()
+    if ok:
+        print "Your local domain " + LOCAL_HTTP_ROOT + " is reachable."
+    else:
+        print "Your local domain " + LOCAL_HTTP_ROOT + " is not reachable."
 
-
+def test_local_db():
+    ok = local_db_ok()
+    if ok:
+        print "Your local Database " + LOCAL_DB_NAME + " is reachable."
+    else:
+        print "Your local Database " + LOCAL_DB_NAME + " is not reachable."        
 
