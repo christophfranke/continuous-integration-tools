@@ -148,7 +148,7 @@ def export_local_db(filename=SQL_DUMP_FILE):
 
 #imports a db dump file to the local db
 def import_local_db(filename):
-    execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)  
+    helper.execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)  
     helper.execute_file_local(filename)
 
 #makes a backup of the remote db. A filename can be specified. The standard filename contains a timestamp
