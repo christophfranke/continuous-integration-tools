@@ -181,8 +181,11 @@ def compile_mo():
 
     for po in files:
         mo = po[:-3] + '.mo'
-        # needs to be refreshed
-        if not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo):
+        # needs to be refreshed if
+        # 1. there is no .mo file
+        # 2. the .mo file is out of date
+        # 3. the .mo file is not placed in a folder named 'orig'
+        if (not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo)) and (not os.path.split(os.path.dirname(po))[1] == 'orig'):
             local('msgfmt -o ' + mo + ' ' + po)
 
 #compiles the less files
