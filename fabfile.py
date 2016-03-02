@@ -72,7 +72,7 @@ def execute(command):
 
 #syncs the uploads folder using rsync
 def sync_media():
-    rsync_project(remote_dir=REMOTE_WP_FOLDER + '/wp-content/uploads/*', local_dir=LOCAL_WP_FOLDER + '/wp-content/uploads/', delete=False, upload=False)
+    rsync_project(remote_dir=REMOTE_WP_FOLDER + '/wp-content/uploads/*', local_dir=LOCAL_WP_FOLDER + '/wp-content/uploads/', delete=False, upload=False, extra_opts='--no-perms --no-owner --no-group')
     with lcd(LOCAL_WP_FOLDER):
         local('chmod a+x $(find wp-content/uploads -type d)')
         local('chmod -R a+r wp-content/uploads')
