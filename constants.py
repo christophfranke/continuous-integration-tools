@@ -102,6 +102,7 @@ except:
 FABRIC_TMP_DIR = 'fabric-tmp-dir'
 TMP_SQL_FILE = 'fabric-tmp.sql'
 SSH_TMP_FILE = FABRIC_TMP_DIR + '/ssh-key-tmp-file'
+UPLOAD_FILE_TO_REMOTE_FILENAME = 'upload-file-to-remote-filename.sql'
 
 try:
     RELATIVE_SRC_DIR = WWW_FOLDER + '/' + SRC_URL

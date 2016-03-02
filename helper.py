@@ -48,9 +48,16 @@ def remove_tmp_dirs():
 
 #takes a database dump file and puts it in the remote database. also makes a backup before and removes the content of the remote datebase.
 def upload_file_to_remote_db(filename):
+    #backup db first
     backup_db()
+    #upload file
+    put(filename, UPLOAD_FILE_TO_REMOTE_FILENAME)
+    #truncate db
     execute_mysql_remote(TRUNCATE_REMOTE_DB_SQL)
-    execute_file_remote(filename)
+    #import file
+    run(REMOTE_MYSQL + '<' + UPLOAD_FILE_TO_REMOTE_FILENAME)
+    #cleanup
+    run('rm ' + UPLOAD_FILE_TO_REMOTE_FILENAME)
 
 #makes a backup of the remote db. A filename can be specified. The standard filename contains a timestamp
 def backup_db(filename=SQL_GZ_DUMP_FILE):
