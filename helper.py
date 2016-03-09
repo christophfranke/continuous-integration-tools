@@ -50,8 +50,14 @@ def remove_tmp_dirs():
 def upload_file_to_remote_db(filename):
     #backup db first
     backup_db()
+    #compress file
+    TAR_FILENAME = filename + '.tar.gz'
+    local('tar -zcf ' + TAR_FILENAME + ' ' + filename)
     #upload file
-    put(filename, UPLOAD_FILE_TO_REMOTE_FILENAME)
+    put(TAR_FILENAME, UPLOAD_FILE_TO_REMOTE_FILENAME_GZ)
+    #uncompress on remote
+    run('tar -zxf ' + UPLOAD_FILE_TO_REMOTE_FILENAME_GZ)
+    run('mv ' + filename + ' ' + UPLOAD_FILE_TO_REMOTE_FILENAME)
     #truncate db
     execute_mysql_remote(TRUNCATE_REMOTE_DB_SQL)
     #import file
@@ -76,3 +82,5 @@ def backup_db(filename=SQL_GZ_DUMP_FILE):
 def ask_user(question, hint='[y/n]'):
     value = raw_input(question + ' ' + hint + ': ')
     return value.lower() == 'y'
+
+
