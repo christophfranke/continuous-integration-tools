@@ -151,6 +151,10 @@ def import_local_db(filename):
     helper.execute_mysql_local(TRUNCATE_LOCAL_DB_SQL)  
     helper.execute_file_local(filename)
 
+#alias of import_local_db
+def import_db(filename):
+    import_local_db(filename)
+
 #makes a backup of the remote db. A filename can be specified. The standard filename contains a timestamp
 def backup_db(filename=SQL_GZ_DUMP_FILE):
     helper.backup_db(filename)
