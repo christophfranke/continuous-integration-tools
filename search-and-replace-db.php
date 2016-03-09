@@ -175,7 +175,11 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
             if($primary_key == NULL)
                 $id = NULL;
             else
+            {
                 $id = $row[$primary_key];
+                if(!is_numeric($id))
+                    $id = "'$id'";
+            }
 
             //traverse all keys
             foreach($row as $col=>$key)
