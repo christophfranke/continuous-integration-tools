@@ -319,7 +319,7 @@ def local_domain_ok():
 
 def local_db_ok():
     try:
-        with hide('aborts'):
+        with hide('aborts', 'stderr'):
             helper.execute_mysql_local('SHOW TABLES;')
         return True
     except:
