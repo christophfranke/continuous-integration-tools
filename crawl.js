@@ -31,7 +31,7 @@ crawler.on("complete", function(){
     if(error404 > 0)
         console.log("There have been 404 errors. You can find the 404 links and its first referrer in {PROJECT_ROOT}/broken_links.");
     else
-        console.log("There were no internal stuido-ash.de404 errors.");
+        console.log("There were no internal 404 errors.");
 });
 
 crawler.parseScriptTags = false;
