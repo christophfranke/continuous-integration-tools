@@ -7,4 +7,8 @@ search_and_replace.sql
 search.log
 fabric-tmp-dir
 
+node_modules
+cookies.txt
+broken_links.txt
+
 *.pyc
