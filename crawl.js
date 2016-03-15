@@ -20,7 +20,7 @@ crawler.on("fetchcomplete", function(queueItem) {
         for(var cookie in queueItem.stateData.headers['set-cookie'])
         {
             number_of_cookies++;
-            cookie_buffer += queueItem.url + ' set ' + queueItem.stateData.headers['set-cookie'][cookie] + "\n";
+            cookie_buffer += queueItem.url + ' set ' + queueItem.stateData.headers['set-cookie'][cookie] + " - referred by: " + queueItem.referrer + "\n";
         }
 
     console.log("200 Ok (", queueItem.stateData.requestTime, "ms, " + number_of_cookies + " cookies ) " + (crawler.queue.oldestUnfetchedIndex + 1) + " of " + queueSize + " urls: ", queueItem.url);
@@ -36,8 +36,8 @@ crawler.on("fetch404", function(queueItem) {
 
 crawler.on("complete", function(){
     var fs = require('fs');
-    fs.writeFileSync("cookies.txt", cookie_buffer);
-    fs.writeFileSync('broken_links.txt', broken_links_buffer);
+    fs.writeFileSync('output/cookies.txt', cookie_buffer);
+    fs.writeFileSync('output/broken_links.txt', broken_links_buffer);
     console.log("The maximum request latency was %dms.", crawler.queue.max("requestLatency"));
     console.log("The minimum download time was %dms.", crawler.queue.min("downloadTime"));
     console.log("The average resource size received is %d bytes.", crawler.queue.avg("actualDataSize"));

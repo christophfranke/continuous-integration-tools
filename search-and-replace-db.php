@@ -4,7 +4,8 @@ define('MAX_RECURSION_DEPTH', 50);
 define('VERBOSE', false);
 define('DEBUG', false);
 define('WRITE_SQL_FILE_INSTEAD', false);
-define('SEARCH_LOG_FILE', 'search.log');
+define('SEARCH_AND_REPLACE_SQL_FILE', 'search_and_replace.sql');
+define('SEARCH_LOG_FILE', 'output/search.log');
 
 $skip_tables = array();
 //$whitelist_tables = array('wp_options');
@@ -310,8 +311,8 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
     {
         if($made_sql_statement)
         {
-            file_put_contents('search_and_replace.sql', $out_file_content);
-            echo "SQL Statements written to search_and_replace.sql\n";
+            file_put_contents(SEARCH_AND_REPLACE_SQL_FILE, $out_file_content);
+            echo "SQL Statements written to " . SEARCH_AND_REPLACE_SQL_FILE . "\n";
         }
         else
             echo "No SQL Statements were created by your query. No SQL File has been written.\n";
