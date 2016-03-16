@@ -37,9 +37,9 @@ crawler.on("fetchcomplete", function(queueItem) {
     var percentageDone = (crawler.queue.oldestUnfetchedIndex) / (queueSize);
     if(percentageDone === 0)
         percentageDone = 0.01;
-    var estimationError = 1.0 - min(3.0*percentageDone, 1.0);
-    var timeLeft = ((0.001 + 0.001*estimationError)*(now() - startTime)*(1.0 / percentageDone - 1.0)).toFixed(1);
-    if (crawler.queue.oldestUnfetchedIndex < 5)
+    var estimationError = 1.0 - min(2.0*percentageDone, 1.0);
+    var timeLeft = ((0.001 + 0.001*estimationError)*(now() - startTime)*(1.0 / (percentageDone) - 1.0)).toFixed(1);
+    if (crawler.queue.oldestUnfetchedIndex < 5 || percentageDone < 0.1)
         timeLeft = '?';
     //var timeEstimated = 35 - 0.001*(now() - startTime);
     //console.log(timeEstimated + " vs " + timeLeft + " at " + 100*percentageDone + "%" + ", estimationErrorIntensity: " + estimationError);
