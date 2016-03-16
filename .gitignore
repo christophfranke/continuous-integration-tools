@@ -17,8 +17,5 @@ fabric-tmp-dir/
 #sometimes dependencies get installed locally
 node_modules/
 
-#scripts with complex output write additional data to files rather than to stdout. That way you can handle your gathered data using a text editor.
-output/
-
 #python bytecache files
 *.pyc

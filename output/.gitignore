@@ -1,0 +1,3 @@
+#this file is here to create the directory for all more complex output. All scripts write to this folder now.
+*
+!.gitignore
