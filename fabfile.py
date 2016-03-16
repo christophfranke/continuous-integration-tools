@@ -210,9 +210,14 @@ def compile():
     compile_target_all()
 
 #starts the crawler and puts the reulst into a file called broken_links. takes a long time and has no referrer url...
-def crawl(domain=LOCAL_HTTP_ROOT):
+def crawl(domain=None):
     if domain is None:
-        print "Please provide a LOCAL_HTTP_ROOT in your project_config.py, so the crawler can find the project."
+        domain = REMOTE_HTTP_ROOT
+    if domain is None:
+        print "REMOTE_HTTP_ROOT not set, cannot crawl online page. Crawling local page instead."
+        domain = LOCAL_HTTP_ROOT
+    if domain is None:
+        print "Cannot find LOCAL_HTTP_ROOT. Please provide a domain to crawl as argument (for example $ fab crawl:http://crawl.this.domain.de)"
     else:
         local('node crawl.js ' + domain)
 
