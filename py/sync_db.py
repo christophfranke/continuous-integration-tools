@@ -4,7 +4,7 @@ import transfer
 @engine.prepare_and_clean
 def execute():
     remote_dump = engine.create_remote_dump()
-    local_dump = transfer.get(remote_dump)
+    local_dump = transfer.get_verbose(remote_dump)
     engine.truncate_local_db()
     engine.execute_local_mysql_file(local_dump)
 
