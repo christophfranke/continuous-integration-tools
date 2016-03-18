@@ -66,14 +66,6 @@ except:
     const_warning('REMOTE_ROOT_URL', 'LIVE_DOMAIN')
     REMOTE_ROOT_URL = None
 
-if REMOTE_ROOT_URL is not None:
-    try:
-        REMOTE_COMMAND_FILE = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
-    except:
-        const_warning('REMOTE_COMMAND_FILE', 'SECURITY_HASH')
-else:
-    const_subsequent('REMOTE_COMMAND_FILE', 'REMOTE_ROOT_URL')
-
 REMOTE_WWW_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WWW_DIR)
 REMOTE_TMP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + TMP_DIR)
 
@@ -87,7 +79,7 @@ except:
     print "Warning: LOCAL_MYSQL_CMD, LOCAL_MYSLQDUMP_CMD and LOCAL_MYSQL_NO_DB_CMD could not be assembled by script. Make sure you have LOCAL_DB_USER, LOCAL_DB_PASSWORD and LOCAL_DB_NAME set in your project config."
 
 try:
-    REMOTE_MYSQL_PARAMS = ' -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' '
+    REMOTE_MYSQL_PARAMS = ' -u ' + REMOTE_DB_USER + ' --password=' + REMOTE_DB_PASSWORD + ' --host=' + REMOTE_DB_HOST + ' '
     try:
         REMOTE_DB_PORT
         REMOTE_MYSQL_PARAMS += '--port=' + REMOTE_DB_PORT + ' '
@@ -143,7 +135,6 @@ if IS_WORDPRESS:
     LOCAL_WP_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + WP_DIR)
     REMOTE_WP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WP_DIR)
 
-
 #ssh or ftp?
 if TRANSFER_SYSTEM == '':
     TRANSFER_SYSTEM = 'FTP' #workaround: always fallback to ftp. later on, we will use ssh again
@@ -151,4 +142,28 @@ if TRANSFER_SYSTEM == '':
 #ssh or php
 if COMMAND_SYSTEM == '':
     COMMAND_SYSTEM = 'PHP' #also workaround: use php command system for now. later on we will support ssh
+
+
+if TRANSFER_SYSTEM == 'FTP':
+    if FTP_HOST == '':
+        try:
+            FTP_HOST = LIVE_DOMAIN
+        except:
+            const_warning('FTP_HOST', 'LIVE_DOMAIN')
+
+    try:
+        UNUSED_FTP_COMMAND_BETTER_TRY_NOW_AND_WARN_THAN_FAIL_LATER_SILENTLY = 'ftp -i ftp://' + FTP_USER + ':' + FTP_PASSWORD + '@' + FTP_HOST
+    except:
+        print "Warning: You have set the TRANSFER_SYSTEM to 'FTP', but the variables FTP_USER, FTP_PASSWORD and FTP_HOST are not set correctly. Make sure you have these variables set in your project config. The transfer system will not work."
+
+
+if COMMAND_SYSTEM == 'PHP':
+    if REMOTE_ROOT_URL is not None:
+        try:
+            REMOTE_COMMAND_FILE = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
+        except:
+            const_warning('REMOTE_COMMAND_FILE', 'SECURITY_HASH')
+    else:
+        const_subsequent('REMOTE_COMMAND_FILE', 'REMOTE_ROOT_URL')
+
 

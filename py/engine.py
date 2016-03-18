@@ -38,7 +38,6 @@ def get_local_tmp_dir():
 
 #returns the name of the remote tmp dir and ensures it exists.
 def get_remote_tmp_dir():
-    run.remote('mkdir -p ' + REMOTE_TMP_DIR)
     return REMOTE_TMP_DIR
 
 #registers a new local filename and returns it. Does not actually create the file.
@@ -67,14 +66,23 @@ def create_remote_dump():
 def truncate_local_db():
     execute_local_mysql(TRUNCATE_LOCAL_DB_SQL)
 
+def write_local_file(content):
+    filename = get_new_local_file()
+    file = open(filename, 'w')
+    file.write(content)
+    file.close()
+    return filename
+
+def write_remote_file(content):
+    local_file = write_local_file(content)
+    remote_file = transfer.put(local_file)
+    return remote_file
+
 #executes a mysql file locally
 def execute_local_mysql_file(filename):
     run.local(LOCAL_MYSQL_CMD + '<' + filename)
 
 #executes a mysql statement locally. This is done by writing a mysql file and then pass it to the mysql client via cli.
 def execute_local_mysql(statement):
-    filename = get_new_local_file()
-    file = open(filename, 'w')
-    file.write(statement)
-    file.close()
+    filename = write_local_file(statement)
     execute_local_mysql_file(filename)
