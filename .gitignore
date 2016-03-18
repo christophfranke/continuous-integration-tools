@@ -1,20 +1,12 @@
 #used for local configuration
-config.py
+config/global_config.py
 
 #project setup files
 *.sublime-project
 *.sublime-workspace
 
-#deprecated. output files have been moved to the output directory
-cookies.txt
-broken_links.txt
-search_and_replace.sql
-search.log
 
-#fabrics tmp dir. Should get deleted after each command, but if the command fails, it might not be cleaned up
-fabric-tmp-dir/
-
-#sometimes dependencies get installed locally
+#node_modules are managed by npm, not us
 node_modules/
 
 #python bytecache files
