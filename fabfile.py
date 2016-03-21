@@ -3,6 +3,7 @@ import py.sync_db
 import py.create_db
 import py.execute
 import py.upload_command_file
+import py.export_db
 
 def sync_db():
     py.sync_db.execute()
@@ -15,3 +16,6 @@ def execute(command):
 
 def upload_command_file():
     py.upload_command_file.execute()
+
+def export_db(filename = None):
+    py.export_db.execute(filename)

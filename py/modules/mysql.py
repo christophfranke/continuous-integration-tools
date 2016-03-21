@@ -21,3 +21,7 @@ def execute_local_statement_nodb(statement):
 
 def create_local_db():
     execute_local_statement_nodb('CREATE DATABASE `' + engine.LOCAL_DB_NAME + '`;')
+
+def export_local_db():
+    filename = engine.get_database_dump_file()
+    run.local(engine.LOCAL_MYSQLDUMP_CMD + '>' + filename)

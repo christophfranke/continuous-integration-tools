@@ -122,6 +122,16 @@ def add_config(key, value):
     globals()[key] = value
     out.log("added " + key + " = " + value + " to config", out.LEVEL_DEBUG)
 
+def get_database_dump_file(compression = False):
+    import run
+    #mysql dump filenames
+    if not os.path.isdir(LOCAL_DB_DIR):
+        run.local('mkdir -p ' + LOCAL_DB_DIR)
+    filename = os.path.abspath(LOCAL_DB_DIR + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql')
+    if compression:
+        filename += '.gz'
+    return filename
+
 
 #writes a database dump to file and returns its name
 def create_remote_dump():

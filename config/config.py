@@ -1,5 +1,3 @@
-#import datetime for timestamp constant
-from datetime import datetime
 import os
 
 #issue some warning if something goes wrong, so the user always knows exactly how to solve a problem
@@ -108,11 +106,6 @@ try:
     TRUNCATE_REMOTE_DB_SQL = 'DROP DATABASE `' + REMOTE_DB_NAME + '`;CREATE DATABASE `' + REMOTE_DB_NAME + '`;'
 except:
     const_warning('TRUNCATE_REMOTE_DB_SQL', 'REMOTE_DB_NAME')
-
-#mysql dump filenames
-SQL_DUMP_FILE = os.path.abspath(LOCAL_DB_DIR + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql')
-SQL_GZ_DUMP_FILE = SQL_DUMP_FILE + '.gz'
-
 
 try:
     RELATIVE_SRC_DIR = WWW_DIR + '/' + SRC_URL
