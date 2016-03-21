@@ -2,6 +2,7 @@ import os
 import engine
 import run
 import out
+import transfer
 
 
 #run command locally. easy.
@@ -19,6 +20,7 @@ def local(command):
 
 #run command on remote. a bit harder.
 @out.indent
+@engine.cleanup_tmp_files
 def remote(command):
     #tell what happens
     out.log("[remote] " + command, out.LEVEL_INFO)
@@ -29,8 +31,28 @@ def remote(command):
 
     #choose the correct command system
     if engine.COMMAND_SYSTEM == 'PHP':
-        run.local('curl ' + engine.REMOTE_COMMAND_FILE + '?file=' + filename)
+        run.local('curl ' + engine.REMOTE_COMMAND_URL + '?file=' + filename + "\&indent=" + str(out.indentation))
     elif engine.COMMAND_SYSTEM == 'SSH':
         out.log("Error: COMMAND_SYSTEM SSH not implemented yet", out.LEVEL_ERROR)
     else:
         out.log("Error Unknown COMMAND_SYSTEM " + engine.COMMAND_SYSTEM, out.LEVEL_ERROR)
+
+#make sure the command file is online and everything is setup correctly. this funciton will be called automatically, if there is no security hash set in the project config
+@out.indent
+def upload_command_file():
+    #look for existing hash
+    try:
+        engine.REMOTE_ROOT_URL
+    except AttributeError:
+        out.log("[run] Error: Could not upload command file, because REMOTE_HTTP_ROOT is undefined. Make sure you have all necessary information in your project config.")
+        return False
+    try:
+        engine.REMOTE_COMMAND_FILE
+    except AttributeError:
+        new_hash = engine.get_random_secury_id()
+        engine.add_config('SECURITY_HASH', new_hash)
+        engine.REMOTE_COMMAND_FILE = os.path.normpath(engine.REMOTE_ROOT_DIR + '/' + engine.SECURITY_HASH + '.php')
+        engine.REMOTE_COMMAND_URL = engine.REMOTE_ROOT_URL + '/' + engine.SECURITY_HASH + '.php'
+
+    transfer.put('php/cmd.php', engine.REMOTE_COMMAND_FILE)
+    return True

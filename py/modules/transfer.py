@@ -3,7 +3,7 @@ import run
 import out
 
 #writes the commands to file and executes the file. This way we circumvent all the escaping trouble.
-@engine.cleanup_immediately
+@engine.cleanup_tmp_files
 def execute_ftp_command(command, verbose = False):
     #write the command into file
     ftp_file = engine.write_local_file(command)
@@ -68,3 +68,12 @@ def remove_local(filename):
 def remove_remote(filename):
     command = 'delete ' + filename
     execute_ftp_command(command)
+
+def remove_local_directory_contents(directoy):
+    run.local('rm ' + directory + '/*')
+
+def remote_remote_directory_contents(directory):
+    command = 'delete ' + directory + '/*'
+    execute_tp_command(command)
+
+

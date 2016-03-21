@@ -6,7 +6,7 @@ LEVEL_WARNING = 2
 LEVEL_INFO = 3
 LEVEL_DEBUG = 5
 
-current_output_level = LEVEL_DEBUG
+current_output_level = LEVEL_INFO
 maximum_indentation_output = -1 #set this to a negative value to output all indentation
 
 #the indentation level, so you can see which function triggered what

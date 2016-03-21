@@ -13,6 +13,7 @@ except ImportError:
 
 import random
 import string
+from datetime import datetime
 
 current_tmp_file_namespace = 'global'
 
@@ -27,18 +28,23 @@ def get_random_id():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
 
 def get_random_secury_id():
-    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(16))
+    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(32))
 
 #decorator for preparation and cleanup
 def prepare_and_clean(func):
     def decorated_func(*args, **kwargs):
+        import run
+        global COMMAND_SYSTEM_READY
+        if not COMMAND_SYSTEM_READY:
+            run.upload_command_file()
+            COMMAND_SYSTEM_READY = True
         result = func(*args, **kwargs)
         cleanup()
         return result
     return decorated_func
 
 #decorator for cleaning up immediately
-def cleanup_immediately(func):
+def cleanup_tmp_files(func):
     def cleanup_immediately_func(*args, **kwargs):
         #change but remember namespace
         global current_tmp_file_namespace
@@ -64,6 +70,7 @@ def cleanup(namespace = None):
     #then remove local files
     for file in local_tmp_files[namespace]:
         transfer.remove_local(file)
+
 
 #returns the name of the local tmp dir. It exists, because it has a .gitignore in it.
 def get_local_tmp_dir():
@@ -100,6 +107,21 @@ def get_new_remote_file():
 
     #return file
     return filename
+
+def add_config(key, value):
+    import out
+
+    #write to project config
+    filename = PROJECT_CONFIG_FILE
+    out.log('PROJECT_CONFIG_FILE is at ' + PROJECT_CONFIG_FILE, out.LEVEL_DEBUG)
+    file = open(filename, 'a')
+    file.write("\n" + key + " = '" + value + "' #added automatically on " + str(datetime.now()) + "\n")
+    file.close()
+
+    #make accessible immediately
+    globals()[key] = value
+    out.log("added " + key + " = " + value + " to config", out.LEVEL_DEBUG)
+
 
 #writes a database dump to file and returns its name
 def create_remote_dump():
