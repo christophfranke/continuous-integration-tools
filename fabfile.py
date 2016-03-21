@@ -4,6 +4,8 @@ import py.create_db
 import py.execute
 import py.upload_command_file
 import py.export_db
+import py.import_db
+import py.backup_db
 
 def sync_db():
     py.sync_db.execute()
@@ -19,3 +21,9 @@ def upload_command_file():
 
 def export_db(filename = None):
     py.export_db.execute(filename)
+
+def import_db(filename):
+    py.import_db.execute(filename)
+
+def backup_db(filename = None):
+    py.backup_db.execute(filename)

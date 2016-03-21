@@ -6,10 +6,9 @@ from modules import mysql
 @engine.prepare_and_clean
 def execute():
     out.log("[command] Synchronizing local db...", out.LEVEL_INFO)
-    remote_dump = engine.create_remote_dump()
+    remote_dump = mysql.create_remote_dump()
     local_dump = transfer.get_verbose(remote_dump)
-    engine.truncate_local_db()
-    mysql.execute_local_file(local_dump)
+    mysql.import_local_db(local_dump)
 
 
 def help():

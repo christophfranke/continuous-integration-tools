@@ -63,17 +63,34 @@ def put_verbose(local_file, remote_file=None):
 
 @out.indent
 def remove_local(filename):
+    out.log('[transfer] remove local file: ' + filename, out.LEVEL_INFO)
     run.local('rm ' + filename)
 
+@out.indent
 def remove_remote(filename):
+    out.log('[transfer] remove remote file: ' + filename, out.LEVEL_INFO)
     command = 'delete ' + filename
     execute_ftp_command(command)
 
+@out.indent
 def remove_local_directory_contents(directoy):
+    out.log('[transfer] remove content of local directory: ' + dircetory, out.LEVEL_INFO)
     run.local('rm ' + directory + '/*')
 
+@out.indent
 def remote_remote_directory_contents(directory):
+    out.log('[transfer] remove content of remote directory: ' + dircetory, out.LEVEL_INFO)
     command = 'delete ' + directory + '/*'
-    execute_tp_command(command)
+    execute_ftp_command(command)
 
+@out.indent
+def local_move(from_file, to_file):
+    out.log('[transfer] move local file: ' + from_file + ' -> ' + to_file)
+    run.local('mv ' + from_file + ' ' + to_file)
+
+@out.indent
+def remote_move(from_file, to_file):
+    out.log('[transfer] move remote file: ' + from_file + ' -> ' + to_file)
+    command = 'rename ' + from_file + ' ' + to_file
+    execute_ftp_command(command)
 

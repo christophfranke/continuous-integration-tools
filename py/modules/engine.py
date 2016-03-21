@@ -81,11 +81,11 @@ def get_remote_tmp_dir():
     return REMOTE_TMP_DIR
 
 #registers a new local filename and returns it. Does not actually create the file.
-def get_new_local_file():
+def get_new_local_file(suffix = 'tmp'):
     #get filename in tmp dir
     global local_tmp_files
     tmp_dir = get_local_tmp_dir()
-    filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_') + '.tmp'
+    filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_') + '.' + suffix
 
     #register file in current namespace
     global current_tmp_file_namespace
@@ -95,11 +95,11 @@ def get_new_local_file():
     return filename
 
 #registers a new remote filename and returns it. Does not actually create the file.
-def get_new_remote_file():
+def get_new_remote_file(suffix = 'tmp'):
     #get filenam ein tmp dir
     global remote_tmp_files
     tmp_dir = get_remote_tmp_dir()
-    filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_') + '.tmp'
+    filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_') + '.' + suffix
 
     #register file in current namespace
     global current_tmp_file_namespace
@@ -132,18 +132,6 @@ def get_database_dump_file(compression = False):
         filename += '.gz'
     return filename
 
-
-#writes a database dump to file and returns its name
-def create_remote_dump():
-    import run
-    filename = get_new_remote_file()
-    run.remote(REMOTE_MYSQLDUMP_CMD + ' >' + filename)
-    return filename
-
-#truncates the remote db by executing some sql (truncation leaves the db empty, but it still exists)
-def truncate_local_db():
-    import mysql
-    mysql.execute_local_statement(TRUNCATE_LOCAL_DB_SQL)
 
 def write_local_file(content):
     filename = get_new_local_file()

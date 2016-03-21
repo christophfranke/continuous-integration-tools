@@ -68,6 +68,10 @@ ENABLE_BUILD_SYSTEM = False
 SRC_URL = None
 BUILD_URL = None
 
+
+#Do you want to use tar compression?
+USE_TAR_COMPRESSION = None #if set to None, the script will figure out if it is possible and set it accordingly in the project config.
+
 #here you can put project related custom commands that will be executed after deploying.
 #this function will be executed within the with cd(REMOTE_WWW_DIR)-block, so that is the folder your in.
 def custom_after_deploy_script():

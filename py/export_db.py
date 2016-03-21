@@ -10,4 +10,4 @@ def execute(filename=None):
 
 
 def help():
-    out.log("Exports the local database.", out.LEVEL_INFO)
+    out.log("Exports the local database by creating a mysql dump file using mysqldump.", out.LEVEL_INFO)
