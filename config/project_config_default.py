@@ -68,6 +68,9 @@ ENABLE_BUILD_SYSTEM = False
 SRC_URL = None
 BUILD_URL = None
 
+#by default your command system is not ready. This is automatically set to true in your project config, if the command system has set up everything and is ready.
+#That way it doesn't have to be checked again and again, also you trigger the command system setup by simply removing the line from your project config.
+COMMAND_SYSTEM_READY = False
 
 #Do you want to use tar compression?
 USE_TAR_COMPRESSION = None #if set to None, the script will figure out if it is possible and set it accordingly in the project config.

@@ -5,9 +5,9 @@ from modules import mysql
 
 @engine.prepare_and_clean
 def execute():
-    out.log("[command] creating local db...", out.LEVEL_INFO)
+    out.log("creating local db...")
     mysql.create_local_db()
 
 
 def help():
-    out.log("This command creates an empty local databse with the name configured in project configs.", out.LEVEL_INFO)
+    out.log("This command creates an empty local databse with the name configured in project configs.", 'help')

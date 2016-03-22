@@ -1,9 +1,24 @@
 import engine
 import run
 import transfer
+import out
 
 
 TAR_SQL_CONTENT_FILENAME = 'dump.sql'
+
+@out.indent
+def test_module():
+    out.log("Testing local mysql access...", 'mysql')
+    execute_local_statement('SHOW TABLES;')
+    out.log("Testing remote mysql access...", 'mysql')
+    execute_remote_statement('SHOW TABLES;')
+
+def execute_remote_file(filename):
+    run.remote(engine.REMOTE_MYSQL_CMD + ' <' + filename)
+
+def execute_remote_statement(statement):
+    filename = engine.write_remote_file(statement, '.sql')
+    execute_remote_file(filename)
 
 #executes a mysql file locally
 def execute_local_file(filename):
@@ -11,7 +26,7 @@ def execute_local_file(filename):
 
 #executes a mysql statement locally. This is done by writing a mysql file and then pass it to the mysql client via cli.
 def execute_local_statement(statement):
-    filename = engine.write_local_file(statement)
+    filename = engine.write_local_file(statement, 'sql')
     execute_local_file(filename)
 
 #executes a mysql file locally without selecting a db first. Useful for creating a database, for example
@@ -20,7 +35,7 @@ def execute_local_file_nodb(filename):
 
 #executes a statement without selecting a database. You can for example create databases, users, etc..
 def execute_local_statement_nodb(statement):
-    filename = engine.write_local_file(statement)
+    filename = engine.write_local_file(statement, 'sql')
     execute_local_file_nodb(filename)
 
 def create_local_db():

@@ -6,6 +6,7 @@ import py.upload_command_file
 import py.export_db
 import py.import_db
 import py.backup_db
+import py.test
 
 def sync_db():
     py.sync_db.execute()
@@ -27,3 +28,6 @@ def import_db(filename):
 
 def backup_db(filename = None):
     py.backup_db.execute(filename)
+
+def test():
+    py.test.execute()

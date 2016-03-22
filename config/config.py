@@ -151,14 +151,11 @@ if TRANSFER_SYSTEM == 'FTP':
         print "Warning: You have set the TRANSFER_SYSTEM to 'FTP', but the variables FTP_USER, FTP_PASSWORD and FTP_HOST are not set correctly. Make sure you have these variables set in your project config. The transfer system will not work."
 
 
-#remember if this has worked out
-COMMAND_SYSTEM_READY = False
 if COMMAND_SYSTEM == 'PHP':
     if REMOTE_ROOT_URL is not None:
         try:
             REMOTE_COMMAND_FILE = os.path.normpath(REMOTE_ROOT_DIR + '/' + SECURITY_HASH + '.php')
             REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
-            COMMAND_SYSTEM_READY = True
         except:
             pass
     else:

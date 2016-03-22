@@ -5,9 +5,9 @@ from modules import mysql
 
 @engine.prepare_and_clean
 def execute(filename=None):
-    out.log("[command] exporting database...", out.LEVEL_INFO)
+    out.log("exporting database...")
     mysql.export_local_db()
 
 
 def help():
-    out.log("Exports the local database by creating a mysql dump file using mysqldump.", out.LEVEL_INFO)
+    out.log("Exports the local database by creating a mysql dump file using mysqldump.", 'help')

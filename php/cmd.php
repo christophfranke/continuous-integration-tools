@@ -14,7 +14,7 @@ function test_command($command)
 {
     $output = shell_exec("which $command");
     if(!empty($output))
-        echo "ok";
+        echo "$command ok";
     die();
 }
 if(isset($_GET['test_mysql']))
@@ -23,29 +23,26 @@ if(isset($_GET['test_tar']))
     test_command('tar');
 
 $command = @$_GET['cmd'];
-if(!empty($command))
-{
-    echo shell_exec($command);
-}
-
 $file = @$_GET['file'];
 if(!empty($file))
 {
     //make sure we have the right to execute this file. this also will fail if we don't own it.
-    shell_exec("chmod a+x $file");
-    $output = '';
-
-    $indent = @$_GET['indent'];
-    if(isset($indent))
+    exec("chmod a+x $file 2>&1", $output_array, $return_value);
+    if($return_value !== 0)
     {
-        for($i=0;$i<$indent;$i++)
-        {
-            $output .= '  ';
-        }
+        echo "chmod a+rx $file returned with status code $return_value\n";
+        //http_response_header(500);
     }
+    $command = $file;
+}
 
-    $output .= "[php file] ";
-    $output .= shell_exec($file);
-
-    echo $output;
+if(!empty($command))
+{
+    exec("$command 2>&1", $output_array, $return_value);
+    if($return_value !== 0)
+    {
+        echo "$command returned with status code $return_value\n";
+        //http_response_header(500);
+    }
+    echo implode("\n", $output_array);
 }

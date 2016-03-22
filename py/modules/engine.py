@@ -15,6 +15,8 @@ import random
 import string
 from datetime import datetime
 
+import out
+
 current_tmp_file_namespace = 'global'
 
 #remember the files we have created for cleaning up later
@@ -34,10 +36,12 @@ def get_random_secury_id():
 def prepare_and_clean(func):
     def decorated_func(*args, **kwargs):
         import run
+        import transfer
         global COMMAND_SYSTEM_READY
         if not COMMAND_SYSTEM_READY:
+            transfer.create_remote_directory(REMOTE_TMP_DIR, 777)
             run.upload_command_file()
-            COMMAND_SYSTEM_READY = True
+            add_config('COMMAND_SYSTEM_READY', 'True')
         result = func(*args, **kwargs)
         cleanup()
         return result
@@ -60,10 +64,12 @@ def cleanup_tmp_files(func):
 
 
 #cleanup is being run at the very end. cleans up all the files that have been created in the process.
+@out.indent
 def cleanup(namespace = None):
     import transfer
     if namespace is None:
         namespace = 'global'
+    out.log('Removing tmp file in namespace ' + namespace, 'cleanup', out.LEVEL_DEBUG)
     #remove remote files first, because there removal might cause local files to happen
     for file in remote_tmp_files[namespace]:
         transfer.remove_remote(file)
@@ -81,7 +87,9 @@ def get_remote_tmp_dir():
     return REMOTE_TMP_DIR
 
 #registers a new local filename and returns it. Does not actually create the file.
-def get_new_local_file(suffix = 'tmp'):
+def get_new_local_file(suffix = None):
+    if suffix is None:
+        suffix = 'tmp'
     #get filename in tmp dir
     global local_tmp_files
     tmp_dir = get_local_tmp_dir()
@@ -95,7 +103,9 @@ def get_new_local_file(suffix = 'tmp'):
     return filename
 
 #registers a new remote filename and returns it. Does not actually create the file.
-def get_new_remote_file(suffix = 'tmp'):
+def get_new_remote_file(suffix = None):
+    if suffix is None:
+        suffix = 'tmp'
     #get filenam ein tmp dir
     global remote_tmp_files
     tmp_dir = get_remote_tmp_dir()
@@ -113,14 +123,14 @@ def add_config(key, value):
 
     #write to project config
     filename = PROJECT_CONFIG_FILE
-    out.log('PROJECT_CONFIG_FILE is at ' + PROJECT_CONFIG_FILE, out.LEVEL_DEBUG)
+    out.log('PROJECT_CONFIG_FILE is at ' + PROJECT_CONFIG_FILE, 'engine', out.LEVEL_DEBUG)
     file = open(filename, 'a')
     file.write("\n" + key + " = '" + value + "' #added automatically on " + str(datetime.now()) + "\n")
     file.close()
 
     #make accessible immediately
     globals()[key] = value
-    out.log("added " + key + " = " + value + " to config", out.LEVEL_DEBUG)
+    out.log("added " + key + " = " + value + " to config", 'engine', out.LEVEL_DEBUG)
 
 def get_database_dump_file(use_compression = None):
     import run
@@ -135,16 +145,19 @@ def get_database_dump_file(use_compression = None):
     return filename
 
 
-def write_local_file(content):
-    filename = get_new_local_file()
+def write_local_file(content, suffix = None, permissions = None):
+    if permissions is not None:
+        out.log('Error: Setting permissions in write_local_file is not implemented yet.', 'engine', out.LEVEL_ERROR)
+    filename = get_new_local_file(suffix)
     file = open(filename, 'w')
     file.write(content)
     file.close()
     return filename
 
-def write_remote_file(content):
+def write_remote_file(content, suffix = None, permissions = None):
     import transfer
-    local_file = write_local_file(content)
-    remote_file = transfer.put(local_file)
+    local_file = write_local_file(content, suffix)
+    remote_file = get_new_remote_file(suffix)
+    transfer.put(local_file, remote_file, permissions = permissions)
     return remote_file
 

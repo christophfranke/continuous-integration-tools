@@ -4,9 +4,9 @@ from modules import out
 
 @engine.prepare_and_clean
 def execute():
-    out.log("[command] uploading command file...", out.LEVEL_INFO)
+    out.log("uploading command file...")
     run.upload_command_file()
 
 
 def help():
-    out.log("This command updates the command file, since it is not really handy to update that manually.", out.LEVEL_INFO)
+    out.log("This command updates the command file, since it is not really handy to update that manually.", 'help')

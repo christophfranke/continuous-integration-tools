@@ -2,6 +2,12 @@ import engine
 import run
 import out
 
+
+@out.indent
+def test_module():
+    out.log("Testing FTP connection...", 'transfer')
+    execute_ftp_command('pwd')
+
 #writes the commands to file and executes the file. This way we circumvent all the escaping trouble.
 @engine.cleanup_tmp_files
 def execute_ftp_command(command, verbose = False):
@@ -16,21 +22,26 @@ def execute_ftp_command(command, verbose = False):
     run.local('ftp -i ' + verbosity_option + ' ftp://' + engine.FTP_USER + ':' + engine.FTP_PASSWORD + '@' + engine.FTP_HOST + ' <' + ftp_file)
 
 @out.indent
-def get(remote_file, local_file=None, verbose=False):
+def get(remote_file, local_file = None, verbose = False, permissions = None):
     #create new local file if not spcefied
     if local_file is None:
         local_file = engine.get_new_local_file()
 
     #print some info
-    out.log("[Download] " + remote_file + " -> " + local_file, out.LEVEL_INFO)
+    out.log(remote_file + " -> " + local_file, 'download')
 
     #get transfer system
     if engine.TRANSFER_SYSTEM == 'FTP':
-        execute_ftp_command('get ' + remote_file + ' ' + local_file, verbose)
+        command = 'get ' + remote_file + ' ' + local_file
+        execute_ftp_command(command, verbose)
     elif engine.TRANSFER_SYSTEM == 'SSH':
-        out.log("Error: TRANSFER_SYSTEM SSH not implemented yet", out.LEVLE_ERROR)
+        out.log("Error: TRANSFER_SYSTEM SSH not implemented yet", 'download', out.LEVLE_ERROR)
     else:
-        out.log("Error: Unknown TRANSFER_SYSTEM " + engine.TRANSFER_SYSTEM, out.LEVEL_ERROR)
+        out.log("Error: Unknown TRANSFER_SYSTEM " + engine.TRANSFER_SYSTEM, 'download', out.LEVEL_ERROR)
+
+    #set permissions
+    if permissions is not None:
+        run.local('chmod ' + str(permissions) + ' ' + local_file)
 
     #return new filename
     return local_file
@@ -39,21 +50,27 @@ def get_verbose(remote_file, local_file=None):
     return get(remote_file, local_file, True)
 
 @out.indent
-def put(local_file, remote_file=None, verbose=False):
+def put(local_file, remote_file = None, verbose = False, permissions = None):
     #create new remote file if none specified
     if remote_file is None:
         remote_file = engine.get_new_remote_file()
 
     #print some info
-    out.log("[Upload] " + local_file + " -> " + remote_file, out.LEVEL_INFO)
+    out.log(local_file + " -> " + remote_file, 'upload')
 
     #choose correct transfer system
     if engine.TRANSFER_SYSTEM == 'FTP':
-        execute_ftp_command('put ' + local_file + ' ' + remote_file, verbose)
+        #put file
+        command = 'put ' + local_file + ' ' + remote_file
+        #set permissions on remote
+        if permissions is not None:
+            command += "\nchmod " + str(permissions) + " " + remote_file
+        #...execute!
+        execute_ftp_command(command, verbose)
     elif engine.TRANSFER_SYSTEM == 'SSH':
-        out.log("Error: TRANSFER_SYSTEM SSH not implemented yet", out.LEVEL_ERROR)
+        out.log("Error: TRANSFER_SYSTEM SSH not implemented yet", 'upload', out.LEVEL_ERROR)
     else:
-        out.log("Error: Unknown TRANSFER_SYSTEM " + engine.TRANSFER_SYSTEM, out.LEVEL_ERROR)
+        out.log("Error: Unknown TRANSFER_SYSTEM " + engine.TRANSFER_SYSTEM, 'upload', out.LEVEL_ERROR)
 
     #return filename of uploaded file
     return remote_file
@@ -63,34 +80,48 @@ def put_verbose(local_file, remote_file=None):
 
 @out.indent
 def remove_local(filename):
-    out.log('[transfer] remove local file: ' + filename, out.LEVEL_INFO)
+    out.log('remove local file: ' + filename, 'transfer')
     run.local('rm ' + filename)
 
 @out.indent
 def remove_remote(filename):
-    out.log('[transfer] remove remote file: ' + filename, out.LEVEL_INFO)
+    out.log('remove remote file: ' + filename, 'transfer')
     command = 'delete ' + filename
     execute_ftp_command(command)
 
 @out.indent
 def remove_local_directory_contents(directoy):
-    out.log('[transfer] remove content of local directory: ' + dircetory, out.LEVEL_INFO)
+    out.log('remove content of local directory: ' + dircetory, 'transfer')
     run.local('rm ' + directory + '/*')
 
 @out.indent
 def remote_remote_directory_contents(directory):
-    out.log('[transfer] remove content of remote directory: ' + dircetory, out.LEVEL_INFO)
+    out.log('remove content of remote directory: ' + dircetory, 'transfer')
     command = 'delete ' + directory + '/*'
     execute_ftp_command(command)
 
 @out.indent
 def local_move(from_file, to_file):
-    out.log('[transfer] move local file: ' + from_file + ' -> ' + to_file)
+    out.log('move local file: ' + from_file + ' -> ' + to_file, 'transfer')
     run.local('mv ' + from_file + ' ' + to_file)
 
 @out.indent
 def remote_move(from_file, to_file):
-    out.log('[transfer] move remote file: ' + from_file + ' -> ' + to_file)
+    out.log('move remote file: ' + from_file + ' -> ' + to_file, 'transfer')
     command = 'rename ' + from_file + ' ' + to_file
     execute_ftp_command(command)
 
+@out.indent
+def create_local_directory(directory, permissions = None):
+    out.log('create local directory: ' + directory, 'transfer')
+    run.local('mkdir -p ' + directory)
+    if permissions is not None:
+        run.local('chmod ' + str(permissions) + ' ' + directory)
+
+@out.indent
+def create_remote_directory(directory, permissions = None):
+    out.log('create remote directory: ' + directory, 'transfer')
+    command = 'mkdir ' + directory
+    if permissions is not None:
+        command += "\nchmod " + str(permissions) + " " + directory
+    execute_ftp_command(command)

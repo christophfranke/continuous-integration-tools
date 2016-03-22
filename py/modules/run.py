@@ -5,17 +5,24 @@ import out
 import transfer
 
 
+@out.indent
+def test_module():
+    out.log("Testing local command...", 'local')
+    run.local('pwd')
+    out.log("Testing remote command...", 'local')
+    run.remote('pwd')
+
 #run command locally. easy.
 @out.indent
 def local(command):
     #tell what happens
-    out.log("[local] " + command, out.LEVEL_INFO)
+    out.log(command, 'local')
     #run it
     exit_code = os.system(command)
 
     #check for exitcode
     if exit_code != 0:
-        out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), out.LEVEL_ERROR)
+        out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), 'local', out.LEVEL_ERROR)
         exit()
 
 #run command on remote. a bit harder.
@@ -23,19 +30,25 @@ def local(command):
 @engine.cleanup_tmp_files
 def remote(command):
     #tell what happens
-    out.log("[remote] " + command, out.LEVEL_INFO)
+    out.log(command, 'remote')
 
     #write command to file and upload it
     script_content = '#!/bin/bash\n' + command
-    filename = engine.write_remote_file(script_content)
+    filename = engine.write_remote_file(script_content, 'sh', permissions = '777')
 
     #choose the correct command system
     if engine.COMMAND_SYSTEM == 'PHP':
-        run.local('curl ' + engine.REMOTE_COMMAND_URL + '?file=' + filename + "\&indent=" + str(out.indentation))
+        #reserve a remote .txt file
+        output_file = engine.get_new_local_file('txt');
+        #run the command via php access and tell the server to put the commands output into the remote output file
+        run.local('touch ' + output_file)
+        run.local('curl --silent --output ' + output_file + ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename)
+        #log output to screen
+        out.file(output_file, 'php exec')
     elif engine.COMMAND_SYSTEM == 'SSH':
-        out.log("Error: COMMAND_SYSTEM SSH not implemented yet", out.LEVEL_ERROR)
+        out.log("Error: COMMAND_SYSTEM SSH not implemented yet", 'remote', out.LEVEL_ERROR)
     else:
-        out.log("Error Unknown COMMAND_SYSTEM " + engine.COMMAND_SYSTEM, out.LEVEL_ERROR)
+        out.log("Error Unknown COMMAND_SYSTEM " + engine.COMMAND_SYSTEM, 'remote', out.LEVEL_ERROR)
 
 #make sure the command file is online and everything is setup correctly. this funciton will be called automatically, if there is no security hash set in the project config
 @out.indent
@@ -44,7 +57,7 @@ def upload_command_file():
     try:
         engine.REMOTE_ROOT_URL
     except AttributeError:
-        out.log("[run] Error: Could not upload command file, because REMOTE_HTTP_ROOT is undefined. Make sure you have all necessary information in your project config.")
+        out.log("Error: Could not upload command file, because REMOTE_HTTP_ROOT is undefined. Make sure you have all necessary information in your project config.", 'run', out.LEVEL_ERROR)
         return False
     try:
         engine.REMOTE_COMMAND_FILE
