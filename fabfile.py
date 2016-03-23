@@ -7,6 +7,7 @@ import py.export_db
 import py.import_db
 import py.backup_db
 import py.test
+import py.upload_db
 
 def sync_db():
     py.sync_db.execute()
@@ -20,10 +21,10 @@ def execute(command):
 def upload_command_file():
     py.upload_command_file.execute()
 
-def export_db(filename = None):
-    py.export_db.execute(filename)
+def export_db(compression = None):
+    py.export_db.execute(compression)
 
-def import_db(filename):
+def import_db(filename, compression = None):
     py.import_db.execute(filename)
 
 def backup_db(filename = None):
@@ -31,3 +32,6 @@ def backup_db(filename = None):
 
 def test():
     py.test.execute()
+
+def upload_db(filename = None):
+    py.upload_db.execute(filename)

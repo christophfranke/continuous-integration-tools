@@ -45,7 +45,7 @@ def prepare_and_clean(func):
         result = func(*args, **kwargs)
         cleanup()
         return result
-    return decorated_func
+    return out.indent(decorated_func)
 
 #decorator for cleaning up immediately
 def cleanup_tmp_files(func):
@@ -69,7 +69,7 @@ def cleanup(namespace = None):
     import transfer
     if namespace is None:
         namespace = 'global'
-    out.log('Removing tmp file in namespace ' + namespace, 'cleanup', out.LEVEL_DEBUG)
+    out.log('Removing tmp files in namespace ' + namespace, 'cleanup', out.LEVEL_DEBUG)
     #remove remote files first, because there removal might cause local files to happen
     for file in remote_tmp_files[namespace]:
         transfer.remove_remote(file)
@@ -77,6 +77,27 @@ def cleanup(namespace = None):
     for file in local_tmp_files[namespace]:
         transfer.remove_local(file)
 
+    #reset list
+    remote_tmp_files[namespace] = []
+    local_tmp_files[namespace] = []
+
+
+def get_suffix(filename):
+    #find the last dot in filename
+    pos = filename.rfind('.')
+
+    #this file has no suffix
+    if pos == -1:
+        return None
+    else:
+        #return suffix
+        return filename[pos+1:]
+
+
+def local_is_not_empty(filename):
+    if not os.path.isfile(filename):
+        return False
+    return os.path.getsize(filename) > 0
 
 #returns the name of the local tmp dir. It exists, because it has a .gitignore in it.
 def get_local_tmp_dir():
@@ -87,7 +108,9 @@ def get_remote_tmp_dir():
     return REMOTE_TMP_DIR
 
 #registers a new local filename and returns it. Does not actually create the file.
-def get_new_local_file(suffix = None):
+def get_new_local_file(suffix = None, create_file = False):
+    import run
+
     if suffix is None:
         suffix = 'tmp'
     #get filename in tmp dir
@@ -96,8 +119,10 @@ def get_new_local_file(suffix = None):
     filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_') + '.' + suffix
 
     #register file in current namespace
-    global current_tmp_file_namespace
-    local_tmp_files[current_tmp_file_namespace].append(filename)
+    register_local_file(filename)
+
+    if create_file:
+        run.local('touch ' + filename)
     
     #return filename
     return filename
@@ -112,11 +137,44 @@ def get_new_remote_file(suffix = None):
     filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_') + '.' + suffix
 
     #register file in current namespace
-    global current_tmp_file_namespace
-    remote_tmp_files[current_tmp_file_namespace].append(filename)
+    register_remote_file(filename)
 
     #return file
     return filename
+
+@out.indent
+def register_local_file(filename):
+    out.log('Registered local tmp file ' + filename, 'engine', out.LEVEL_DEBUG)
+    global local_tmp_files
+    global current_tmp_file_namespace
+    local_tmp_files[current_tmp_file_namespace].append(filename)
+
+@out.indent
+def register_remote_file(filename):
+    out.log('Registered remote tmp file ' + filename, 'engine', out.LEVEL_DEBUG)
+    global remote_tmp_files
+    global current_tmp_file_namespace
+    remote_tmp_files[current_tmp_file_namespace].append(filename)
+
+@out.indent
+def rename_file(from_file, to_file, file_list):
+    out.log('Registered file for renaming ' + from_file + ' -> ' + to_file, 'engine', out.LEVEL_DEBUG)
+    global current_tmp_file_namespace
+    #define filter function
+    def filter(filename):
+        if filename == from_file:
+            return to_file
+        else:
+            return filename
+    #filter list with that functino
+    file_list[current_tmp_file_namespace] = [filter(filename) for filename in file_list[current_tmp_file_namespace]]
+
+def rename_local_file(from_file, to_file):
+    return rename_file(from_file, to_file, local_tmp_files)
+
+def rename_remote_file(from_file, to_file):
+    return rename_file(from_file, to_file, remote_tmp_files)
+
 
 def add_config(key, value):
     import out
@@ -132,15 +190,13 @@ def add_config(key, value):
     globals()[key] = value
     out.log("added " + key + " = " + value + " to config", 'engine', out.LEVEL_DEBUG)
 
-def get_database_dump_file(use_compression = None):
+def get_database_dump_file(compression = False):
     import run
     #mysql dump filenames
     if not os.path.isdir(LOCAL_DB_DIR):
         run.local('mkdir -p ' + LOCAL_DB_DIR)
     filename = os.path.abspath(LOCAL_DB_DIR + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql')
-    if use_compression is None:
-        use_compression = engine.USE_TAR_COMPRESSION
-    if use_compression:
+    if compression:
         filename += '.gz'
     return filename
 

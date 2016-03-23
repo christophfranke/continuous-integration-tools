@@ -4,7 +4,7 @@ from modules import out
 from modules import mysql
 
 @engine.prepare_and_clean
-def execute(filename=None):
+def execute(compression = None):
     out.log("exporting database...")
     mysql.export_local_db()
 

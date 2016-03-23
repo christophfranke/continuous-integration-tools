@@ -16,7 +16,7 @@ def test_module():
 @out.indent
 def local(command):
     #tell what happens
-    out.log(command, 'local')
+    out.log(command, 'local', out.LEVEL_VERBOSE)
     #run it
     exit_code = os.system(command)
 
@@ -30,7 +30,7 @@ def local(command):
 @engine.cleanup_tmp_files
 def remote(command):
     #tell what happens
-    out.log(command, 'remote')
+    out.log(command, 'remote', out.LEVEL_VERBOSE)
 
     #write command to file and upload it
     script_content = '#!/bin/bash\n' + command
@@ -39,9 +39,8 @@ def remote(command):
     #choose the correct command system
     if engine.COMMAND_SYSTEM == 'PHP':
         #reserve a remote .txt file
-        output_file = engine.get_new_local_file('txt');
+        output_file = engine.get_new_local_file('log', True);
         #run the command via php access and tell the server to put the commands output into the remote output file
-        run.local('touch ' + output_file)
         run.local('curl --silent --output ' + output_file + ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename)
         #log output to screen
         out.file(output_file, 'php exec')

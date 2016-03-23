@@ -4,7 +4,7 @@ from modules import out
 from modules import mysql
 
 @engine.prepare_and_clean
-def execute(filename):
+def execute(filename, compression = None):
     out.log("import database from " + filename + "...")
     mysql.import_local_db(filename)
 

@@ -1,7 +1,7 @@
 import engine
 import run
 import out
-
+import gzip
 
 @out.indent
 def test_module():
@@ -12,20 +12,30 @@ def test_module():
 @engine.cleanup_tmp_files
 def execute_ftp_command(command, verbose = False):
     #write the command into file
-    ftp_file = engine.write_local_file(command)
+    ftp_file = engine.write_local_file(command, 'ftp')
     #set verbose or not verbose
-    if verbose:
+    if verbose and False: #never show anything, this basically clutters the output and makes it less readable
         verbosity_option = '-v'
     else:
         verbosity_option = '-V'
+
     #run the ftp file
     run.local('ftp -i ' + verbosity_option + ' ftp://' + engine.FTP_USER + ':' + engine.FTP_PASSWORD + '@' + engine.FTP_HOST + ' <' + ftp_file)
+
+    #output an error if this file is not empty
+    if engine.local_is_not_empty(ftp_error_log):
+        out.log('There had been an error with the last ftp command.', 'ftp', out.LEVEL_ERROR)
+        out.file(ftp_error_log, 'ftp', out.LEVEL_ERROR)
+        exit()
+
 
 @out.indent
 def get(remote_file, local_file = None, verbose = False, permissions = None):
     #create new local file if not spcefied
     if local_file is None:
-        local_file = engine.get_new_local_file()
+        #keep suffix
+        suffix = engine.get_suffix(remote_file)
+        local_file = engine.get_new_local_file(suffix)
 
     #print some info
     out.log(remote_file + " -> " + local_file, 'download')
@@ -53,7 +63,8 @@ def get_verbose(remote_file, local_file=None):
 def put(local_file, remote_file = None, verbose = False, permissions = None):
     #create new remote file if none specified
     if remote_file is None:
-        remote_file = engine.get_new_remote_file()
+        suffix = engine.get_suffix(local_file)
+        remote_file = engine.get_new_remote_file(suffix)
 
     #print some info
     out.log(local_file + " -> " + remote_file, 'upload')
@@ -74,6 +85,26 @@ def put(local_file, remote_file = None, verbose = False, permissions = None):
 
     #return filename of uploaded file
     return remote_file
+
+def get_compressed(remote_file, local_file = None, verbose = False, permissions = None):
+    #compress remote file
+    compressed_remote = gzip.compress_remote(remote_file)
+    #download
+    compressed_local = get(compressed_remote, gzip.compressed_filename(local_file), verbose, permissions)
+    #restore uncompressed remote file
+    gzip.uncompress_remote(compressed_remote)
+    #uncmopress local file
+    return gzip.uncompress_local(compressed_local)
+
+def put_compressed(local_file, remote_file = None, verbose = False, permissions = None):
+    #compress local file
+    compressed_local = gzip.compress_local(local_file)
+    #upload
+    compressed_remote = put(compressed_local, gzip.compressed_filename(remote_file), verbose, permissions)
+    #restore local file
+    gzip.uncompress_local(compressed_local)
+    #uncompress remote file
+    return gzip.uncompress_remote(compressed_remote)
 
 def put_verbose(local_file, remote_file=None):
     put(local_file, remote_file, True)

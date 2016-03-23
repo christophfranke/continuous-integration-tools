@@ -1,4 +1,5 @@
 import os
+from constants import *
 
 #issue some warning if something goes wrong, so the user always knows exactly how to solve a problem
 def const_warning(const_name, const_dependency):
@@ -46,6 +47,7 @@ LOCAL_ROOT_DIR = os.path.abspath(SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT)
 LOCAL_WWW_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + WWW_DIR)
 LOCAL_DB_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + DB_DIR)
 LOCAL_TMP_DIR = os.path.abspath(SCRIPT_DIR + '/tmp')
+LOCAL_TAR_DIR = os.path.abspath(LOCAL_TMP_DIR + '/tar')
 
 try:
     LOCAL_HTTP_ROOT
@@ -67,6 +69,7 @@ except:
 
 REMOTE_WWW_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WWW_DIR)
 REMOTE_TMP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + TMP_DIR)
+REMOTE_TAR_DIR = os.path.normpath(REMOTE_TMP_DIR + '/tar')
 
 
 #concatenate mysql command strings. Really useful stuff...

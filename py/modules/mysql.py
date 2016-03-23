@@ -1,10 +1,9 @@
 import engine
 import run
 import transfer
+import gzip
 import out
 
-
-TAR_SQL_CONTENT_FILENAME = 'dump.sql'
 
 @out.indent
 def test_module():
@@ -16,8 +15,11 @@ def test_module():
 def execute_remote_file(filename):
     run.remote(engine.REMOTE_MYSQL_CMD + ' <' + filename)
 
+@engine.cleanup_tmp_files
+@out.indent
 def execute_remote_statement(statement):
-    filename = engine.write_remote_file(statement, '.sql')
+    out.log('executing statement remotely: ' + statement, 'mysql', out.LEVEL_VERBOSE)
+    filename = engine.write_remote_file(statement, 'sql')
     execute_remote_file(filename)
 
 #executes a mysql file locally
@@ -25,7 +27,10 @@ def execute_local_file(filename):
     run.local(engine.LOCAL_MYSQL_CMD + '<' + filename)
 
 #executes a mysql statement locally. This is done by writing a mysql file and then pass it to the mysql client via cli.
+@engine.cleanup_tmp_files
+@out.indent
 def execute_local_statement(statement):
+    out.log('executing statement locally: ' + statement, 'mysql', out.LEVEL_VERBOSE)
     filename = engine.write_local_file(statement, 'sql')
     execute_local_file(filename)
 
@@ -34,39 +39,39 @@ def execute_local_file_nodb(filename):
     run.local(engine.LOCAL_MYSQL_NO_DB_CMD + '<' + filename)
 
 #executes a statement without selecting a database. You can for example create databases, users, etc..
+@engine.cleanup_tmp_files
 def execute_local_statement_nodb(statement):
     filename = engine.write_local_file(statement, 'sql')
     execute_local_file_nodb(filename)
 
+@out.indent
 def create_local_db():
+    out.log('creating local db', 'mysql')
     execute_local_statement_nodb('CREATE DATABASE `' + engine.LOCAL_DB_NAME + '`;')
 
-def export_local_db():
+@out.indent
+def export_local_db(compression = False):
+    out.log('exporting local db', 'mysql')
+    #out.log('compression is set to ' + str(compression), 'mysql', out.LEVEL_VERBOSE)
     filename = engine.get_database_dump_file()
     run.local(engine.LOCAL_MYSQLDUMP_CMD + '>' + filename)
+    if compression:
+        return gzip.compress_local(filename)
+    else:
+        return filename
 
 #writes a database dump to file and returns its name
-def create_remote_dump(use_compression = None):
+@out.indent
+def create_remote_dump(compression = False):
+    out.log('create remote database dump', 'mysql')
     #export db on remote
     sql_file = engine.get_new_remote_file('sql')
     run.remote(engine.REMOTE_MYSQLDUMP_CMD + ' >' + sql_file)
 
     #compress it?
-    if use_compression is None:
-        use_compression = engine.USE_TAR_COMPRESSION
-    if use_compression:
-        #get tar file
-        tar_file = engine.get_new_remote_file('gz')
-
-        #temporarily rename the sql file
-        transfer.remote_move(sql_file, TAR_SQL_CONTENT_FILENAME)
-        #create tar archive
-        run.remote('tar -czf ' + tar_file + ' ' + TAR_SQL_CONTENT_FILENAME)
-        #move back sql file
-        transfer.remote_move(TAR_SQL_CONTENT_FILENAME, sql_file)
-
-        #return tar file
-        filename = tar_file
+    if compression:
+        #compress
+        filename = gzip.compress_remote(sql_file, True)
     else:
         #return sql file
         filename = sql_file
@@ -78,16 +83,18 @@ def create_remote_dump(use_compression = None):
 def truncate_local_db():
     execute_local_statement(engine.TRUNCATE_LOCAL_DB_SQL)
 
-def import_local_db(filename, use_compression = None):
+def truncate_remote_db():
+    execute_remote_statement(engine.TRUNCATE_REMOTE_DB_SQL)
+
+@out.indent
+def import_local_db(filename, compression = None):
+    out.log('importing local database from file ' + filename, 'mysql')
     #is our file compressed?
-    if use_compression is None:
-        use_compression = engine.USE_TAR_COMPRESSION
-    if use_compression:
+    if compression is None:
+        compression = gzip.is_compressed(filename)
+    if compression:
         #uncompress
-        run.local('tar -xzf ' + filename)
-        #move file to tmp folder
-        filename = engine.get_new_local_file('sql')
-        transfer.local_move(TAR_SQL_CONTENT_FILENAME, filename)
+        sql_file = gzip.local_uncompress(filename)
         #set sql_file accordingly
         sql_file = filename
     else:
@@ -98,3 +105,24 @@ def import_local_db(filename, use_compression = None):
 
     #refill db
     execute_local_file(sql_file)
+
+    #compress again, so we have not really changed the file
+    if compression:
+        gzip.compress_local(sql_file)
+
+@out.indent
+def upload_to_remote_db(filename, compression = None):
+    out.log('uploading file to remote database: ' + filename, 'mysql')
+    if compression is None:
+        compression = gzip.is_compressed(filename)
+    if compression:
+        #if our file is already compressed, we just upload it normally and compress it on the remote
+        remote_compressed = transfer.put(filename)
+        remote_uncompressed = gzip.uncompress(remote_compressed, True)
+    else:
+        #otherwise, we just upload it compressed and have it uncompressed automatically
+        remote_uncompressed = transfer.put_compressed(filename)
+
+    #truncate remote db and fill it with the new stuff
+    truncate_remote_db()
+    execute_remote_file(remote_uncompressed)

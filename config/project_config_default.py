@@ -1,3 +1,4 @@
+from constants import * #configuration constants, for more verbose values
 #copy this file to ../../project_config.py, so the the project_config.py symlink points to it
 #it then gets automatically imported
 #this way you can put this file under version control (and change it based on branching)
@@ -72,8 +73,8 @@ BUILD_URL = None
 #That way it doesn't have to be checked again and again, also you trigger the command system setup by simply removing the line from your project config.
 COMMAND_SYSTEM_READY = False
 
-#Do you want to use tar compression?
-USE_TAR_COMPRESSION = None #if set to None, the script will figure out if it is possible and set it accordingly in the project config.
+#The Log level. The higher it is set, the more output you will get
+LOG_LEVEL = LEVEL_INFO
 
 #here you can put project related custom commands that will be executed after deploying.
 #this function will be executed within the with cd(REMOTE_WWW_DIR)-block, so that is the folder your in.

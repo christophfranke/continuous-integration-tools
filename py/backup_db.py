@@ -7,8 +7,8 @@ from modules import mysql
 def execute(filename = None):
     out.log("Creating a backup of the remote db...")
     if filename is None:
-        filename = engine.get_database_dump_file()
-    remote_dump = mysql.create_remote_dump()
+        filename = engine.get_database_dump_file(compression = True)
+    remote_dump = mysql.create_remote_dump(compression = True)
     transfer.get_verbose(remote_dump, filename)
 
 
