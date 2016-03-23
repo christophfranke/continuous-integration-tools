@@ -49,6 +49,12 @@ LOCAL_DB_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + DB_DIR)
 LOCAL_TMP_DIR = os.path.abspath(SCRIPT_DIR + '/tmp')
 LOCAL_TAR_DIR = os.path.abspath(LOCAL_TMP_DIR + '/tar')
 
+if OUTPUT_LOG_FILE is not None:
+    LOG_FILE = os.path.abspath(SCRIPT_DIR + '/' + OUTPUT_LOG_FILE)
+else:
+    LOG_FILE = None
+
+
 try:
     LOCAL_HTTP_ROOT
     print "Warning: LOCAL_HTTP_ROOT is deprecated. Use LOCAL_DOMAIN instead (and omit the http:// there)."
@@ -163,5 +169,4 @@ if COMMAND_SYSTEM == 'PHP':
             pass
     else:
         const_subsequent('REMOTE_COMMAND_FILE', 'REMOTE_ROOT_URL')
-
 

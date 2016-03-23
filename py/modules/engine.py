@@ -37,6 +37,8 @@ def prepare_and_clean(func):
     def decorated_func(*args, **kwargs):
         import run
         import transfer
+        import out
+        out.clear_logfile()
         global COMMAND_SYSTEM_READY
         if not COMMAND_SYSTEM_READY:
             transfer.create_remote_directory(REMOTE_TMP_DIR, 777)
@@ -107,6 +109,20 @@ def get_local_tmp_dir():
 def get_remote_tmp_dir():
     return REMOTE_TMP_DIR
 
+def clean_local_tmp_dir():
+    import run
+    local_tmp_dir = get_local_tmp_dir()
+    run.local('rm ' + local_tmp_dir + '/tmp_file_*')
+
+def clean_remote_tmp_dir():
+    #import transfer
+    import run
+    remote_tmp_dir = get_remote_tmp_dir()
+    #command = 'remove ' + remote_tmp_dir + '/tmp_file_*'
+    #transfer.execute_ftp_command(command)
+    run.remote('rm ' + remote_tmp_dir + '/tmp_file_*')
+
+
 #registers a new local filename and returns it. Does not actually create the file.
 def get_new_local_file(suffix = None, create_file = False):
     import run
@@ -175,7 +191,22 @@ def rename_local_file(from_file, to_file):
 def rename_remote_file(from_file, to_file):
     return rename_file(from_file, to_file, remote_tmp_files)
 
+def compile_mo_files():
 
+    files = []
+    for root, dirnames, filenames in os.walk(LOCAL_WWW_DIR):
+        for filename in fnmatch.filter(filenames, '*.po'):
+            files.append(os.path.join(root, filename))
+
+    for po in files:
+        mo = po[:-3] + '.mo'
+        # needs to be refreshed if
+        # 1. there is no .mo file
+        # 2. the .mo file is out of date
+        # 3. the .mo file is not placed in a folder named 'orig'
+        if (not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo)) and (not os.path.split(os.path.dirname(po))[1] == 'orig'):
+            local('msgfmt -o ' + mo + ' ' + po)
+ 
 def add_config(key, value):
     import out
 

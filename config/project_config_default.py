@@ -76,6 +76,9 @@ COMMAND_SYSTEM_READY = False
 #The Log level. The higher it is set, the more output you will get
 LOG_LEVEL = LEVEL_INFO
 
+#If this is not set to None, the complete debug output will be written to this file, in case something went wrong..
+OUTPUT_LOG_FILE = 'output/output.log'
+
 #here you can put project related custom commands that will be executed after deploying.
 #this function will be executed within the with cd(REMOTE_WWW_DIR)-block, so that is the folder your in.
 def custom_after_deploy_script():

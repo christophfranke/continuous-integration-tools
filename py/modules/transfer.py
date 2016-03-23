@@ -23,10 +23,10 @@ def execute_ftp_command(command, verbose = False):
     run.local('ftp -i ' + verbosity_option + ' ftp://' + engine.FTP_USER + ':' + engine.FTP_PASSWORD + '@' + engine.FTP_HOST + ' <' + ftp_file)
 
     #output an error if this file is not empty
-    if engine.local_is_not_empty(ftp_error_log):
-        out.log('There had been an error with the last ftp command.', 'ftp', out.LEVEL_ERROR)
-        out.file(ftp_error_log, 'ftp', out.LEVEL_ERROR)
-        exit()
+    #if engine.local_is_not_empty(ftp_error_log):
+    #    out.log('There had been an error with the last ftp command.', 'ftp', out.LEVEL_ERROR)
+    #    out.file(ftp_error_log, 'ftp', out.LEVEL_ERROR)
+    #    exit()
 
 
 @out.indent
@@ -94,7 +94,7 @@ def get_compressed(remote_file, local_file = None, verbose = False, permissions 
     #restore uncompressed remote file
     gzip.uncompress_remote(compressed_remote)
     #uncmopress local file
-    return gzip.uncompress_local(compressed_local)
+    return gzip.uncompress_local(compressed_local, True)
 
 def put_compressed(local_file, remote_file = None, verbose = False, permissions = None):
     #compress local file
@@ -104,7 +104,7 @@ def put_compressed(local_file, remote_file = None, verbose = False, permissions 
     #restore local file
     gzip.uncompress_local(compressed_local)
     #uncompress remote file
-    return gzip.uncompress_remote(compressed_remote)
+    return gzip.uncompress_remote(compressed_remote, True)
 
 def put_verbose(local_file, remote_file=None):
     put(local_file, remote_file, True)

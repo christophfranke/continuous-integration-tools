@@ -4,7 +4,7 @@ if(isset($_GET['self_test']))
     echo shell_exec('echo ok');
     die();
 }
-if(isset($_GET['info']))
+if(isset($_GET['phpinfo']))
 {
     phpinfo();
     die();

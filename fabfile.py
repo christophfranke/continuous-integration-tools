@@ -8,6 +8,9 @@ import py.import_db
 import py.backup_db
 import py.test
 import py.upload_db
+import py.cleanup
+import py.phpinfo
+import py.compile
 
 def sync_db():
     py.sync_db.execute()
@@ -35,3 +38,12 @@ def test():
 
 def upload_db(filename = None):
     py.upload_db.execute(filename)
+
+def cleanup():
+    py.cleanup.execute()
+
+def phpinfo():
+    py.phpinfo.execute()
+
+def compile(types = None):
+    py.compile.execute(types)

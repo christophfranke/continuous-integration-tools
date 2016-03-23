@@ -51,9 +51,8 @@ def create_local_db():
 
 @out.indent
 def export_local_db(compression = False):
-    out.log('exporting local db', 'mysql')
-    #out.log('compression is set to ' + str(compression), 'mysql', out.LEVEL_VERBOSE)
     filename = engine.get_database_dump_file()
+    out.log('exporting local db to ' + filename, 'mysql')
     run.local(engine.LOCAL_MYSQLDUMP_CMD + '>' + filename)
     if compression:
         return gzip.compress_local(filename)
@@ -80,15 +79,18 @@ def create_remote_dump(compression = False):
     return filename
 
 #truncates the remote db by executing some sql (truncation leaves the db empty, but it still exists)
+@out.indent
 def truncate_local_db():
+    out.log('truncate local database', 'mysql')
     execute_local_statement(engine.TRUNCATE_LOCAL_DB_SQL)
 
+@out.indent
 def truncate_remote_db():
+    out.log('truncate remote database', 'mysql')
     execute_remote_statement(engine.TRUNCATE_REMOTE_DB_SQL)
 
 @out.indent
 def import_local_db(filename, compression = None):
-    out.log('importing local database from file ' + filename, 'mysql')
     #is our file compressed?
     if compression is None:
         compression = gzip.is_compressed(filename)
@@ -104,6 +106,7 @@ def import_local_db(filename, compression = None):
     truncate_local_db()
 
     #refill db
+    out.log('importing local database from file ' + filename, 'mysql')
     execute_local_file(sql_file)
 
     #compress again, so we have not really changed the file
@@ -125,4 +128,5 @@ def upload_to_remote_db(filename, compression = None):
 
     #truncate remote db and fill it with the new stuff
     truncate_remote_db()
+    out.log('import remote database', 'mysql')
     execute_remote_file(remote_uncompressed)

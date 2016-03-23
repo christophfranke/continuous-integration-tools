@@ -7,7 +7,7 @@ from modules import mysql
 def execute():
     out.log("Synchronizing local db...")
     remote_dump = mysql.create_remote_dump()
-    local_dump = transfer.get_verbose(remote_dump)
+    local_dump = transfer.get_compressed(remote_dump)
     mysql.import_local_db(local_dump)
 
 

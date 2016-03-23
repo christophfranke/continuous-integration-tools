@@ -1,4 +1,6 @@
-import os
+import subprocess
+import time
+
 import engine
 import run
 import out
@@ -17,8 +19,21 @@ def test_module():
 def local(command):
     #tell what happens
     out.log(command, 'local', out.LEVEL_VERBOSE)
+
     #run it
-    exit_code = os.system(command)
+    #exit_code = os.system(command)
+
+    #run it using subprocess
+    process = subprocess.Popen(command, shell = True, stdin = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    while process.poll() is None:
+        output = process.stdout.readline()
+        error = process.stderr.readline()
+        if output != '':
+            out.log(output, 'local')
+        if error != '':
+            out.log(error, 'local', out.LEVEL_ERROR)
+        time.sleep(0.05)
+    exit_code = process.poll()
 
     #check for exitcode
     if exit_code != 0:

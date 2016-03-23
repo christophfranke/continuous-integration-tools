@@ -3,11 +3,11 @@
 #import all constants
 try:
     #this import will work when we are in scripts folder
-    from config.config import LOG_LEVEL, LEVEL_NONE, LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_VERBOSE, LEVEL_DEBUG
+    from config.config import LOG_LEVEL, LEVEL_NONE, LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_VERBOSE, LEVEL_DEBUG, LOG_FILE
 except ImportError:
     try:
         #this will work form other places (relative import)
-        from ...config.config import LOG_LEVEL, LEVEL_NONE, LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_VERBOSE, LEVEL_DEBUG
+        from ...config.config import LOG_LEVEL, LEVEL_NONE, LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_VERBOSE, LEVEL_DEBUG, LOG_FILE
     except ImportError:
         #we are out of luck...
         print "Could not import config package. Try navigating to script folder before starting the script."
@@ -16,6 +16,8 @@ except ImportError:
 
 last_output_blocked = False
 output_blocked_from_parent = False
+
+filter_output = ['Warning: Using a password on the command line interface can be insecure.']
 
 #the indentation level, so you can see which function triggered what
 indentation = -1
@@ -28,7 +30,21 @@ def log(msg, domain = 'command', output_level = LEVEL_INFO):
     global last_output_blocked
     global output_blocked_from_parent
 
-    #the parents output did not come through, so we shouldn't go into further detail here
+    if msg.rstrip() in filter_output:
+        return
+
+    #handle indentation
+    indentation_string = ''
+    for i in range(indentation):
+        indentation_string += '  '
+
+    #assemble output
+    output = str(indentation_string) + '[' + str(domain) + '] ' + str(msg).rstrip()
+
+    #just log everything to output file
+    log_to_output_file(output)
+
+    #the parents output did not come through, so we won't print anything
     if output_blocked_from_parent and output_level > LEVEL_WARNING:
         return
 
@@ -37,13 +53,8 @@ def log(msg, domain = 'command', output_level = LEVEL_INFO):
     if last_output_blocked:
         return
 
-    #handle indentation
-    indentation_string = ''
-    for i in range(indentation):
-        indentation_string += '  '
-
-    #print!
-    print str(indentation_string) + '[' + str(domain) + '] ' + str(msg)
+    #print output
+    print output
 
 #reads a file and logs it onto screen using log
 def file(filename, domain,output_level = LEVEL_INFO):
@@ -52,7 +63,7 @@ def file(filename, domain,output_level = LEVEL_INFO):
         return
     file = open(filename, "r")
     for line in file:
-        log(line.rstrip(), domain, output_level)
+        log(line, domain, output_level)
 
 #mostly used internally to handle indentation
 def increase_indentation(levels = 1):
@@ -67,6 +78,17 @@ def decrease_indentation(levels = 1):
         log('[output] Warning: Indentation is smaller than -1. Set to -1.')
         indentation = -1
 
+def log_to_output_file(output):
+    if LOG_FILE is None:
+        return
+    file = open(LOG_FILE, 'a')
+    file.write(output + "\n")
+    file.close
+
+def clear_logfile():
+    if not LOG_FILE is None:
+        file = open(LOG_FILE, 'w')
+        file.close()
 
 #decorator, that will cause output of function calls of this function to be indented.
 #For better understanding of the commands flow and what of why happend where
