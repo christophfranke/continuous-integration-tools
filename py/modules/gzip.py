@@ -30,7 +30,7 @@ def uncompress(compressed_file, run_func, rename_tmp_func = None):
     out.log('uncompressing ' + compressed_file, 'zip', out.LEVEL_VERBOSE)
     if compressed_file[-3:] != '.gz':
         out.log('Error: Compressed file does not have the .gz suffix. Something is going wrong here.', 'zip', out.LEVEL_ERROR)
-        exit()
+        engine.quit()
 
     #uncompressed file is compressed file without the last three characters
     uncompressed_file = compressed_file[:-3]

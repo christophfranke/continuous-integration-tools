@@ -1,6 +1,7 @@
 from modules import engine
 from modules import out
 from modules import run
+from modules import compile
 
 
 @engine.prepare_and_clean
@@ -17,19 +18,18 @@ def execute(types = None):
     #compile less
     if types == 'all' or types == 'less':
         out.log('compiling less files...')
-        run.local('cd ' + engine.SCRIPT_DIR + ' && make ' + engine.MAKEFILE_VARS + ' less')
+        compile.less()
 
     #compile js
     if types == 'all' or types == 'js':
         out.log('compiling js files')
-        local('cd ' + SCRIPT_DIR + ' && make ' + MAKEFILE_VARS + ' js')
+        compile.js()
 
-    #compile mo
-    if types == 'all' or types == 'mo':
+    #compile po
+    if types == 'all' or types == 'po':
         out.log('compiling mo files')
-
-        engine.compile_mo_files()
+        compile.po()
 
 
 def help():
-    out.log('Compiles less, js and mo files. Takes a parameter specifying what to compile, options are less, js, mo, all (default).', 'help')
+    out.log('Compiles less, js and mo files. Takes a parameter specifying what to compile, options are less, js, po, all (default).', 'help')

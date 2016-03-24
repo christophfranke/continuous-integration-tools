@@ -115,19 +115,22 @@ try:
 except:
     const_warning('TRUNCATE_REMOTE_DB_SQL', 'REMOTE_DB_NAME')
 
+
 try:
-    RELATIVE_SRC_DIR = WWW_DIR + '/' + SRC_URL
-    RELATIVE_BUILD_DIR = WWW_DIR + '/' + BUILD_URL
-
-    LOCAL_SRC_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + RELATIVE_SRC_DIR)
-    LOCAL_BUILD_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
-
-    REMOTE_BUILD_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
-
-    MAKEFILE_VARS = 'SRC=' + SRC_DIR + ' BUILD=' + BUILD_DIR + ' SRC_URL=' + SRC_URL + ' BUILD_URL=' + BUILD_URL + ' WWW_DIR=' + LOCAL_WWW_DIR
-except:
     if ENABLE_BUILD_SYSTEM:
-        print "Build related variables could not be assembled. Make sure you have set SCR_URL and BUILD_URL in your project config."
+        RELATIVE_SRC_DIR = WWW_DIR + '/' + SRC_URL
+        RELATIVE_BUILD_DIR = WWW_DIR + '/' + BUILD_URL
+
+        LOCAL_SRC_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + RELATIVE_SRC_DIR)
+        LOCAL_BUILD_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
+
+        REMOTE_BUILD_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
+
+        LOCAL_MAKE_DIR = os.path.abspath(SCRIPT_DIR + '/make')
+
+        MAKEFILE_VARS = 'SRC=' + LOCAL_SRC_DIR + ' BUILD=' + LOCAL_BUILD_DIR + ' SRC_URL=' + SRC_URL + ' BUILD_URL=' + BUILD_URL + ' WWW_DIR=' + LOCAL_WWW_DIR
+except:
+    print "Build related variables could not be assembled. Make sure you have set SCR_URL and BUILD_URL in your project config."
 
 
 #wordpress specifics

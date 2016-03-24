@@ -22,12 +22,6 @@ def execute_ftp_command(command, verbose = False):
     #run the ftp file
     run.local('ftp -i ftp://' + engine.FTP_USER + ':' + engine.FTP_PASSWORD + '@' + engine.FTP_HOST + ' <' + ftp_file)
 
-    #output an error if this file is not empty
-    #if engine.local_is_not_empty(ftp_error_log):
-    #    out.log('There had been an error with the last ftp command.', 'ftp', out.LEVEL_ERROR)
-    #    out.file(ftp_error_log, 'ftp', out.LEVEL_ERROR)
-    #    exit()
-
 
 @out.indent
 def get(remote_file, local_file = None, verbose = False, permissions = None):

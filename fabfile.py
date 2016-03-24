@@ -11,6 +11,7 @@ import py.upload_db
 import py.cleanup
 import py.phpinfo
 import py.compile
+import py.deploy
 
 def sync_db():
     py.sync_db.execute()
@@ -47,3 +48,6 @@ def phpinfo():
 
 def compile(types = None):
     py.compile.execute(types)
+
+def deploy():
+    py.deploy.execute()

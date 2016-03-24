@@ -25,20 +25,30 @@ def local(command, halt_on_stderr = True):
     stderr_occured = False
     process = subprocess.Popen(command, shell = True, stdin = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     while process.poll() is None:
+        read_something = False
+
+        #read regular output
         output = process.stdout.readline()
-        error = process.stderr.readline()
         if output != '':
+            read_something = True
             out.log(output, 'local')
+
+        #read error output
+        error = process.stderr.readline()
         if error != '':
             out.log(error, 'local', out.LEVEL_ERROR)
             stderr_occured = True
-        time.sleep(0.05)
-    exit_code = process.poll()
+            read_something = True
 
-    #check for exitcode
+        #if there was no output, wait a little bit for the programm to finish
+        if not read_something:
+            time.sleep(0.05)
+
+    #get the exit code and print stuff if something has gone wrong
+    exit_code = process.poll()
     if exit_code != 0 or (halt_on_stderr and stderr_occured):
         out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), 'local', out.LEVEL_ERROR)
-        exit()
+        engine.quit()
 
 #run command on remote. a bit harder.
 @out.indent

@@ -7,6 +7,9 @@ def execute():
     engine.clean_local_tmp_dir()
     out.log("cleaning up the remote tmp directory")
     engine.clean_remote_tmp_dir()
+    if engine.ENABLE_BUILD_SYSTEM:
+        out.log("cleaning up local build directory")
+        engine.clean_build_dir()
 
 
 def help():
