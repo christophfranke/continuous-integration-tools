@@ -21,19 +21,20 @@ FTP_PASSWORD = None
 #the ftp host to connect to. Often this is the same as the websites domain
 FTP_HOST = '' #defaults to LIVE_DOMAIN
 
+#note that SSH is currently unavailable, as it is not implemented with the new system yet.
 #if an ssh account is provided, this should be preferred (it's faster and more secure)
 SSH_USER = None
 SSH_PASSWORD = None
 SSH_HOST = None #this is usually NOT the same as the websites domain, so we don't provide a standard value here
 
 #the file transfer system decides, how files are being transfered between the local and remote computer. Use SSH if available
-TRANSFER_SYSTEM = '' #automatic detection (empty string) will use ssh if SSH_USER, SSH_PASSWORD and SSH_HOST are provided.
+TRANSFER_SYSTEM = '' #automatic detection (empty string) will use ssh if SSH_USER, SSH_PASSWORD and SSH_HOST are provided. Possible values are 'FTP' and 'SSH'
 #the command system decides, what api is used to execute shell commands on the remote host
-COMMAND_SYSTEM = '' #automatic detection works exactly as with the transfer system
+COMMAND_SYSTEM = '' #automatic detection works exactly as with the transfer system. Possible values are 'PHP' and 'SSH'
 
 #All file actions (deploy, sync_media, etc.) RELY on the projects root folder to be set correctly.
 REMOTE_ROOT_DIR = '.' #this is your remote root folder (should be the git project root).
-WWW_DIR = 'www' #the www folder relative to the project root
+WWW_DIR = 'www' #the www folder relative to the project root. Must be a direct subfolder of the project root.
 
 #tmp dir on the remote host, relative to remote root dir
 TMP_DIR = 'deploy-tools-tmp-dir' #note that we already have a local tmp dir in a subdirectory fo the script folder, so we only need a name for a tmp dir on the server that does not collide with anyhting
@@ -78,6 +79,11 @@ LOG_LEVEL = LEVEL_INFO
 
 #If this is not set to None, the complete debug output will be written to this file, in case something went wrong..
 OUTPUT_LOG_FILE = 'output/output.log'
+
+#if your page is protected by basic auth (i.e. .htpasswd protection), you need to provide that information here
+NEED_BASIC_AUTH = False #turn on basic auth here
+AUTH_USER = None #put your auth username here
+AUTH_PASSWORD = None #and your auth password here
 
 #here you can put project related custom commands that will be executed after deploying.
 #this function will be executed within the with cd(REMOTE_WWW_DIR)-block, so that is the folder your in.

@@ -24,7 +24,7 @@ def execute_remote_statement(statement):
 
 #executes a mysql file locally
 def execute_local_file(filename):
-    run.local(engine.LOCAL_MYSQL_CMD + '<' + filename)
+    run.local(engine.LOCAL_MYSQL_CMD + '<' + filename, False)
 
 #executes a mysql statement locally. This is done by writing a mysql file and then pass it to the mysql client via cli.
 @engine.cleanup_tmp_files
@@ -36,7 +36,7 @@ def execute_local_statement(statement):
 
 #executes a mysql file locally without selecting a db first. Useful for creating a database, for example
 def execute_local_file_nodb(filename):
-    run.local(engine.LOCAL_MYSQL_NO_DB_CMD + '<' + filename)
+    run.local(engine.LOCAL_MYSQL_NO_DB_CMD + '<' + filename, False)
 
 #executes a statement without selecting a database. You can for example create databases, users, etc..
 @engine.cleanup_tmp_files
@@ -53,7 +53,7 @@ def create_local_db():
 def export_local_db(compression = False):
     filename = engine.get_database_dump_file()
     out.log('exporting local db to ' + filename, 'mysql')
-    run.local(engine.LOCAL_MYSQLDUMP_CMD + '>' + filename)
+    run.local(engine.LOCAL_MYSQLDUMP_CMD + '>' + filename, False)
     if compression:
         return gzip.compress_local(filename)
     else:

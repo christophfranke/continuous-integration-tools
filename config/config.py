@@ -75,7 +75,6 @@ except:
 
 REMOTE_WWW_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WWW_DIR)
 REMOTE_TMP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + TMP_DIR)
-REMOTE_TAR_DIR = os.path.normpath(REMOTE_TMP_DIR + '/tar')
 
 
 #concatenate mysql command strings. Really useful stuff...
@@ -163,7 +162,7 @@ if TRANSFER_SYSTEM == 'FTP':
 if COMMAND_SYSTEM == 'PHP':
     if REMOTE_ROOT_URL is not None:
         try:
-            REMOTE_COMMAND_FILE = os.path.normpath(REMOTE_ROOT_DIR + '/' + SECURITY_HASH + '.php')
+            REMOTE_COMMAND_FILE = os.path.normpath(REMOTE_WWW_DIR + '/' + SECURITY_HASH + '.php')
             REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
         except:
             pass

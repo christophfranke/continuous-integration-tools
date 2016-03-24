@@ -1,5 +1,6 @@
 import subprocess
 import time
+import os
 
 import engine
 import run
@@ -16,14 +17,12 @@ def test_module():
 
 #run command locally. easy.
 @out.indent
-def local(command):
+def local(command, halt_on_stderr = True):
     #tell what happens
     out.log(command, 'local', out.LEVEL_VERBOSE)
 
-    #run it
-    #exit_code = os.system(command)
-
     #run it using subprocess
+    stderr_occured = False
     process = subprocess.Popen(command, shell = True, stdin = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     while process.poll() is None:
         output = process.stdout.readline()
@@ -32,11 +31,12 @@ def local(command):
             out.log(output, 'local')
         if error != '':
             out.log(error, 'local', out.LEVEL_ERROR)
+            stderr_occured = True
         time.sleep(0.05)
     exit_code = process.poll()
 
     #check for exitcode
-    if exit_code != 0:
+    if exit_code != 0 or (halt_on_stderr and stderr_occured):
         out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), 'local', out.LEVEL_ERROR)
         exit()
 
@@ -56,7 +56,11 @@ def remote(command):
         #reserve a remote .txt file
         output_file = engine.get_new_local_file('log', True);
         #run the command via php access and tell the server to put the commands output into the remote output file
-        run.local('curl --silent --output ' + output_file + ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename)
+        curl_command = 'curl --silent --output ' + output_file
+        if engine.NEED_BASIC_AUTH:
+            curl_command += ' -u ' + engine.AUTH_USER + ':' + engine.AUTH_PASSWORD
+        curl_command += ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename
+        run.local(curl_command, False)
         #log output to screen
         out.file(output_file, 'php exec')
     elif engine.COMMAND_SYSTEM == 'SSH':
@@ -78,7 +82,7 @@ def upload_command_file():
     except AttributeError:
         new_hash = engine.get_random_secury_id()
         engine.add_config('SECURITY_HASH', new_hash)
-        engine.REMOTE_COMMAND_FILE = os.path.normpath(engine.REMOTE_ROOT_DIR + '/' + engine.SECURITY_HASH + '.php')
+        engine.REMOTE_COMMAND_FILE = os.path.normpath(engine.REMOTE_WWW_DIR + '/' + engine.SECURITY_HASH + '.php')
         engine.REMOTE_COMMAND_URL = engine.REMOTE_ROOT_URL + '/' + engine.SECURITY_HASH + '.php'
 
     transfer.put('php/cmd.php', engine.REMOTE_COMMAND_FILE)

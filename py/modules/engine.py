@@ -43,7 +43,7 @@ def prepare_and_clean(func):
         if not COMMAND_SYSTEM_READY:
             transfer.create_remote_directory(REMOTE_TMP_DIR, 777)
             run.upload_command_file()
-            add_config('COMMAND_SYSTEM_READY', 'True')
+            add_config('COMMAND_SYSTEM_READY', 'True', 'Boolean')
         result = func(*args, **kwargs)
         cleanup()
         return result
@@ -207,14 +207,19 @@ def compile_mo_files():
         if (not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo)) and (not os.path.split(os.path.dirname(po))[1] == 'orig'):
             local('msgfmt -o ' + mo + ' ' + po)
  
-def add_config(key, value):
+def add_config(key, value, type='string'):
     import out
+
+    if type == 'string':
+        escaped_value = "'" + value + "'"
+    else:
+        escaped_value = value
 
     #write to project config
     filename = PROJECT_CONFIG_FILE
     out.log('PROJECT_CONFIG_FILE is at ' + PROJECT_CONFIG_FILE, 'engine', out.LEVEL_DEBUG)
     file = open(filename, 'a')
-    file.write("\n" + key + " = '" + value + "' #added automatically on " + str(datetime.now()) + "\n")
+    file.write("\n" + key + " = " + escaped_value + " #added automatically on " + str(datetime.now()) + "\n")
     file.close()
 
     #make accessible immediately

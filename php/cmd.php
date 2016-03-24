@@ -38,7 +38,7 @@ if(!empty($file))
 
 if(!empty($command))
 {
-    exec("$command 2>&1", $output_array, $return_value);
+    exec("cd .. && $command 2>&1", $output_array, $return_value);
     if($return_value !== 0)
     {
         echo "$command returned with status code $return_value\n";

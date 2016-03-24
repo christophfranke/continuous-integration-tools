@@ -14,13 +14,13 @@ def execute_ftp_command(command, verbose = False):
     #write the command into file
     ftp_file = engine.write_local_file(command, 'ftp')
     #set verbose or not verbose
-    if verbose and False: #never show anything, this basically clutters the output and makes it less readable
+    if verbose: #never show anything, this basically clutters the output and makes it less readable
         verbosity_option = '-v'
     else:
         verbosity_option = '-V'
 
     #run the ftp file
-    run.local('ftp -i ' + verbosity_option + ' ftp://' + engine.FTP_USER + ':' + engine.FTP_PASSWORD + '@' + engine.FTP_HOST + ' <' + ftp_file)
+    run.local('ftp -i ftp://' + engine.FTP_USER + ':' + engine.FTP_PASSWORD + '@' + engine.FTP_HOST + ' <' + ftp_file)
 
     #output an error if this file is not empty
     #if engine.local_is_not_empty(ftp_error_log):
