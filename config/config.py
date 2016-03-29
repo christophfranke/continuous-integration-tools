@@ -54,6 +54,8 @@ if OUTPUT_LOG_FILE is not None:
 else:
     LOG_FILE = None
 
+LOCAL_MD5_TABLE_FILE = os.path.abspath(LOCAL_ROOT_DIR + '/' + MD5_TABLE_FILE)
+
 
 try:
     LOCAL_HTTP_ROOT

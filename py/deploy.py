@@ -1,7 +1,7 @@
 from modules import engine
 from modules import out
-from modules import sync
 from modules import compile
+from modules import sync
 
 @engine.prepare_and_clean
 def execute():

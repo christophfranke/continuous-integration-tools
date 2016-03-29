@@ -21,6 +21,9 @@ def local(command, halt_on_stderr = True):
     #tell what happens
     out.log(command, 'local', out.LEVEL_VERBOSE)
 
+    #create output array
+    output_array = []
+
     #run it using subprocess
     stderr_occured = False
     process = subprocess.Popen(command, shell = True, stdin = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
@@ -32,6 +35,7 @@ def local(command, halt_on_stderr = True):
         if output != '':
             read_something = True
             out.log(output, 'local')
+            output_array.append(output)
 
         #read error output
         error = process.stderr.readline()
@@ -49,6 +53,9 @@ def local(command, halt_on_stderr = True):
     if exit_code != 0 or (halt_on_stderr and stderr_occured):
         out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), 'local', out.LEVEL_ERROR)
         engine.quit()
+
+    return output_array
+
 
 #run command on remote. a bit harder.
 @out.indent
