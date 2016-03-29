@@ -13,11 +13,13 @@ except ImportError:
 
 import random
 import string
+import time
 from datetime import datetime
 
 import out
 
 current_tmp_file_namespace = 'global'
+cleaning_up_already = False
 
 #remember the files we have created for cleaning up later
 local_tmp_files = {}
@@ -25,6 +27,7 @@ local_tmp_files['global'] = []
 remote_tmp_files = {}
 remote_tmp_files['global'] = []
 
+start_time = time.time()
 
 def get_random_id():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
@@ -46,6 +49,9 @@ def prepare_and_clean(func):
             add_config('COMMAND_SYSTEM_READY', 'True', 'Boolean')
         result = func(*args, **kwargs)
         cleanup()
+        global start_time
+        elapsed_time = "{:.3f}".format(time.time() - start_time)
+        out.log('Done. Took ' + elapsed_time + ' seconds.')
         return result
     return out.indent(decorated_func)
 
@@ -70,8 +76,20 @@ def cleanup_tmp_files(func):
 def cleanup(namespace = None):
     #cleanup all namespaces
     if namespace is None:
-        for name in local_tmp_files:
+        #guard for unwanted recursion
+        global cleaning_up_already
+        if cleaning_up_already:
+            return
+        cleaning_up_already = True
+
+        #make a copy of the list before iterating over it
+        up_for_delete_list = list(local_tmp_files)
+        #cleanup every entry of this list
+        for name in up_for_delete_list:
             cleanup(name)
+
+        #remove guard and exit
+        cleaning_up_already = False
         return
 
     import transfer

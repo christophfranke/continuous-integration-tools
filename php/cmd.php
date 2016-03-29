@@ -24,6 +24,7 @@ if(isset($_GET['test_tar']))
 
 $command = @$_GET['cmd'];
 $file = @$_GET['file'];
+$cwd = @$_GET['cwd'];
 if(!empty($file))
 {
     //make sure we have the right to execute this file. this also will fail if we don't own it.
@@ -38,7 +39,10 @@ if(!empty($file))
 
 if(!empty($command))
 {
-    exec("cd .. && $command 2>&1", $output_array, $return_value);
+    if(!empty($cwd))
+        exec("cd $cwd && $command 2>&1", $output_array, $return_value);
+    else
+        exec("$command 2>&1", $output_array, $return_value);
     if($return_value !== 0)
     {
         echo "$command returned with status code $return_value\n";

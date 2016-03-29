@@ -33,7 +33,7 @@ TRANSFER_SYSTEM = '' #automatic detection (empty string) will use ssh if SSH_USE
 COMMAND_SYSTEM = '' #automatic detection works exactly as with the transfer system. Possible values are 'PHP' and 'SSH'
 
 #All file actions (deploy, sync_media, etc.) RELY on the projects root folder to be set correctly.
-REMOTE_ROOT_DIR = '.' #this is your remote root folder (should be the git project root).
+REMOTE_ROOT_DIR = None #this is your remote root directory. If you don't have access to this directory, set it to None. It then is assumed, that the www dir is the root dir on the remote side.
 WWW_DIR = 'www' #the www folder relative to the project root. Must be a direct subfolder of the project root.
 
 #tmp dir on the remote host, relative to remote root dir

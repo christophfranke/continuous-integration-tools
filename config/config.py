@@ -73,8 +73,12 @@ except:
     const_warning('REMOTE_ROOT_URL', 'LIVE_DOMAIN')
     REMOTE_ROOT_URL = None
 
-REMOTE_WWW_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WWW_DIR)
-REMOTE_TMP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + TMP_DIR)
+if REMOTE_ROOT_DIR is None:
+    REMOTE_WWW_DIR = '.'
+    REMOTE_TMP_DIR = TMP_DIR
+else:
+    REMOTE_WWW_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WWW_DIR)
+    REMOTE_TMP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + TMP_DIR)
 
 
 #concatenate mysql command strings. Really useful stuff...
@@ -124,7 +128,10 @@ try:
         LOCAL_SRC_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + RELATIVE_SRC_DIR)
         LOCAL_BUILD_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
 
-        REMOTE_BUILD_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
+        if REMOTE_ROOT_DIR is None:
+            REMOTE_BUILD_DIR = BUILD_URL
+        else:
+            REMOTE_BUILD_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
 
         LOCAL_MAKE_DIR = os.path.abspath(SCRIPT_DIR + '/make')
 
@@ -138,7 +145,10 @@ if IS_WORDPRESS:
     if WP_DIR == '':
         WP_DIR = WWW_DIR
     LOCAL_WP_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + WP_DIR)
-    REMOTE_WP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WP_DIR)
+    if REMOTE_ROOT_DIR is None:
+        REMOTE_WP_DIR = WP_DIR
+    else:
+        REMOTE_WP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WP_DIR)
 
 #ssh or ftp?
 if TRANSFER_SYSTEM == '':

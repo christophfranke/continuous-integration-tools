@@ -70,6 +70,8 @@ def remote(command):
         if engine.NEED_BASIC_AUTH:
             curl_command += ' -u ' + engine.AUTH_USER + ':' + engine.AUTH_PASSWORD
         curl_command += ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename
+        if engine.REMOTE_ROOT_DIR is not None:
+            curl_command += '\&cwd=' + engine.REMOTE_ROOT_DIR
         run.local(curl_command, False)
         #log output to screen
         out.file(output_file, 'php exec')
@@ -95,5 +97,6 @@ def upload_command_file():
         engine.REMOTE_COMMAND_FILE = os.path.normpath(engine.REMOTE_WWW_DIR + '/' + engine.SECURITY_HASH + '.php')
         engine.REMOTE_COMMAND_URL = engine.REMOTE_ROOT_URL + '/' + engine.SECURITY_HASH + '.php'
 
+    out.log('uploading command file to ' + engine.REMOTE_COMMAND_FILE, 'run')
     transfer.put('php/cmd.php', engine.REMOTE_COMMAND_FILE)
     return True
