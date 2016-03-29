@@ -112,6 +112,11 @@ def put_directory(directory, verbose = False, permissions = None):
     remote_tar = put_compressed(local_tar, verbose = verbose, permissions = permissions)
     tar.unpack_remote(remote_tar)
 
+def put_multiple(file_list, verbose = False, permissions = None):
+    local_tar = tar.pack_local_list(file_list)
+    remote_tar = put_compressed(local_tar, verbose = verbose, permissions = permissions)
+    tar.unpack_remote(remote_tar)
+
 def put_verbose(local_file, remote_file=None):
     put(local_file, remote_file, True)
 
