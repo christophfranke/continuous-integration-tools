@@ -1,12 +1,11 @@
 from modules import engine
 from modules import out
-from modules import transfer
+from modules import sync
 
 @engine.prepare_and_clean
 def execute(filename = None):
-    out.log("uploading all files from www directory...")
-    #get/put directory is always relative to the www directory, so '.' just gets all
-    transfer.put_directory('.')
+    out.log("uploading all files to www directory...")
+    sync.upload(True)
 
 
 

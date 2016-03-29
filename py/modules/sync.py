@@ -9,7 +9,7 @@ import transfer
 
 #upload local files using ftp
 @out.indent
-def upload():
+def upload(force_upload = False):
     #remember the files we uploaded last time
     files_uploaded = load_md5_table()
     #recalculate all md5 hashes
@@ -18,7 +18,7 @@ def upload():
     #check which have changed
     files_scheduled = []
     for f in files_current:
-        if not f in files_uploaded or not files_current[f] == files_uploaded[f]:
+        if force_upload or not f in files_uploaded or not files_current[f] == files_uploaded[f]:
             out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
             files_scheduled.append(f)
 
