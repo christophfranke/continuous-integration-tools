@@ -21,7 +21,7 @@ def po():
         # 3. the .mo file is not placed in a folder named 'orig'
         if (not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo)) and (not os.path.split(os.path.dirname(po))[1] == 'orig'):
             out.log('compiling ' + po, 'compile')
-            local('msgfmt -o ' + mo + ' ' + po)
+            run.local('msgfmt -o ' + mo + ' ' + po)
         else:
             out.log('skipping ' + po, 'compile')
 
