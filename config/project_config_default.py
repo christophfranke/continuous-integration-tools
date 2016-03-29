@@ -86,7 +86,7 @@ AUTH_USER = None #put your auth username here
 AUTH_PASSWORD = None #and your auth password here
 
 #this file holds all the md5 hashes of the last upload, so next time we only upload the files that are really necessary.
-MD5_TABLE_FILE = 'files.md5' #relative to local root directory
+MD5_TABLE_FILE = 'md5_table.json' #relative to local root directory
 
 #here you can put project related custom commands that will be executed after deploying.
 #this function will be executed within the with cd(REMOTE_WWW_DIR)-block, so that is the folder your in.

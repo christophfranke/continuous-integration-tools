@@ -8,6 +8,7 @@ import fnmatch
 @out.indent
 def po():
     out.log('looking for .po files recursively...', 'compile', out.LEVEL_VERBOSE)
+    compiled_files = 0
     files = []
     for root, dirnames, filenames in os.walk(engine.LOCAL_WWW_DIR):
         for filename in fnmatch.filter(filenames, '*.po'):
@@ -22,8 +23,11 @@ def po():
         if (not os.path.isfile(mo) or os.path.getmtime(po) > os.path.getmtime(mo)) and (not os.path.split(os.path.dirname(po))[1] == 'orig'):
             out.log('compiling ' + po, 'compile')
             run.local('msgfmt -o ' + mo + ' ' + po)
+            compiled_files += 1
         else:
-            out.log('skipping ' + po, 'compile')
+            out.log('skipping ' + po, 'compile', out.LEVEL_VERBOSE)
+
+    out.log('all .mo files up to date.', 'compile')
 
 def less():
     run.local('cd ' + engine.LOCAL_MAKE_DIR + ' && make ' + engine.MAKEFILE_VARS + ' less', False)

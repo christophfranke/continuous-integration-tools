@@ -19,7 +19,7 @@ def upload():
     files_scheduled = []
     for f in files_current:
         if not f in files_uploaded or not files_current[f] == files_uploaded[f]:
-            out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_VERBOSE)
+            out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
             files_scheduled.append(f)
 
     #uplaod new or modified files
@@ -27,7 +27,7 @@ def upload():
         out.log('uploading ' + str(len(files_scheduled)) + ' files.', 'sync')
         transfer.put_multiple(files_scheduled)
     else:
-        out.log('all files up to date.', 'sync')
+        out.log('nothing to do, all files up to date.', 'sync')
 
     #save current list to file
     save_md5_table(files_current)
