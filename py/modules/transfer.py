@@ -2,6 +2,7 @@ import engine
 import run
 import out
 import gzip
+import tar
 
 @out.indent
 def test_module():
@@ -99,6 +100,17 @@ def put_compressed(local_file, remote_file = None, verbose = False, permissions 
     gzip.uncompress_local(compressed_local)
     #uncompress remote file
     return gzip.uncompress_remote(compressed_remote, True)
+
+#mirror complete directory recursively
+def get_directory(directory, verbose = False, permissions = None):
+    remote_tar = tar.pack_remote(directory)
+    local_tar = get_compressed(remote_tar, verbose = verbose, permissions = permissions)
+    tar.unpack_local(local_tar)
+
+def put_directory(directory, verbose = False, permissions = None):
+    local_tar = tar.pack_local(directory)
+    remote_tar = put_compressed(local_tar, verbose = verbose, permissions = permissions)
+    tar.unpack_remote(remote_tar)
 
 def put_verbose(local_file, remote_file=None):
     put(local_file, remote_file, True)

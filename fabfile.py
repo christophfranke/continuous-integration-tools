@@ -12,6 +12,7 @@ import py.cleanup
 import py.phpinfo
 import py.compile
 import py.deploy
+import py.download_www
 
 def sync_db():
     py.sync_db.execute()
@@ -51,3 +52,6 @@ def compile(types = None):
 
 def deploy():
     py.deploy.execute()
+
+def download_www():
+    py.download_www.execute()
