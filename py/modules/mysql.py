@@ -96,9 +96,7 @@ def import_local_db(filename, compression = None):
         compression = gzip.is_compressed(filename)
     if compression:
         #uncompress
-        sql_file = gzip.local_uncompress(filename)
-        #set sql_file accordingly
-        sql_file = filename
+        sql_file = gzip.uncompress_local(filename)
     else:
         sql_file = filename
 
@@ -106,7 +104,7 @@ def import_local_db(filename, compression = None):
     truncate_local_db()
 
     #refill db
-    out.log('importing local database from file ' + filename, 'mysql')
+    out.log('importing local database from file ' + sql_file, 'mysql')
     execute_local_file(sql_file)
 
     #compress again, so we have not really changed the file
@@ -121,7 +119,7 @@ def upload_to_remote_db(filename, compression = None):
     if compression:
         #if our file is already compressed, we just upload it normally and compress it on the remote
         remote_compressed = transfer.put(filename)
-        remote_uncompressed = gzip.uncompress(remote_compressed, True)
+        remote_uncompressed = gzip.uncompress_remote(remote_compressed, True)
     else:
         #otherwise, we just upload it compressed and have it uncompressed automatically
         remote_uncompressed = transfer.put_compressed(filename)
