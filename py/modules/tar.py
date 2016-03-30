@@ -50,9 +50,10 @@ def pack_local(files):
     #and return packed file, of course
     return tar_file
 
+@out.indent
 def pack_local_list(file_list):
     #tell
-    out.log('packing locally a bunch of files', 'tar')
+    out.log('packing a bunch of local files', 'tar')
 
     #validate files
     if not validate_files_list(file_list):
@@ -75,6 +76,32 @@ def pack_local_list(file_list):
     #and return packed file, of course
     return tar_file
 
+
+@out.indent
+def pack_remote_list(file_list):
+    #tell
+    out.log('packing a bunch of remote files', 'tar')
+
+    #validate files
+    if not validate_files_list(file_list):
+        out.log('Error: files need to be given relative to www dir.', 'tar', out.LEVEL_ERROR)
+        engine.quit()
+
+    #register tar file
+    tar_file = engine.get_new_remote_file('tar')
+
+    #register list file
+    list_file_content = "\n".join(file_list)
+    list_file = engine.write_remote_file(list_file_content, 'files')
+
+    #assemble packing command. Always pack from www dir
+    pack_command = 'tar cf ' + tar_file + ' --files-from ' + list_file + ' -C ' + engine.REMOTE_WWW_DIR
+
+    #pack!
+    run.remote(pack_command)
+
+    #and return packed file, of course
+    return tar_file
 
 def unpack_local(archive):
     out.log('unpacking locally: ' + archive, 'tar')

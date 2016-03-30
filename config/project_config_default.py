@@ -88,6 +88,10 @@ AUTH_PASSWORD = None #and your auth password here
 #this file holds all the md5 hashes of the all the deployed files, so next time we only upload the files that are really necessary.
 DEPLOYED_MD5_TABLE_FILE = 'deployed_files.json' #relative to local root directory
 
+#these files will be ignored in all sync operations. PHP_COMMAND_FILE and TMP_DIR expand to their corresponding value, * expands to anything (including the empty string)
+#Note that the files are evaluated relative to the www folder.
+IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '*.gz', '*.DS_Store', '.gitignore', 'logs/']
+
 #here you can put project related custom commands that will be executed after deploying.
 #this function will be executed within the with cd(REMOTE_WWW_DIR)-block, so that is the folder your in.
 def custom_after_deploy_script():

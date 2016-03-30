@@ -6,7 +6,7 @@ from modules import transfer
 def execute(filename = None):
     out.log("downloading all files from www directory...")
     #get directory is always relative to the www directory, so '.' just gets all
-    transfer.get_directory('.')
+    sync.download(True)
 
 
 

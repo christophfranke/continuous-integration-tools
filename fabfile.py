@@ -14,6 +14,7 @@ import py.compile
 import py.deploy
 import py.download_all_files
 import py.upload_all_files
+import py.sync_files
 
 def sync_db():
     py.sync_db.execute()
@@ -59,3 +60,10 @@ def download_all_files():
 
 def upload_all_files():
     py.upload_all_files.execute()
+
+def sync_files():
+    py.sync_files.execute()
+
+def sync():
+    py.sync_db.execute()
+    py.sync_files.execute()

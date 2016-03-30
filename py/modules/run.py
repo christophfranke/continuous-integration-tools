@@ -87,6 +87,18 @@ def remote(command):
     else:
         out.log("Error Unknown COMMAND_SYSTEM " + engine.COMMAND_SYSTEM, 'remote', out.LEVEL_ERROR)
 
+@out.indent
+@engine.cleanup_tmp_files
+def remote_python_script(script_name, arguments = ''):
+    #tell
+    out.log('running python script ' + script_name, 'remote', out.LEVEL_VERBOSE)
+
+    #upload script
+    remote_script = transfer.put(script_name)
+
+    #run
+    remote('python ' + remote_script + ' ' + arguments)
+
 #make sure the command file is online and everything is setup correctly. this funciton will be called automatically, if there is no security hash set in the project config
 @out.indent
 def upload_command_file():

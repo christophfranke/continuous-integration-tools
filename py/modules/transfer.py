@@ -102,20 +102,25 @@ def put_compressed(local_file, remote_file = None, verbose = False, permissions 
     return gzip.uncompress_remote(compressed_remote, True)
 
 #mirror complete directory recursively
-def get_directory(directory, verbose = False, permissions = None):
+def get_directory(directory, verbose = False):
     remote_tar = tar.pack_remote(directory)
-    local_tar = get_compressed(remote_tar, verbose = verbose, permissions = permissions)
+    local_tar = get_compressed(remote_tar, verbose = verbose)
     tar.unpack_local(local_tar)
 
-def put_directory(directory, verbose = False, permissions = None):
+def put_directory(directory, verbose = False):
     local_tar = tar.pack_local(directory)
-    remote_tar = put_compressed(local_tar, verbose = verbose, permissions = permissions)
+    remote_tar = put_compressed(local_tar, verbose = verbose)
     tar.unpack_remote(remote_tar)
 
-def put_multiple(file_list, verbose = False, permissions = None):
+def put_multiple(file_list, verbose = False):
     local_tar = tar.pack_local_list(file_list)
-    remote_tar = put_compressed(local_tar, verbose = verbose, permissions = permissions)
+    remote_tar = put_compressed(local_tar, verbose = verbose)
     tar.unpack_remote(remote_tar)
+
+def get_multiple(file_list, verbose = False):
+    remote_tar = tar.pack_remote_list(file_list)
+    local_tar = get_compressed(remote_tar, verbose = verbose)
+    tar.unpack_local(local_tar)
 
 def put_verbose(local_file, remote_file=None):
     put(local_file, remote_file, True)

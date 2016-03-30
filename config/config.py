@@ -184,3 +184,9 @@ if COMMAND_SYSTEM == 'PHP':
     else:
         const_subsequent('REMOTE_COMMAND_FILE', 'REMOTE_ROOT_URL')
 
+#don't fail to assemble the regex when the command url is not set, because that would break execution completely (which is not what we want obviously).
+try:
+    COMMAND_URL_FOR_REGEX = SECURITY_HASH + '.php'
+except NameError:
+    COMMAND_URL_FOR_REGEX = 'REMOTE_COMMAND_FILE'
+IGNORE_ON_SYNC_REGEX_LIST = [s.replace('REMOTE_COMMAND_FILE', COMMAND_URL_FOR_REGEX).replace('TMP_DIR', TMP_DIR + '/').replace('.', '[.]').replace('*','.*') for s in IGNORE_ON_SYNC]
