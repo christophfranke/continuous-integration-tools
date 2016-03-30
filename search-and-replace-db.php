@@ -11,6 +11,10 @@ $skip_tables = array();
 //$whitelist_tables = array('wp_options');
 /*************************/
 
+//Set memory limit to 8GB to enable traversing very large databases
+ini_set('memory_limit', '8192M');
+
+
 function errorHandler($errNo, $errStr, $errFile, $errLine)
 {
     $msg = "$errStr in $errFile on line $errLine";
