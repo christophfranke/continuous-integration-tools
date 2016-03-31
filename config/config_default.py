@@ -10,5 +10,7 @@ LOCAL_APACHE_ERROR_LOG = '/var/log/apache2/error_log' #here you usually find you
 LOCAL_ETC_HOSTS = '/etc/hosts' #hosts config file for looking up ip addresses
 LOCAL_HTTPD_CONF = '/etc/apache2/httpd.conf' #apache config file
 
+PASSWORD_DIRECTORY = '~/Zugangsdaten'
+
 #This URL creates a random salt for us
 WORDPRESS_SALT_URL = 'https://api.wordpress.org/secret-key/1.1/salt/'

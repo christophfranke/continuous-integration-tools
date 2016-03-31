@@ -19,6 +19,7 @@ import py.search
 import py.replace
 import py.create_wp_files
 import py.error_log
+import py.mount_passwords
 
 def sync_db():
     py.sync_db.execute()
@@ -83,3 +84,6 @@ def create_wp_files():
 
 def error_log():
     py.error_log.execute()
+
+def mount_passwords():
+    py.mount_passwords.execute()
