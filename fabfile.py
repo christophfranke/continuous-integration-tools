@@ -15,6 +15,8 @@ import py.deploy
 import py.download_all_files
 import py.upload_all_files
 import py.sync_files
+import py.search
+import py.replace
 
 def sync_db():
     py.sync_db.execute()
@@ -67,3 +69,9 @@ def sync_files():
 def sync():
     py.sync_db.execute()
     py.sync_files.execute()
+
+def search(find):
+    py.search.execute(find)
+
+def replace(find, replace):
+    py.replace.execute(find, replace)
