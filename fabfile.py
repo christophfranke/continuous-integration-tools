@@ -17,6 +17,8 @@ import py.upload_all_files
 import py.sync_files
 import py.search
 import py.replace
+import py.create_wp_files
+import py.error_log
 
 def sync_db():
     py.sync_db.execute()
@@ -75,3 +77,9 @@ def search(find):
 
 def replace(find, replace):
     py.replace.execute(find, replace)
+
+def create_wp_files():
+    py.create_wp_files.execute()
+
+def error_log():
+    py.error_log.execute()

@@ -32,17 +32,19 @@ def local(command, halt_on_stderr = True):
 
         #read regular output
         output = process.stdout.readline()
-        if output != '':
+        while output != '':
             read_something = True
             out.log(output, 'local')
             output_array.append(output)
+            output = process.stdout.readline()
 
         #read error output
         error = process.stderr.readline()
-        if error != '':
+        while error != '':
             out.log(error, 'local', out.LEVEL_ERROR)
             stderr_occured = True
             read_something = True
+            error = process.stderr.readline()
 
         #if there was no output, wait a little bit for the programm to finish
         if not read_something:
