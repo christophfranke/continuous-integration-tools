@@ -41,6 +41,8 @@ def prepare_and_clean(func):
         import run
         import transfer
         import out
+        global start_time
+        start_time = time.time()
         out.clear_logfile()
         global COMMAND_SYSTEM_READY
         if not COMMAND_SYSTEM_READY:
@@ -49,7 +51,6 @@ def prepare_and_clean(func):
             add_config('COMMAND_SYSTEM_READY', 'True', 'Boolean')
         result = func(*args, **kwargs)
         cleanup()
-        global start_time
         elapsed_time = "{:.3f}".format(time.time() - start_time)
         out.log('Done. Took ' + elapsed_time + ' seconds.')
         return result
