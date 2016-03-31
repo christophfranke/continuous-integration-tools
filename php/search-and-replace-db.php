@@ -125,10 +125,12 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
     $db_entries_serialized = 0;
     $db_entries_changed = 0;
 
-    $log_file_content = "";
-
     //messy timezone problems...
     date_default_timezone_set( 'Europe/Berlin' );
+
+    $log_file_content = "Logfile created by search-and-replace-db.php on " . date('d. M Y') . " at " . date('H:i') . "\n";
+    $log_file_content .= "Searching database for the term: $find\n\n";
+
     $out_file_content = "#Script created by search-and-replace-db.php on " . date('d. M Y') . " at " . date('H:i') . "\n";
     $out_file_content .= "#replacing $find with $replace.\n\n";
     $out_file_content .= "SET NAMES 'utf8';\n";
