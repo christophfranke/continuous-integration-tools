@@ -7,8 +7,8 @@ JS_MAP_FILE = $(BUILD)/$(MAIN_JS_MAP)
 CSS_FILE = $(BUILD)/style.css
 LESS_FILE = $(SRC)/less/style.less
 
-JS_SRC = $(wildcard $(SRC)/js/**/*.js)
-LESS_SRC = $(wildcard $(SRC)/less/**/*.less)
+JS_SRC = $(wildcard $(SRC)/**/*.js)
+LESS_SRC = $(wildcard $(SRC)/**/*.less)
 
 COMPILER = compiler.jar
 
