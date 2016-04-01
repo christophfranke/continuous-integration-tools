@@ -41,6 +41,16 @@ try:
 except ImportError:
     print "Warning: No Project Config Found. The project config is expected to be at " + os.path.abspath(CONFIG_DIR + '/../../project_config.py')
 
+#
+try:
+    WWW_FOLDER
+    print "Warning: WWW_FOLDER is deprecated. Use WWW_DIR instead."
+    if WWW_FOLDER is not None and WWW_DIR is None:
+        WWW_DIR = WWW_FOLDER
+        print "Warning: WWW_DIR has been set to the value of WWW_FOLDER. This has been made for legacy reasons. Please remove the WWW_FOLDER from your project config and use WWW_DIR instead."
+except NameError:
+    #no WWW_FOLDER, no problem
+    pass
 
 #local directories
 LOCAL_ROOT_DIR = os.path.abspath(SCRIPT_DIR + '/' + RELATIVE_LOCAL_PROJECT_ROOT)
@@ -74,6 +84,17 @@ try:
 except:
     const_warning('REMOTE_ROOT_URL', 'LIVE_DOMAIN')
     REMOTE_ROOT_URL = None
+
+try:
+    #if remote root folder does not throw a NameError, we have to warn about deprecated configuration.
+    REMOTE_ROOT_FOLDER
+    print "Warning: REMOTE_ROOT_FOLDER is deprecated. Use REMOTE_ROOT_DIR instead."
+    if REMOTE_ROOT_DIR is None:
+        print "Warning: REMOTE_ROOT_DIR has been set to the value of REMOTE_ROOT_FOLDER. This has been made for legacy reasons. Please remove the REMOTE_ROOT_FOLDER from your project config and replace it with REMOTE_ROOT_DIR."
+        REMOTE_ROOT_DIR = REMOTE_ROOT_FOLDER
+except NameError:
+    #REMOTE_ROOT_FOLDER resulted in a NameError, that means the project_config is correct, nothing to do.
+    pass
 
 if REMOTE_ROOT_DIR is None:
     REMOTE_WWW_DIR = '.'

@@ -21,7 +21,8 @@ def execute_ftp_command(command, verbose = False):
         verbosity_option = '-V'
 
     #run the ftp file
-    run.local('ftp -i ftp://' + engine.FTP_USER + ':' + engine.FTP_PASSWORD + '@' + engine.FTP_HOST + ' <' + ftp_file)
+    ftp_command_line = 'ftp -i ftp://' + escape(engine.FTP_USER) + ':' + escape(engine.FTP_PASSWORD) + '@' + engine.FTP_HOST + ' <' + ftp_file
+    run.local(ftp_command_line)
 
 
 @out.indent
@@ -172,3 +173,45 @@ def create_remote_directory(directory, permissions = None):
     if permissions is not None:
         command += "\nchmod " + str(permissions) + " " + directory
     execute_ftp_command(command)
+
+
+def escape(s):
+    escape_table = {
+        '!':'%20',
+        '"':'%22',
+        '#':'%23',
+        '$':'%24',
+        '%':'%25',
+        '&':'%26',
+        "'":'%27',
+        '(':'%28',
+        ')':'%29',
+        '*':'%2A',
+        '+':'%2B',
+        ',':'%2C',
+        '-':'%2D',
+        '.':'%2E',
+        '/':'%2F',
+        ':':'%3A',
+        ';':'%3B',
+        '<':'%3C',
+        '=':'%3D',
+        '>':'%3E',
+        '?':'%3F',
+        '@':'%40',
+        '[':'%5B',
+        '\\':'%5C',
+        ']':'%5D',
+        '^':'%5E',
+        '`':'%60',
+        '{':'%7B',
+        '|':'%7C',
+        '}':'%7D',
+        '~':'%7E'
+    }
+    for character in escape_table:
+        s = s.replace(character, escape_table[character])
+
+    return s
+
+
