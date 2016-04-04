@@ -20,6 +20,7 @@ import py.replace
 import py.create_wp_files
 import py.error_log
 import py.mount_passwords
+import py.crawl
 
 def sync_db():
     py.sync_db.execute()
@@ -87,3 +88,6 @@ def error_log():
 
 def mount_passwords():
     py.mount_passwords.execute()
+
+def crawl(domain = None):
+    py.crawl.execute(domain)

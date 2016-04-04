@@ -6,8 +6,5 @@ config/global_config.py
 *.sublime-workspace
 
 
-#node_modules are managed by npm, not us
-node_modules/
-
 #python bytecache files
 *.pyc
