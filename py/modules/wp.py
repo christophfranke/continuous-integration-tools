@@ -36,7 +36,7 @@ def create_wp_config_local():
 def create_wp_salt():
     out.log('creating wp-salt.php in wordpress directory', 'wordpress')
     run.local('echo "<?php">' + engine.LOCAL_WP_DIR + '/wp-salt.php')
-    run.local('curl --silent ' + engine.WORDPRESS_SALT_URL + ' >>' + engine.LOCAL_WP_DIR + '/salt.php')
+    run.local('curl --silent ' + engine.WORDPRESS_SALT_URL + ' >>' + engine.LOCAL_WP_DIR + '/wp-salt.php')
 
 @out.indent
 def create_wp_config_live():
