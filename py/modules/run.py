@@ -80,7 +80,7 @@ def remote(command):
             curl_command += ' -u ' + engine.AUTH_USER + ':' + engine.AUTH_PASSWORD
         curl_command += ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename
         if engine.REMOTE_ROOT_DIR is not None:
-            curl_command += '\&cwd=' + engine.RELATIVE_ROOT_FROM_PHP
+            curl_command += '\&cwd=..'
         run.local(curl_command, False)
         #log output to screen
         out.file(output_file, 'php exec')

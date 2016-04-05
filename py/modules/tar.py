@@ -68,7 +68,7 @@ def pack_local_list(file_list):
     list_file = engine.write_local_file(list_file_content, 'files')
 
     #assemble packing command. Always pack from www dir
-    pack_command = 'tar cf ' + tar_file + ' --files-from ' + list_file + ' -C ' + engine.LOCAL_WWW_DIR
+    pack_command = 'tar cf ' + tar_file + ' -C ' + engine.LOCAL_WWW_DIR + ' --files-from ' + list_file
 
     #pack!
     run.local(pack_command)
@@ -95,7 +95,7 @@ def pack_remote_list(file_list):
     list_file = engine.write_remote_file(list_file_content, 'files')
 
     #assemble packing command. Always pack from www dir
-    pack_command = 'tar cf ' + tar_file + ' --files-from ' + list_file + ' -C ' + engine.REMOTE_WWW_DIR
+    pack_command = 'tar cf ' + tar_file + ' -C ' + engine.REMOTE_WWW_DIR + ' --files-from ' + list_file
 
     #pack!
     run.remote(pack_command)

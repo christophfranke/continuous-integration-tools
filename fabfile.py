@@ -21,6 +21,7 @@ import py.create_wp_files
 import py.error_log
 import py.mount_passwords
 import py.crawl
+import py.show_config
 
 def sync_db():
     py.sync_db.execute()
@@ -91,3 +92,6 @@ def mount_passwords():
 
 def crawl(domain = None):
     py.crawl.execute(domain)
+
+def show_config(key = None):
+    py.show_config.execute(key)

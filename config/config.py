@@ -211,5 +211,3 @@ try:
 except NameError:
     COMMAND_URL_FOR_REGEX = 'REMOTE_COMMAND_FILE'
 IGNORE_ON_SYNC_REGEX_LIST = [s.replace('REMOTE_COMMAND_FILE', COMMAND_URL_FOR_REGEX).replace('TMP_DIR', TMP_DIR + '/').replace('.', '[.]').replace('*','.*') for s in IGNORE_ON_SYNC]
-
-RELATIVE_ROOT_FROM_PHP = '../..'

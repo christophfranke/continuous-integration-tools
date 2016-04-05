@@ -58,7 +58,7 @@ def download(force_download = False):
 
     #upload new or modified files
     if len(files_scheduled) > 0:
-        out.log('donwloading ' + str(len(files_scheduled)) + ' files.', 'sync')
+        out.log('downloading ' + str(len(files_scheduled)) + ' files.', 'sync')
         transfer.get_multiple(files_scheduled)
     else:
         out.log('nothing to do, all files up to date.', 'sync')
