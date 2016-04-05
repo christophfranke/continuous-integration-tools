@@ -1,5 +1,5 @@
 #used for local configuration
-config/global_config.py
+config/config_global.py
 
 #project setup files
 *.sublime-project
