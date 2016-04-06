@@ -86,7 +86,7 @@ def compressed_filename(filename):
     if is_compressed(filename):
         return filename
     #append .gz
-    return filelname + '.gz'
+    return filename + '.gz'
 
 def uncompressed_filename(filename):
     #no file, nothing to do

@@ -50,9 +50,13 @@ def create_local_db():
     execute_local_statement_nodb('CREATE DATABASE `' + engine.LOCAL_DB_NAME + '`;')
 
 @out.indent
-def export_local_db(compression = False):
+def export_local_db(compression = True):
     filename = engine.get_database_dump_file()
-    out.log('exporting local db to ' + filename, 'mysql')
+    if compression:
+        final_filename = gzip.compressed_filename(filename)
+    else:
+        final_filename = filename
+    out.log('exporting local db to ' + final_filename, 'mysql')
     run.local(engine.LOCAL_MYSQLDUMP_CMD + '>' + filename, False)
     if compression:
         return gzip.compress_local(filename)
