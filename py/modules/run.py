@@ -66,28 +66,34 @@ def remote(command):
     #tell what happens
     out.log(command, 'remote', out.LEVEL_VERBOSE)
 
-    #write command to file and upload it
+    #write command to file and upload it. We do it this way, althouth this is quite inefficient, but otherwise we'd have tremendous problems with escaping characters.
+    #althouth, TODO: escape special characters in command
     script_content = '#!/bin/bash\n' + command
     filename = engine.write_remote_file(script_content, 'sh', permissions = '777')
 
     #choose the correct command system
     if engine.COMMAND_SYSTEM == 'PHP':
-        #reserve a remote .txt file
+        #reserve a remote .log file
         output_file = engine.get_new_local_file('log', True);
         #run the command via php access and tell the server to put the commands output into the remote output file
         curl_command = 'curl --silent --output ' + output_file
+        #account for basic auth
         if engine.NEED_BASIC_AUTH:
             curl_command += ' -u ' + engine.AUTH_USER + ':' + engine.AUTH_PASSWORD
+        #continue assembling curl command
         curl_command += ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename
-        if engine.REMOTE_ROOT_DIR is not None:
-            curl_command += '\&cwd=..'
-        run.local(curl_command, False)
+        #and go
+        run.local(curl_command, False) #False indicates, that we do not treat any output on stderr as error, because curl uses this for showing additional non-error information
         #log output to screen
         out.file(output_file, 'php exec')
     elif engine.COMMAND_SYSTEM == 'SSH':
+        #not implemented
         out.log("Error: COMMAND_SYSTEM SSH not implemented yet", 'remote', out.LEVEL_ERROR)
+        engine.quit()
     else:
+        #even less implemented
         out.log("Error Unknown COMMAND_SYSTEM " + engine.COMMAND_SYSTEM, 'remote', out.LEVEL_ERROR)
+        engine.quit()
 
 @out.indent
 @engine.cleanup_tmp_files
@@ -101,7 +107,7 @@ def remote_python_script(script_name, arguments = ''):
     #run
     remote('python ' + remote_script + ' ' + arguments)
 
-#make sure the command file is online and everything is setup correctly. this funciton will be called automatically, if there is no security hash set in the project config
+#make sure the command file is online and everything is setup correctly. this funciton will be called automatically, if COMMAND_SYSTEM_READY is not  set in the project config
 @out.indent
 def upload_command_file():
     #look for existing hash
@@ -109,15 +115,14 @@ def upload_command_file():
         engine.REMOTE_ROOT_URL
     except AttributeError:
         out.log("Error: Could not upload command file, because REMOTE_HTTP_ROOT is undefined. Make sure you have all necessary information in your project config.", 'run', out.LEVEL_ERROR)
-        return False
+        engine.quit()
     try:
-        engine.REMOTE_COMMAND_FILE
+        engine.NORM_COMMAND_FILE
     except AttributeError:
         new_hash = engine.get_random_secury_id()
         engine.add_config('SECURITY_HASH', new_hash)
-        engine.REMOTE_COMMAND_FILE = os.path.normpath(engine.REMOTE_WWW_DIR + '/' + engine.SECURITY_HASH + '.php')
-        engine.REMOTE_COMMAND_URL = engine.REMOTE_ROOT_URL + '/' + engine.SECURITY_HASH + '.php'
+        engine.NORM_COMMAND_FILE = os.path.normpath(engine.SECURITY_HASH + '.php')
+        engine.REMOTE_COMMAND_URL = engine.REMOTE_ROOT_URL + '/' + engine.NORM_COMMAND_FILE
 
-    out.log('uploading command file to ' + engine.REMOTE_COMMAND_FILE, 'run')
-    transfer.put('php/cmd.php', engine.REMOTE_COMMAND_FILE)
-    return True
+    out.log('uploading command file to ' + engine.NORM_COMMAND_FILE, 'run')
+    transfer.put(engine.SCRIPT_DIR + '/php/cmd.php', engine.NORM_COMMAND_FILE)

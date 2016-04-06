@@ -108,7 +108,7 @@ def create_remote_md5_table():
     remote_md5_table_file = engine.get_new_remote_file('json')
     #run script to create md5 hashes on the remote
     out.log('calculating remote md5 hashes', 'sync')
-    run.remote_python_script(engine.SCRIPT_DIR + '/py/scripts/create_md5_table.py', engine.REMOTE_WWW_DIR + ' ' + remote_md5_table_file)
+    run.remote_python_script(engine.SCRIPT_DIR + '/py/scripts/create_md5_table.py', engine.NORM_WWW_DIR + ' ' + remote_md5_table_file)
     #download table file
     out.log('download remote hash table', 'sync', out.LEVEL_VERBOSE)
     md5_table_file = transfer.get(remote_md5_table_file)

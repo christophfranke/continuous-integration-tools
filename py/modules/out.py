@@ -5,13 +5,8 @@ try:
     #this import will work when we are in scripts folder
     from config.config import LOG_LEVEL, LEVEL_NONE, LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_VERBOSE, LEVEL_DEBUG, LOG_FILE
 except ImportError:
-    try:
-        #this will work form other places (relative import)
-        from ...config.config import LOG_LEVEL, LEVEL_NONE, LEVEL_ERROR, LEVEL_WARNING, LEVEL_INFO, LEVEL_VERBOSE, LEVEL_DEBUG, LOG_FILE
-    except ImportError:
-        #we are out of luck...
-        print "Could not import config package. Try navigating to script folder before starting the script."
-        exit()
+    print "Could not import config package. Try navigating to script folder before starting the script."
+    exit()
 
 
 last_output_blocked = False
@@ -91,18 +86,32 @@ def clear_logfile():
         file.close()
 
 #decorator, that will cause output of function calls of this function to be indented.
-#For better understanding of the commands flow and what of why happend where
+#this is also taking care of supressing output if the last output has been surpressed.
 def indent(func):
     def indenting_func(*args, **kwargs):
         global output_blocked_from_parent
         global last_output_blocked
+
+        #ok simple, increase the indentation value
         increase_indentation()
+
+        #save these values
         restore_output_parent = output_blocked_from_parent
         restore_output_last = last_output_blocked
+
+        #overwrite global value for next nested level
         output_blocked_from_parent = last_output_blocked or output_blocked_from_parent
+
+        #execute original function
         result = func(*args, **kwargs)
+
+        #restore values
         output_blocked_from_parent = restore_output_parent
         last_output_blocked = restore_output_last
+
+        #decrease indentation
         decrease_indentation()
+
+        #don't forget to give back result
         return result
     return indenting_func

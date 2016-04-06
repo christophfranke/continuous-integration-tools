@@ -88,21 +88,31 @@ except:
 try:
     #if remote root folder does not throw a NameError, we have to warn about deprecated configuration.
     REMOTE_ROOT_FOLDER
-    print "Warning: REMOTE_ROOT_FOLDER is deprecated. Use REMOTE_ROOT_DIR instead."
-    if REMOTE_ROOT_DIR is None:
-        print "Warning: REMOTE_ROOT_DIR has been set to the value of REMOTE_ROOT_FOLDER. This has been made for legacy reasons. Please remove the REMOTE_ROOT_FOLDER from your project config and replace it with REMOTE_ROOT_DIR."
-        REMOTE_ROOT_DIR = REMOTE_ROOT_FOLDER
+    print "Warning: REMOTE_ROOT_FOLDER is deprecated. Use FTP_PATH_TO_WWW_DIR or SSH_PATH_TO_WWW_DIR instead. Note, that these constants have a different meaning."
 except NameError:
     #REMOTE_ROOT_FOLDER resulted in a NameError, that means the project_config is correct, nothing to do.
     pass
 
-if REMOTE_ROOT_DIR is None:
-    REMOTE_WWW_DIR = '.'
-    REMOTE_TMP_DIR = TMP_DIR
-else:
-    REMOTE_WWW_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WWW_DIR)
-    REMOTE_TMP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + TMP_DIR)
+try:
+    #if remote root folder does not throw a NameError, we have to warn about deprecated configuration.
+    REMOTE_ROOT_DIR
+    print "Warning: REMOTE_ROOT_DIR is deprecated. Use FTP_PATH_TO_WWW_DIR or SSH_PATH_TO_WWW_DIR instead. Note, that these constants have a different meaning."
+except NameError:
+    #REMOTE_ROOT_DIR resulted in a NameError, that means the project_config is correct, nothing to do.
+    pass
 
+try:
+    FTP_WWW_DIR = os.path.normpath(FTP_PATH_TO_WWW_DIR)
+except:
+    const_warning('FTP_WWW_DIR', 'FTP_PATH_TO_WWW_DIR')
+
+try:
+    SSH_WWW_DIR = os.path.normpath(SSH_PATH_TO_WWW_DIR)
+except:
+    const_warning('SSH_WWW_DIR', 'SSH_PATH_TO_WWW_DIR')
+
+NORM_WWW_DIR = '.'
+NORM_TMP_DIR = os.path.normpath(TMP_DIR)
 
 #concatenate mysql command strings. Really useful stuff...
 try:
@@ -143,39 +153,32 @@ except:
     const_warning('TRUNCATE_REMOTE_DB_SQL', 'REMOTE_DB_NAME')
 
 
-try:
-    if ENABLE_BUILD_SYSTEM:
-        RELATIVE_SRC_DIR = WWW_DIR + '/' + SRC_URL
-        RELATIVE_BUILD_DIR = WWW_DIR + '/' + BUILD_URL
-
-        LOCAL_SRC_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + RELATIVE_SRC_DIR)
-        LOCAL_BUILD_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
-
-        if REMOTE_ROOT_DIR is None:
-            REMOTE_BUILD_DIR = BUILD_URL
-        else:
-            REMOTE_BUILD_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + RELATIVE_BUILD_DIR)
+if ENABLE_BUILD_SYSTEM:
+    try:
+        #assemble local build variables
+        LOCAL_SRC_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + WWW_DIR + '/' + SRC_URL)
+        LOCAL_BUILD_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + WWW_DIR + '/' + BUILD_URL)
 
         LOCAL_MAKE_DIR = os.path.abspath(SCRIPT_DIR + '/make')
 
         MAKEFILE_VARS = 'SRC=' + LOCAL_SRC_DIR + ' BUILD=' + LOCAL_BUILD_DIR + ' SRC_URL=' + SRC_URL + ' BUILD_URL=' + BUILD_URL + ' WWW_DIR=' + LOCAL_WWW_DIR
-except:
-    print "Build related variables could not be assembled. Make sure you have set SCR_URL and BUILD_URL in your project config."
+
+        NORM_SRC_DIR = os.path.normpath(SRC_URL)
+        NORM_BUILD_DIR = os.path.normpath(BUILD_URL)
+
+    except:
+        print "Local build related variables could not be assembled. Make sure you have set SCR_URL and BUILD_URL in your project config."
 
 
 #wordpress specifics
 if IS_WORDPRESS:
-    if WP_DIR == '':
-        WP_DIR = WWW_DIR
-    LOCAL_WP_DIR = os.path.abspath(LOCAL_ROOT_DIR + '/' + WP_DIR)
-    if REMOTE_ROOT_DIR is None:
-        REMOTE_WP_DIR = WP_DIR
-    else:
-        REMOTE_WP_DIR = os.path.normpath(REMOTE_ROOT_DIR + '/' + WP_DIR)
+    LOCAL_WP_DIR = os.path.abspath(LOCAL_WWW_DIR + '/' + WP_DIR)
+
+    NORM_WP_DIR = os.path.normpath(WP_DIR)
 
 #ssh or ftp?
 if TRANSFER_SYSTEM == '':
-    TRANSFER_SYSTEM = 'FTP' #workaround: always fallback to ftp. later on, we will use ssh again
+    TRANSFER_SYSTEM = 'FTP' #workaround: always fallback to ftp. later on, we will use ssh again, or maybe sftp
 
 #ssh or php
 if COMMAND_SYSTEM == '':
@@ -190,24 +193,22 @@ if TRANSFER_SYSTEM == 'FTP':
             const_warning('FTP_HOST', 'LIVE_DOMAIN')
 
     try:
-        UNUSED_FTP_COMMAND_BETTER_TRY_NOW_AND_WARN_THAN_FAIL_LATER_SILENTLY = 'ftp -i ftp://' + FTP_USER + ':' + FTP_PASSWORD + '@' + FTP_HOST
+        UNUSED_FTP_COMMAND_BETTER_TRY_NOW_AND_WARN_THAN_FAIL_LATER_SILENTLY = 'ftp -i ' + FTP_PROTOCOL + '://' + FTP_USER + ':' + FTP_PASSWORD + '@' + FTP_HOST
     except:
         print "Warning: You have set the TRANSFER_SYSTEM to 'FTP', but the variables FTP_USER, FTP_PASSWORD and FTP_HOST are not set correctly. Make sure you have these variables set in your project config. The transfer system will not work."
 
 
 if COMMAND_SYSTEM == 'PHP':
     if REMOTE_ROOT_URL is not None:
-        try:
-            REMOTE_COMMAND_FILE = os.path.normpath(REMOTE_WWW_DIR + '/' + SECURITY_HASH + '.php')
-            REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
-        except:
-            pass
+        REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
+        NORM_COMMAND_FILE = os.path.normpath(SECURITY_HASH + '.php')
     else:
-        const_subsequent('REMOTE_COMMAND_FILE', 'REMOTE_ROOT_URL')
+        const_subsequent('REMOTE_COMMAND_URL', 'REMOTE_ROOT_URL')
 
 #don't fail to assemble the regex when the command url is not set, because that would break execution completely (which is not what we want obviously).
 try:
     COMMAND_URL_FOR_REGEX = SECURITY_HASH + '.php'
 except NameError:
     COMMAND_URL_FOR_REGEX = 'REMOTE_COMMAND_FILE'
+#assambling a regex list from the ignore on sync list
 IGNORE_ON_SYNC_REGEX_LIST = [s.replace('REMOTE_COMMAND_FILE', COMMAND_URL_FOR_REGEX).replace('TMP_DIR', TMP_DIR + '/').replace('.', '[.]').replace('*','.*') for s in IGNORE_ON_SYNC]

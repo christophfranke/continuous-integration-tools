@@ -4,6 +4,8 @@ import out
 import gzip
 import tar
 
+import os
+
 @out.indent
 def test_module():
     out.log("Testing FTP connection...", 'transfer')
@@ -15,13 +17,14 @@ def execute_ftp_command(command, verbose = False):
     #write the command into file
     ftp_file = engine.write_local_file(command, 'ftp')
     #set verbose or not verbose
-    if verbose: #never show anything, this basically clutters the output and makes it less readable
+    if verbose:
+        out.log('The verbosity option for execute_command_file is currently not being used.','transfer', out.LEVEL_WARNING)
         verbosity_option = '-v'
     else:
         verbosity_option = '-V'
 
     #run the ftp file
-    ftp_command_line = 'ftp -i ftp://' + escape(engine.FTP_USER) + ':' + escape(engine.FTP_PASSWORD) + '@' + engine.FTP_HOST + ' <' + ftp_file
+    ftp_command_line = 'ftp -i ' + engine.FTP_PROTOCOL + '://' + escape(engine.FTP_USER) + ':' + escape(engine.FTP_PASSWORD) + '@' + engine.FTP_HOST + ' <' + ftp_file
     run.local(ftp_command_line)
 
 
@@ -38,12 +41,14 @@ def get(remote_file, local_file = None, verbose = False, permissions = None):
 
     #get transfer system
     if engine.TRANSFER_SYSTEM == 'FTP':
-        command = 'get ' + remote_file + ' ' + local_file
+        command = 'get ' + ftp_path(remote_file) + ' ' + local_file
         execute_ftp_command(command, verbose)
     elif engine.TRANSFER_SYSTEM == 'SSH':
-        out.log("Error: TRANSFER_SYSTEM SSH not implemented yet", 'download', out.LEVLE_ERROR)
+        out.log("Error: TRANSFER_SYSTEM SSH not implemented yet", 'download', out.LEVEL_ERROR)
+        engine.quit()
     else:
         out.log("Error: Unknown TRANSFER_SYSTEM " + engine.TRANSFER_SYSTEM, 'download', out.LEVEL_ERROR)
+        engine.quit()
 
     #set permissions
     if permissions is not None:
@@ -51,9 +56,6 @@ def get(remote_file, local_file = None, verbose = False, permissions = None):
 
     #return new filename
     return local_file
-
-def get_verbose(remote_file, local_file=None):
-    return get(remote_file, local_file, True)
 
 @out.indent
 def put(local_file, remote_file = None, verbose = False, permissions = None):
@@ -68,10 +70,10 @@ def put(local_file, remote_file = None, verbose = False, permissions = None):
     #choose correct transfer system
     if engine.TRANSFER_SYSTEM == 'FTP':
         #put file
-        command = 'put ' + local_file + ' ' + remote_file
+        command = 'put ' + local_file + ' ' + ftp_path(remote_file)
         #set permissions on remote
         if permissions is not None:
-            command += "\nchmod " + str(permissions) + " " + remote_file
+            command += "\nchmod " + str(permissions) + " " + ftp_path(remote_file)
         #...execute!
         execute_ftp_command(command, verbose)
     elif engine.TRANSFER_SYSTEM == 'SSH':
@@ -134,7 +136,7 @@ def remove_local(filename):
 @out.indent
 def remove_remote(filename):
     out.log('remove remote file: ' + filename, 'transfer')
-    command = 'delete ' + filename
+    command = 'delete ' + ftp_path(filename)
     execute_ftp_command(command)
 
 @out.indent
@@ -145,7 +147,7 @@ def remove_local_directory_contents(directoy):
 @out.indent
 def remote_remote_directory_contents(directory):
     out.log('remove content of remote directory: ' + dircetory, 'transfer')
-    command = 'delete ' + directory + '/*'
+    command = 'delete ' + ftp_path(directory) + '/*'
     execute_ftp_command(command)
 
 @out.indent
@@ -156,7 +158,7 @@ def local_move(from_file, to_file):
 @out.indent
 def remote_move(from_file, to_file):
     out.log('move remote file: ' + from_file + ' -> ' + to_file, 'transfer')
-    command = 'rename ' + from_file + ' ' + to_file
+    command = 'rename ' + ftp_path(from_file) + ' ' + ftp_path(to_file)
     execute_ftp_command(command)
 
 @out.indent
@@ -169,9 +171,9 @@ def create_local_directory(directory, permissions = None):
 @out.indent
 def create_remote_directory(directory, permissions = None):
     out.log('create remote directory: ' + directory, 'transfer')
-    command = 'mkdir ' + directory
+    command = 'mkdir ' + ftp_path(directory)
     if permissions is not None:
-        command += "\nchmod " + str(permissions) + " " + directory
+        command += "\nchmod " + str(permissions) + " " + ftp_path(directory)
     execute_ftp_command(command)
 
 
@@ -214,4 +216,8 @@ def escape(s):
 
     return s
 
+def ftp_path(filename):
+    return os.path.normpath(engine.FTP_WWW_DIR + '/' + filename)
 
+def ssh_path(filename):
+    return os.path.normpath(engine.SSH_WWW_DIR + '/' + filename)

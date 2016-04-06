@@ -20,7 +20,7 @@ def pack_remote(files):
     tar_file = engine.get_new_remote_file('tar')
 
     #assemble packing command. Always pack from www dir
-    pack_command = 'tar cf ' + tar_file + ' --exclude .tar --exclude ' + engine.TMP_DIR + ' -C ' + engine.REMOTE_WWW_DIR + ' ' + files
+    pack_command = 'tar cf ' + tar_file + ' --exclude .tar --exclude ' + engine.NORM_TMP_DIR + ' -C ' + engine.NORM_WWW_DIR + ' ' + files
 
     #pack!
     run.remote(pack_command)
@@ -95,7 +95,7 @@ def pack_remote_list(file_list):
     list_file = engine.write_remote_file(list_file_content, 'files')
 
     #assemble packing command. Always pack from www dir
-    pack_command = 'tar cf ' + tar_file + ' -C ' + engine.REMOTE_WWW_DIR + ' --files-from ' + list_file
+    pack_command = 'tar cf ' + tar_file + ' -C ' + engine.NORM_WWW_DIR + ' --files-from ' + list_file
 
     #pack!
     run.remote(pack_command)
@@ -110,7 +110,7 @@ def unpack_local(archive):
 
 def unpack_remote(archive):
     out.log('unpacking on remote: ' + archive, 'tar')
-    unpack_command = 'tar xf ' + archive + ' --warning=no-unknown-keyword -C ' + engine.REMOTE_WWW_DIR
+    unpack_command = 'tar xf ' + archive + ' --warning=no-unknown-keyword -C ' + engine.NORM_WWW_DIR
     run.remote(unpack_command)
 
 def validate_files_list(files_array):

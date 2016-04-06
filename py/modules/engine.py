@@ -42,9 +42,7 @@ def prepare_and_clean(func):
         out.clear_logfile()
         global COMMAND_SYSTEM_READY
         if not COMMAND_SYSTEM_READY:
-            transfer.create_remote_directory(REMOTE_TMP_DIR, 777)
-            run.upload_command_file()
-            add_config('COMMAND_SYSTEM_READY', 'True', 'Boolean')
+            initialize()
         result = func(*args, **kwargs)
         cleanup()
         elapsed_time = "{:.3f}".format(time.time() - start_time)
@@ -66,6 +64,16 @@ def cleanup_tmp_files(func):
         current_tmp_file_namespace = old_tmp_file_namespace
         return result
     return cleanup_immediately_func
+
+@out.indent
+def initialize():
+    import transfer
+    import run
+    transfer.create_remote_directory(NORM_TMP_DIR, 777)
+    run.upload_command_file()
+    global COMMAND_SYSTEM_READY
+    if not COMMAND_SYSTEM_READY:
+        add_config('COMMAND_SYSTEM_READY', True, 'Boolean')
 
 
 #cleanup is being run at the very end. cleans up all the files that have been created in the process.
@@ -104,8 +112,8 @@ def cleanup(namespace = None):
 
 
 def get_suffix(filename):
-    #find the last dot in filename
-    pos = filename.rfind('.')
+    #find the first dot in filename
+    pos = filename.find('.')
 
     #this file has no suffix
     if pos == -1:
@@ -131,7 +139,7 @@ def get_local_tmp_dir():
 
 #returns the name of the remote tmp dir and ensures it exists.
 def get_remote_tmp_dir():
-    return REMOTE_TMP_DIR
+    return NORM_TMP_DIR
 
 def clean_local_tmp_dir():
     import run
@@ -161,7 +169,7 @@ def get_new_local_file(suffix = None, create_file = False):
     #get filename in tmp dir
     global local_tmp_files
     tmp_dir = get_local_tmp_dir()
-    filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_') + '.' + suffix
+    filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_').replace('.','_') + '.' + suffix
 
     #register file in current namespace
     register_local_file(filename)
@@ -179,7 +187,7 @@ def get_new_remote_file(suffix = None):
     #get filenam ein tmp dir
     global remote_tmp_files
     tmp_dir = get_remote_tmp_dir()
-    filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_') + '.' + suffix
+    filename = tmp_dir + '/tmp_file_' + str(datetime.now()).replace(' ', '_').replace('.','_') + '.' + suffix
 
     #register file in current namespace
     register_remote_file(filename)
@@ -251,20 +259,22 @@ def add_config(key, value, type='string'):
         quit()
 
     if type == 'string':
-        escaped_value = "'" + value + "'"
+        escaped_value = "'" + str(value) + "'"
     else:
-        escaped_value = value
+        escaped_value = str(value)
+
+    assignement = str(key) + " = " + str(escaped_value)
 
     #write to project config
     filename = PROJECT_CONFIG_FILE
     out.log('PROJECT_CONFIG_FILE is at ' + PROJECT_CONFIG_FILE, 'engine', out.LEVEL_DEBUG)
     file = open(filename, 'a')
-    file.write("\n" + key + " = " + escaped_value + " #added automatically on " + str(datetime.now()) + "\n")
+    file.write("\n" + assignement + " #added automatically on " + str(datetime.now()) + "\n")
     file.close()
 
     #make accessible immediately
     globals()[key] = value
-    out.log("added " + key + " = " + value + " to config", 'engine', out.LEVEL_DEBUG)
+    out.log("added " + assignement + " to config", 'engine', out.LEVEL_DEBUG)
 
 #gets a config var 'key', or a dictionary of all config vars if key is not specified.
 def get_config(key = None):

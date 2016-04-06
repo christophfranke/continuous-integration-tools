@@ -19,24 +19,27 @@ FTP_USER = None
 #the ftp pasword for ftp uploads
 FTP_PASSWORD = None
 #the ftp host to connect to. Often this is the same as the websites domain
-FTP_HOST = '' #defaults to LIVE_DOMAIN
+FTP_HOST = '' #empty string defaults to LIVE_DOMAIN
+#the path to the www dir as seen by the ftp client
+FTP_PATH_TO_WWW_DIR = None #we could provide the current path as standard here, but this could lead to chaotic behaviour, if this setting is wrong.
+FTP_PROTOCOL = 'ftp' #you may alternatively specify sftp here, though this is untested as for now
 
 #note that SSH is currently unavailable, as it is not implemented with the new system yet.
 #if an ssh account is provided, this should be preferred (it's faster and more secure)
 SSH_USER = None
 SSH_PASSWORD = None
 SSH_HOST = None #this is usually NOT the same as the websites domain, so we don't provide a standard value here
+SSH_PATH_TO_WWW_DIR = None #the path to the www dir as seen by the ssh client
 
 #the file transfer system decides, how files are being transfered between the local and remote computer. Use SSH if available
-TRANSFER_SYSTEM = '' #automatic detection (empty string) will use ssh if SSH_USER, SSH_PASSWORD and SSH_HOST are provided. Possible values are 'FTP' and 'SSH'
+TRANSFER_SYSTEM = '' #automatic detection (empty string) will use SSH if SSH_USER, SSH_PASSWORD and SSH_HOST are provided. Possible values are 'FTP' and 'SSH'
 #the command system decides, what api is used to execute shell commands on the remote host
-COMMAND_SYSTEM = '' #automatic detection works exactly as with the transfer system. Possible values are 'PHP' and 'SSH'
+COMMAND_SYSTEM = '' #automatic detection works exactly as with the transfer system. Possible values are 'PHP' and 'SSH'. Will use SSH if credentials are provided.
 
-#All file actions (deploy, sync_media, etc.) RELY on the projects root folder to be set correctly.
-REMOTE_ROOT_DIR = None #this is your remote root directory. If you don't have access to this directory, set it to None. It then is assumed, that the www dir is the root dir on the remote side.
-WWW_DIR = 'www' #the www folder relative to the project root. Must be a direct subfolder of the project root.
+#the www folder relative to the project root
+WWW_DIR = 'www' #use '.', if the project root is your www folder. Note, that this is not recommended, this is why we propose a www subfolder as a standard config.
 
-#tmp dir on the remote host, relative to remote root dir
+#tmp dir on the remote host, relative to ftp www dir
 TMP_DIR = 'deploy-tools-tmp-dir' #note that we already have a local tmp dir in a subdirectory fo the script folder, so we only need a name for a tmp dir on the server that does not collide with anyhting
 
 #If not set the current branch is used.
@@ -48,8 +51,8 @@ DB_DIR = 'Datenbank'
 #Do we have a Wordpress install here?
 IS_WORDPRESS = True
 
-#the wordpress root folder relative to the project root. Only needed if IS_WORDPRESS is set to True. If WP_DIR is empty, it will be set to whatever value WWW_DIR has.
-WP_DIR = ''
+#the wordpress root folder relative to the www dir. Only needed if IS_WORDPRESS is set to True. You only need to touch this if your wordpress installation is in a subfolder.
+WP_DIR = '.'
 
 #This is also important for setting up the local production environment. Overwrites LOCAL_HTTP_ROOT
 LOCAL_DOMAIN = None
@@ -91,12 +94,3 @@ DEPLOYED_MD5_TABLE_FILE = 'deployed_files.json' #relative to local root director
 #these files will be ignored in all sync operations. PHP_COMMAND_FILE and TMP_DIR expand to their corresponding value, * expands to anything (including the empty string)
 #Note that the files are evaluated relative to the www folder.
 IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '*.gz', '*.DS_Store', '.gitignore', 'logs/']
-
-#here you can put project related custom commands that will be executed after deploying.
-#this function will be executed within the with cd(REMOTE_WWW_DIR)-block, so that is the folder your in.
-def custom_after_deploy_script():
-	pass
-
-#will be executed after syncing in the local www-folder with cd(LOCAL_WWW_DIR)
-def custom_after_sync_script():
-	pass
