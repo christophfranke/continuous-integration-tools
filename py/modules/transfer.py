@@ -94,10 +94,14 @@ def get_compressed(remote_file, local_file = None, verbose = False, permissions 
     #uncmopress local file
     return gzip.uncompress_local(compressed_local, True)
 
+@out.indent
 def put_compressed(local_file, remote_file = None, verbose = False, permissions = None):
+    out.log('compressing ' + local_file, 'transfer')
     #compress local file
     compressed_local = gzip.compress_local(local_file)
     #upload
+    filesize = os.path.getsize(compressed_local)
+    out.log('uploading ' + str(filesize/1000.0) + ' kb', 'transfer')
     compressed_remote = put(compressed_local, gzip.compressed_filename(remote_file), verbose, permissions)
     #restore local file
     gzip.uncompress_local(compressed_local)
@@ -143,7 +147,7 @@ def remove_remote(filename):
 def remove_local_multiple(file_list):
     out.log('removing multiple local files', 'transfer')
     for file in file_list:
-        run.local('rm ' + file)
+        run.local('rm "' + file + '"')
 
 @out.indent
 def remove_remote_multiple(file_list):
@@ -163,20 +167,6 @@ def remote_remote_directory_contents(directory):
     out.log('remove content of remote directory: ' + dircetory, 'transfer')
     command = 'delete ' + ftp_path(directory) + '/*'
     execute_ftp_command(command)
-
-#might not work as expected, because we delete the command file and the tmp directory here, at least in the online version
-#@out.indent
-#def wipe_local_directory_recursive(directory):
-#    out.log('removing local directory recursively: ' + directory, 'transfer')
-#    run.local('rm -rf ' + directory)
-#    create_local_directory(directory)
-
-#@out.indent
-#def wipe_remote_directory_recursiev(directory):
-#    out.log('removing remote directory recursively: ' + directory, 'transfer')
-#    run.remote('rm -rf ' + directory)
-#    create_remote_directory(directory)
-
 
 @out.indent
 def local_move(from_file, to_file):
@@ -204,6 +194,15 @@ def create_remote_directory(directory, permissions = None):
         command += "\nchmod " + str(permissions) + " " + ftp_path(directory)
     execute_ftp_command(command)
 
+def set_local_mode(file, mode):
+    out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer')
+    command = "chmod " + str(mode) + ' ' + file
+    run.local(command)
+
+def set_remote_mode(file, mode):
+    out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer')
+    command = "chmod " + str(mode) + ' ' + ftp_path(file)
+    execute_ftp_command(command)
 
 def escape(s):
     escape_table = {

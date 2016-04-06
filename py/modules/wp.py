@@ -5,11 +5,11 @@ import os
 
 
 @out.indent
-def copy_wp_config():
+def copy_wp_config(allow_overwrite = False):
     out.log('copy wp-config.php to wordpress directory', 'wordpress')
     #check if wp-config.php already exists
-    if os.path.isfile(engine.LOCAL_WWW_DIR + '/wp-config.php'):
-        out.log("wp-config.php already exists at " + engine.LOCAL_WP_DIR + '. You have to delete this file in order to proceed with this command. If you are not sure about potentially important information in your current wp-config.php, make a backup before deleting it.', 'wordpress', out.LEVEL_ERROR)
+    if not allow_overwrite and os.path.isfile(engine.LOCAL_WWW_DIR + '/wp-config.php'):
+        out.log("wp-config.php already exists at " + engine.LOCAL_WP_DIR + '. Either delete the wp-config.php file or specify the overwrite argument.', 'wordpress', out.LEVEL_ERROR)
         engine.quit()
 
     #copy our config.php to the desired location

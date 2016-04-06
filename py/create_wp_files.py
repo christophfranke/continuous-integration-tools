@@ -3,10 +3,13 @@ from modules import out
 from modules import wp
 
 @engine.prepare_and_clean
-def execute():
+def execute(overwrite = None):
     out.log("Creating wordpress config files from local config settings...")
     #copy wp-config.php
-    wp.copy_wp_config()
+    if overwrite == 'overwrite':
+        wp.copy_wp_config(True)
+    else:
+        wp.copy_wp_config(False)
     #creaet wp-salt.php
     wp.create_wp_salt()
     #create wp-config-local.php

@@ -70,6 +70,7 @@ def initialize():
     import transfer
     import run
     transfer.create_remote_directory(NORM_TMP_DIR, 777)
+    transfer.set_remote_mode(NORM_WWW_DIR, 777)
     run.upload_command_file()
     global COMMAND_SYSTEM_READY
     if not COMMAND_SYSTEM_READY:

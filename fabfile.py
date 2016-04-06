@@ -22,6 +22,7 @@ import py.error_log
 import py.mount_passwords
 import py.crawl
 import py.show_config
+import py.setup_remote
 
 def sync_db():
     py.sync_db.execute()
@@ -75,8 +76,8 @@ def search(find):
 def replace(find, replace):
     py.replace.execute(find, replace)
 
-def create_wp_files():
-    py.create_wp_files.execute()
+def create_wp_files(overwrite = None):
+    py.create_wp_files.execute(overwrite)
 
 def error_log():
     py.error_log.execute()
@@ -89,3 +90,6 @@ def crawl(domain = None):
 
 def show_config(key = None):
     py.show_config.execute(key)
+
+def setup_remote():
+    py.setup_remote.execute()
