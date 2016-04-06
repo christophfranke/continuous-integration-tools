@@ -41,7 +41,10 @@ def local(command, halt_on_stderr = True, retry = 0):
         #read error output
         error = process.stderr.readline()
         while error != '':
-            out.log(error, 'local', out.LEVEL_ERROR)
+            if retry == 0:
+                out.log(error, 'local', out.LEVEL_ERROR)
+            else:
+                out.log(error, 'local', out.LEVEL_VERBOSE)
             stderr_occured = True
             read_something = True
             error = process.stderr.readline()
