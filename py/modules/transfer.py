@@ -89,6 +89,8 @@ def get_compressed(remote_file, local_file = None, verbose = False, permissions 
     compressed_remote = gzip.compress_remote(remote_file)
     #download
     compressed_local = get(compressed_remote, gzip.compressed_filename(local_file), verbose, permissions)
+    filesize = os.path.getsize(compressed_local)
+    out.log('downloaded compressed ' + str(filesize/1000.0) + ' kb file', 'transfer')
     #restore uncompressed remote file
     gzip.uncompress_remote(compressed_remote)
     #uncmopress local file
@@ -96,12 +98,11 @@ def get_compressed(remote_file, local_file = None, verbose = False, permissions 
 
 @out.indent
 def put_compressed(local_file, remote_file = None, verbose = False, permissions = None):
-    out.log('compressing ' + local_file, 'transfer')
     #compress local file
     compressed_local = gzip.compress_local(local_file)
     #upload
     filesize = os.path.getsize(compressed_local)
-    out.log('uploading ' + str(filesize/1000.0) + ' kb', 'transfer')
+    out.log('uploading compressed ' + str(filesize/1000.0) + ' kb file', 'transfer')
     compressed_remote = put(compressed_local, gzip.compressed_filename(remote_file), verbose, permissions)
     #restore local file
     gzip.uncompress_local(compressed_local)
