@@ -311,6 +311,9 @@ def get_database_dump_file(compression = False):
         filename += '.gz'
     return filename
 
+def get_latest_database_dump():
+    out.log('get_latest_database_dump is not implemented yet', 'engine', out.LEVEL_ERROR)
+    quit()
 
 def write_local_file(content, suffix = None, permissions = None):
     if permissions is not None:

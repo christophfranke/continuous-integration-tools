@@ -38,7 +38,7 @@ def upload_command_file():
 def export_db():
     py.export_db.execute()
 
-def import_db(filename):
+def import_db(filename = None):
     py.import_db.execute(filename)
 
 def backup_db(filename = None):
