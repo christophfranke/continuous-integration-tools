@@ -10,13 +10,13 @@ import re
 
 #upload local files using ftp
 @out.indent
-def upload(force_upload = False, recalculate_remote = True):
+def upload(force_upload = False, destructive = False):
     out.log('comparing md5 hashes of local and remote files', 'sync')
 
     #recalculate all md5 hashes
     files_local = create_md5_table()
 
-    if recalculate_remote:
+    if engine.ALWAYS_RECALCULATE_MD5_TABLE:
         #calculate remote files
         files_remote = create_remote_md5_table()
     else:
@@ -26,21 +26,44 @@ def upload(force_upload = False, recalculate_remote = True):
     #check which have changed
     files_scheduled = []
     for f in files_local:
-        if not ignored_file(f) and (force_upload or not f in files_remote or not files_local[f] == files_remote[f]):
-            out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
-            files_scheduled.append(f)
+        if force_upload or (not f in files_remote) or (not files_local[f] == files_remote[f]):
+            if ignored_file(f):
+                out.log('ignoring ' + f, 'sync', out.LEVEL_DEBUG)
+            else:
+                out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
+                files_scheduled.append(f)
 
     #upload new or modified files
     if len(files_scheduled) > 0:
         out.log('uploading ' + str(len(files_scheduled)) + ' files.', 'sync')
         transfer.put_multiple(files_scheduled)
     else:
-        out.log('nothing to do, all files up to date.', 'sync')
+        out.log('all files are up to date, not uploading any files.', 'sync')
 
-    #save current local list to file
-    save_md5_table(files_local)
+    #delete all other files
+    if destructive:
+        files_scheduled_for_removal = []
+        for f in files_remote:
+            if not f in files_local:
+                if system_file(f):
+                    out.log('skipping removal of ' + f, 'sync', out.LEVEL_VERBOSE)
+                else:
+                    out.log('scheduled for removal: ' + f, 'sync', out.LEVEL_INFO)
+                    files_scheduled_for_removal.append(f)
 
-def download(force_download = False):
+        #delete superfluous files
+        if len(files_scheduled_for_removal) > 0:
+            out.log('removing ' + str(len(files_scheduled_for_removal)) + ' files.', 'sync')
+            transfer.remove_remote_multiple(files_scheduled_for_removal)
+        else:
+            out.log('no unwanted files found, not removing any files.', 'sync')
+
+
+    #save current local list to file, butu only if it is being actually used
+    if not engine.ALWAYS_RECALCULATE_MD5_TABLE:
+        save_md5_table(files_local)
+
+def download(force_download = False, destructive = False):
     out.log('ignoring files matching these regex patterns: ' + str(engine.IGNORE_ON_SYNC_REGEX_LIST), 'sync', out.LEVEL_DEBUG)
     out.log('comparing md5 hashes of local and remote files', 'sync')
 
@@ -61,19 +84,42 @@ def download(force_download = False):
         out.log('downloading ' + str(len(files_scheduled)) + ' files.', 'sync')
         transfer.get_multiple(files_scheduled)
     else:
-        out.log('nothing to do, all files up to date.', 'sync')
+        out.log('all files are up to date, not downloading any files.', 'sync')
 
-    #save current remote list to file
-    save_md5_table(files_remote)
+    #delete all other files
+    if destructive:
+        files_scheduled_for_removal = []
+        for f in files_local:
+            if not f in files_remote:
+                if system_file(f):
+                    out.log('skipping removal of ' + f, 'sync', out.LEVEL_VERBOSE)
+                else:
+                    out.log('scheduled for removal: ' + f, 'sync', out.LEVEL_INFO)
+                    files_scheduled_for_removal.append(os.path.abspath(engine.LOCAL_WWW_DIR + '/' + f))
 
-@out.indent
-def ignored_file(file):
-    for regex in engine.IGNORE_ON_SYNC_REGEX_LIST:
+        #delete superfluous files
+        if len(files_scheduled_for_removal) > 0:
+            out.log('removing ' + str(len(files_scheduled_for_removal)) + ' files.', 'sync')
+            transfer.remove_local_multiple(files_scheduled_for_removal)
+        else:
+            out.log('no unwanted files found, not removing any files.', 'sync')
+
+
+    #save current remote list to file, but don't bother if it is not being used anyway
+    if not engine.ALWAYS_RECALCULATE_MD5_TABLE:
+        save_md5_table(files_remote)
+
+def match_file(file, regex_list):
+    for regex in regex_list:
         if re.search(regex, file) is not None:
-            out.log('ignoring ' + file, 'sync', out.LEVEL_DEBUG)
             return True
     return False
 
+def ignored_file(file):
+    return match_file(file, engine.IGNORE_ON_SYNC_REGEX_LIST)
+
+def system_file(file):
+    return match_file(file, engine.DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST)
 
 def md5sum(filename):
     md5 = hashlib.md5()

@@ -59,21 +59,15 @@ def phpinfo():
 def compile(types = None):
     py.compile.execute(types)
 
-def deploy():
-    py.deploy.execute()
+def deploy(mode = None):
+    py.deploy.execute(mode)
 
-def download_all_files():
-    py.download_all_files.execute()
+def sync_files(mode = None):
+    py.sync_files.execute(mode)
 
-def upload_all_files():
-    py.upload_all_files.execute()
-
-def sync_files():
-    py.sync_files.execute()
-
-def sync():
+def sync(mode = None):
     py.sync_db.execute()
-    py.sync_files.execute()
+    py.sync_files.execute(mode)
 
 def search(find):
     py.search.execute(find)

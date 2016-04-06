@@ -3,10 +3,9 @@ from modules import out
 from modules import transfer
 
 @engine.prepare_and_clean
-def execute(filename = None):
+def execute():
     out.log("downloading all files from www directory...")
-    #get directory is always relative to the www directory, so '.' just gets all
-    sync.download(True)
+    sync.download(True, False)
 
 
 

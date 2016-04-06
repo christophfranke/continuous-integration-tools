@@ -3,9 +3,9 @@ from modules import out
 from modules import sync
 
 @engine.prepare_and_clean
-def execute(filename = None):
+def execute():
     out.log("uploading all files to www directory...")
-    sync.upload(True)
+    sync.upload(True, False)
 
 
 

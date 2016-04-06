@@ -105,24 +105,24 @@ def put_compressed(local_file, remote_file = None, verbose = False, permissions 
     return gzip.uncompress_remote(compressed_remote, True)
 
 #mirror complete directory recursively
-def get_directory(directory, verbose = False):
+def get_directory(directory, destructive = False):
     remote_tar = tar.pack_remote(directory)
-    local_tar = get_compressed(remote_tar, verbose = verbose)
+    local_tar = get_compressed(remote_tar)
     tar.unpack_local(local_tar)
 
-def put_directory(directory, verbose = False):
+def put_directory(directory, destructive = False):
     local_tar = tar.pack_local(directory)
-    remote_tar = put_compressed(local_tar, verbose = verbose)
+    remote_tar = put_compressed(local_tar)
     tar.unpack_remote(remote_tar)
 
-def put_multiple(file_list, verbose = False):
+def put_multiple(file_list, destructive = False):
     local_tar = tar.pack_local_list(file_list)
-    remote_tar = put_compressed(local_tar, verbose = verbose)
+    remote_tar = put_compressed(local_tar)
     tar.unpack_remote(remote_tar)
 
-def get_multiple(file_list, verbose = False):
+def get_multiple(file_list, destructive = False):
     remote_tar = tar.pack_remote_list(file_list)
-    local_tar = get_compressed(remote_tar, verbose = verbose)
+    local_tar = get_compressed(remote_tar)
     tar.unpack_local(local_tar)
 
 def put_verbose(local_file, remote_file=None):
@@ -140,8 +140,22 @@ def remove_remote(filename):
     execute_ftp_command(command)
 
 @out.indent
+def remove_local_multiple(file_list):
+    out.log('removing multiple local files', 'transfer')
+    for file in file_list:
+        run.local('rm ' + file)
+
+@out.indent
+def remove_remote_multiple(file_list):
+    out.log('removing multiple remote files', 'transfer')
+    command = ''
+    for file in file_list:
+        command += 'delete ' + ftp_path(file) + '\n'
+    execute_ftp_command(command)
+
+@out.indent
 def remove_local_directory_contents(directoy):
-    out.log('remove content of local directory: ' + dircetory, 'transfer')
+    out.log('remove content of local directory: ' + directory, 'transfer')
     run.local('rm ' + directory + '/*')
 
 @out.indent
@@ -149,6 +163,20 @@ def remote_remote_directory_contents(directory):
     out.log('remove content of remote directory: ' + dircetory, 'transfer')
     command = 'delete ' + ftp_path(directory) + '/*'
     execute_ftp_command(command)
+
+#might not work as expected, because we delete the command file and the tmp directory here, at least in the online version
+#@out.indent
+#def wipe_local_directory_recursive(directory):
+#    out.log('removing local directory recursively: ' + directory, 'transfer')
+#    run.local('rm -rf ' + directory)
+#    create_local_directory(directory)
+
+#@out.indent
+#def wipe_remote_directory_recursiev(directory):
+#    out.log('removing remote directory recursively: ' + directory, 'transfer')
+#    run.remote('rm -rf ' + directory)
+#    create_remote_directory(directory)
+
 
 @out.indent
 def local_move(from_file, to_file):
