@@ -8,3 +8,7 @@ config/config_global.py
 
 #python bytecache files
 *.pyc
+
+
+#node modules are managed by npm
+node_modules/
