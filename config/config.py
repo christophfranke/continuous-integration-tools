@@ -101,15 +101,6 @@ except NameError:
     #REMOTE_ROOT_DIR resulted in a NameError, that means the project_config is correct, nothing to do.
     pass
 
-try:
-    FTP_WWW_DIR = os.path.normpath(FTP_PATH_TO_WWW_DIR)
-except:
-    const_warning('FTP_WWW_DIR', 'FTP_PATH_TO_WWW_DIR')
-
-try:
-    SSH_WWW_DIR = os.path.normpath(SSH_PATH_TO_WWW_DIR)
-except:
-    const_warning('SSH_WWW_DIR', 'SSH_PATH_TO_WWW_DIR')
 
 NORM_WWW_DIR = '.'
 NORM_TMP_DIR = os.path.normpath(TMP_DIR)
@@ -183,6 +174,18 @@ if TRANSFER_SYSTEM == '':
 #ssh or php
 if COMMAND_SYSTEM == '':
     COMMAND_SYSTEM = 'PHP' #also workaround: use php command system for now. later on we will support ssh
+
+if TRANSFER_SYSTEM == 'FTP':
+    try:
+        FTP_WWW_DIR = os.path.normpath(FTP_PATH_TO_WWW_DIR)
+    except:
+        const_warning('FTP_WWW_DIR', 'FTP_PATH_TO_WWW_DIR')
+
+if TRANSFER_SYSTEM == 'SSH' or COMMAND_SYSTEM == 'SSH':
+    try:
+        SSH_WWW_DIR = os.path.normpath(SSH_PATH_TO_WWW_DIR)
+    except:
+        const_warning('SSH_WWW_DIR', 'SSH_PATH_TO_WWW_DIR')
 
 
 if TRANSFER_SYSTEM == 'FTP':

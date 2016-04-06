@@ -35,10 +35,10 @@ def execute(command):
 def upload_command_file():
     py.upload_command_file.execute()
 
-def export_db(compression = None):
-    py.export_db.execute(compression)
+def export_db():
+    py.export_db.execute()
 
-def import_db(filename, compression = None):
+def import_db(filename):
     py.import_db.execute(filename)
 
 def backup_db(filename = None):

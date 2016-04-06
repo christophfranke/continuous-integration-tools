@@ -10,7 +10,7 @@ def execute(filename = None):
     #make a backup first
     backup_file = engine.get_database_dump_file(compression = True)
     remote_dump = mysql.create_remote_dump(compression = True)
-    transfer.get_verbose(remote_dump, backup_file)
+    transfer.get(remote_dump, backup_file)
 
     out.log("uploading database...")
     if filename is None:

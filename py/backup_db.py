@@ -9,7 +9,7 @@ def execute(filename = None):
     if filename is None:
         filename = engine.get_database_dump_file(compression = True)
     remote_dump = mysql.create_remote_dump(compression = True)
-    transfer.get_verbose(remote_dump, filename)
+    transfer.get(remote_dump, filename)
 
 
 def help():
