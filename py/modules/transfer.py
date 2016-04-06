@@ -25,7 +25,7 @@ def execute_ftp_command(command, verbose = False):
 
     #run the ftp file
     ftp_command_line = 'ftp -i ' + engine.FTP_PROTOCOL + '://' + escape(engine.FTP_USER) + ':' + escape(engine.FTP_PASSWORD) + '@' + engine.FTP_HOST + ' <' + ftp_file
-    run.local(ftp_command_line)
+    run.local(ftp_command_line, retry = 3)
 
 
 @out.indent

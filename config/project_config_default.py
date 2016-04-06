@@ -31,6 +31,9 @@ SSH_PASSWORD = None
 SSH_HOST = None #this is usually NOT the same as the websites domain, so we don't provide a standard value here
 SSH_PATH_TO_WWW_DIR = None #the path to the www dir as seen by the ssh client
 
+#number of seconds to cooldown before retrying a command after failing it. Not all commands are retried, but sometimes it is beneficial (for example if your ftp connection is refused by the server to reduce workload).
+RETRY_TIMEOUT = 5
+
 #the file transfer system decides, how files are being transfered between the local and remote computer. Use SSH if available
 TRANSFER_SYSTEM = '' #automatic detection (empty string) will use SSH if SSH_USER, SSH_PASSWORD and SSH_HOST are provided. Possible values are 'FTP' and 'SSH'
 #the command system decides, what api is used to execute shell commands on the remote host

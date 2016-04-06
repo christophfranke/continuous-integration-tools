@@ -17,7 +17,7 @@ def test_module():
 
 #run command locally. easy.
 @out.indent
-def local(command, halt_on_stderr = True):
+def local(command, halt_on_stderr = True, retry = 0):
     #tell what happens
     out.log(command, 'local', out.LEVEL_VERBOSE)
 
@@ -53,8 +53,13 @@ def local(command, halt_on_stderr = True):
     #get the exit code and print stuff if something has gone wrong
     exit_code = process.poll()
     if exit_code != 0 or (halt_on_stderr and stderr_occured):
-        out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), 'local', out.LEVEL_ERROR)
-        engine.quit()
+        if retry == 0:
+            out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), 'local', out.LEVEL_ERROR)
+            engine.quit()
+        if retry > 0:
+            out.log("Error executing `" + str(command) + "`. Retrying in " + str(engine.RETRY_TIMEOUT) + " seconds (" + str(retry) + " tries left)...", 'run', out.LEVEL_WARNING)
+            time.sleep(engine.RETRY_TIMEOUT)
+            local(command, halt_on_stderr, retry-1)
 
     return output_array
 

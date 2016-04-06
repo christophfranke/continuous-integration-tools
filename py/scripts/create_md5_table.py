@@ -31,7 +31,7 @@ def create_md5_table(root_dirname):
     for f in files:
         try:
             md5_table[f] = md5sum(os.path.join(root_dirname,f))
-        except IndexError:
+        except:
             pass
 
     return md5_table
