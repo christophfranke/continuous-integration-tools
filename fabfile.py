@@ -23,6 +23,7 @@ import py.mount_passwords
 import py.crawl
 import py.show_config
 import py.setup_remote
+import py.generate_password
 
 def sync_db():
     py.sync_db.execute()
@@ -93,3 +94,6 @@ def show_config(key = None):
 
 def setup_remote():
     py.setup_remote.execute()
+
+def generate_password():
+    py.generate_password.execute()
