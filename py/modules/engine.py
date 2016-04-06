@@ -112,15 +112,18 @@ def cleanup(namespace = None):
 
 
 def get_suffix(filename):
+    #find the last slash
+    slash_pos = filename.rfind('/')
+    filename_without_path = filename[slash_pos+1:]
     #find the first dot in filename
-    pos = filename.find('.')
+    pos = filename_without_path.find('.')
 
     #this file has no suffix
     if pos == -1:
         return None
     else:
         #return suffix
-        return filename[pos+1:]
+        return filename_without_path[pos+1:]
 
 def quit():
     cleanup()
