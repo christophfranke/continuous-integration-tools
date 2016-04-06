@@ -12,8 +12,6 @@ import py.cleanup
 import py.phpinfo
 import py.compile
 import py.deploy
-import py.download_all_files
-import py.upload_all_files
 import py.sync_files
 import py.search
 import py.replace
