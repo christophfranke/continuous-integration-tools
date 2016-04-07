@@ -7,8 +7,8 @@ JS_MAP_FILE = $(BUILD)/$(MAIN_JS_MAP)
 CSS_FILE = $(BUILD)/style.css
 LESS_FILE = $(SRC)/less/style.less
 
-JS_SRC = $(wildcard $(SRC)/**/*.js)
-LESS_SRC = $(wildcard $(SRC)/**/*.less)
+JS_SRC = $(shell find $(SRC)/js -name "*.js")
+LESS_SRC = $(shell find $(SRC)/less -name "*.less")
 
 COMPILER = ../java/js-compiler.jar
 
