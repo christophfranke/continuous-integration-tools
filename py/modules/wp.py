@@ -29,6 +29,8 @@ def create_wp_config_local():
     file.write("define('DB_PASSWORD', '" + engine.LOCAL_DB_PASSWORD + "');\n")
     file.write("define('DB_HOST', '" + engine.LOCAL_DB_HOST + "');\n")
     file.write("define('WP_SITEURL', '" + engine.LOCAL_ROOT_URL + "');\n")
+    file.write("define('WP_DEBUG', True);\n")
+    file.write("define('WP_DEBUG_DISPLAY', True);\n")
     #done, close
     file.close()
 
