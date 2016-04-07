@@ -1,0 +1,27 @@
+#turn on mod rewrite
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+</IfModule>
+
+#pass the default character set
+AddDefaultCharset utf-8
+
+#set the server timezone
+SetEnv TZ Europe/Berlin
+
+#secure htaccess file
+<Files .htaccess>
+ order allow,deny
+ deny from all
+</Files>
+
+#secure htpasswd files
+<Files .htpasswd>
+ order allow,deny
+ deny from all
+</Files>
+
+#disable directory browsing
+Options All -Indexes
+

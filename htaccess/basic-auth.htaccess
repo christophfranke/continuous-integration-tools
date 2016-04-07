@@ -1,0 +1,7 @@
+#adding basic password protection
+AuthType basic
+AuthName "This site is under development."
+AuthUserFile [HTPASSWD_FILE]
+AuthGroupFile /dev/null
+Require valid-user
+

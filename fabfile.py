@@ -22,6 +22,7 @@ import py.crawl
 import py.show_config
 import py.setup_remote
 import py.generate_password
+import py.create_htaccess
 
 def sync_db():
     py.sync_db.execute()
@@ -95,3 +96,6 @@ def setup_remote():
 
 def generate_password():
     py.generate_password.execute()
+
+def create_htaccess(overwrite = None):
+    py.create_htaccess.execute(overwrite)

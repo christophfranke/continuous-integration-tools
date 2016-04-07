@@ -315,19 +315,42 @@ def get_latest_database_dump():
     out.log('get_latest_database_dump is not implemented yet', 'engine', out.LEVEL_ERROR)
     quit()
 
-def write_local_file(content, suffix = None, permissions = None):
+def write_local_file(content, suffix = None, permissions = None, filename = None):
     if permissions is not None:
         out.log('Error: Setting permissions in write_local_file is not implemented yet.', 'engine', out.LEVEL_ERROR)
-    filename = get_new_local_file(suffix)
+    if filename is None:
+        filename = get_new_local_file(suffix)
     file = open(filename, 'w')
     file.write(content)
     file.close()
     return filename
 
-def write_remote_file(content, suffix = None, permissions = None):
+def write_remote_file(content, suffix = None, permissions = None, filename = None):
     import transfer
     local_file = write_local_file(content, suffix)
-    remote_file = get_new_remote_file(suffix)
+    if filename is None:
+        remote_file = get_new_remote_file(suffix)
+    else:
+        remote_file = filename
     transfer.put(local_file, remote_file, permissions = permissions)
     return remote_file
+
+def read_local_file(filename):
+    file = open(filename, 'r')
+    data = file.read()
+    file.close()
+    return data
+
+def read_remote_file(filename):
+    import transfer
+    local_file = transfer.get(filename)
+    return read_local_file(local_file)
+
+@out.indent
+def get_remote_www_dir_abspath():
+    import run
+    out.log('getting absolute remote path of www directory', 'engine')
+    filename = get_new_remote_file('out')
+    run.remote('pwd >' + filename)
+    return read_remote_file(filename).rstrip()
 
