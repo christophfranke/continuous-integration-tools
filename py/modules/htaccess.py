@@ -61,6 +61,5 @@ def create_live_file():
         run.local('htpasswd -bc ' + engine.LOCAL_WWW_DIR + '/.htpasswd ' + engine.AUTH_USER + ' ' + engine.AUTH_PASSWORD, halt_on_stderr = False)
         transfer.put(engine.LOCAL_WWW_DIR + '/.htpasswd', '.htpasswd')
 
-    #write local and remote files
+    #write local
     engine.write_local_file(ht_data, filename = engine.LOCAL_WWW_DIR + '/.htaccess.live')
-    engine.write_remote_file(ht_data, filename = '.htaccess.live')

@@ -19,6 +19,9 @@ def execute(overwrite = None):
     #create a symlink only on the remote machine
     htaccess.create_remote_symlink()
 
+    #ok
+    out.log('created files .htaccess.live and .htacces.local on local machine. symlinks to those files have been created locally and on the remote server. To upload the newly created .htaccess files, use the deploy command.')
+
 
 def help():
     out.log("This command creates 2 files and two symbolic links for you:", 'help')
