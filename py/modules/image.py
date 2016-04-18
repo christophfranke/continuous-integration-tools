@@ -28,11 +28,11 @@ def optimize_png():
                 new_size = os.path.getsize(optimized_name)
                 old_size = os.path.getsize(original_name)
                 if new_size < old_size:
-                    out.log('reduced ' + original_name + ': ' + str(old_size) + ' --> ' + str(new_size), 'bytes (' + str(100-100*new_size/old_size) + '%)', 'image')
+                    out.log('could reduce ' + original_name + ': ' + str(old_size) + ' --> ' + str(new_size) + ' bytes (' + str(100-100*new_size/old_size) + '%)', 'image')
                     run.local('rm ' + original_name)
                     run.local('mv ' + optimized_name + ' ' + original_name)
                 else:
-                    out.log('could not reduce ' + original_name + ' any further, skipped.', 'image')
+                    out.log('could not reduce ' + original_name + ': (0%).', 'image')
                     run.local('rm ' + optimized_name)
             else:
                 out.log('pngcrush did decide not to write an output file for ' + original_name, 'image')
