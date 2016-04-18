@@ -24,6 +24,7 @@ import py.setup_remote
 import py.generate_password
 import py.create_htaccess
 import py.diff
+import py.optimize_images
 
 def sync_db():
     py.sync_db.execute()
@@ -103,3 +104,6 @@ def create_htaccess(overwrite = None):
 
 def diff():
     py.diff.execute()
+
+def optimize_images():
+    py.optimize_images.execute()
