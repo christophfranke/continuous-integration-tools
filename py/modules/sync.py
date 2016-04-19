@@ -27,7 +27,7 @@ def upload(force_upload = False, destructive = False):
     files_scheduled = []
     for f in files_local:
         if force_upload or (not f in files_remote) or (not files_local[f] == files_remote[f]):
-            if ignored_file(f):
+            if ignored_file(f) or system_file(f):
                 out.log('ignoring ' + f, 'sync', out.LEVEL_DEBUG)
             else:
                 out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
@@ -75,7 +75,7 @@ def download(force_download = False, destructive = False):
     #check which have changed
     files_scheduled = []
     for f in files_remote:
-        if not ignored_file(f) and (force_download or not f in files_local or not files_local[f] == files_remote[f]):
+        if not (ignored_file(f) or system_file(f)) and (force_download or not f in files_local or not files_local[f] == files_remote[f]):
             out.log('scheduled for download: ' + f, 'sync', out.LEVEL_INFO)
             files_scheduled.append(f)
 
