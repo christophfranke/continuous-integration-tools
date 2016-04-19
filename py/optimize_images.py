@@ -3,9 +3,11 @@ from modules import out
 from modules import image
 
 @engine.prepare_and_clean
-def execute():
+def execute(quality = None):
     out.log('optimizing images...')
-    image.optimize_jpg()
+    if quality is None:
+        quality = 100
+    image.optimize_jpg(quality)
     image.optimize_png()
 
 def help():

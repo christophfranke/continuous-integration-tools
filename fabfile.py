@@ -105,5 +105,5 @@ def create_htaccess(overwrite = None):
 def diff():
     py.diff.execute()
 
-def optimize_images():
-    py.optimize_images.execute()
+def optimize_images(quality = None):
+    py.optimize_images.execute(quality)
