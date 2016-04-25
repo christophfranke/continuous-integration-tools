@@ -203,8 +203,12 @@ if TRANSFER_SYSTEM == 'FTP':
 
 if COMMAND_SYSTEM == 'PHP':
     if REMOTE_ROOT_URL is not None:
-        REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
-        NORM_COMMAND_FILE = os.path.normpath(SECURITY_HASH + '.php')
+        try:
+            REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
+            NORM_COMMAND_FILE = os.path.normpath(SECURITY_HASH + '.php')
+        except:
+            const_warning('REMOTE_COMMAND_URL', 'SECURITY_HASH')
+            const_warning('NORM_COMMAND_FILE', 'SECURITY_HASH')
     else:
         const_subsequent('REMOTE_COMMAND_URL', 'REMOTE_ROOT_URL')
 
@@ -216,5 +220,8 @@ except NameError:
 #assambling a regex list from the ignore on sync list
 IGNORE_ON_SYNC_REGEX_LIST = [s.replace('REMOTE_COMMAND_FILE', COMMAND_URL_FOR_REGEX).replace('TMP_DIR', TMP_DIR + '/').replace('.', '[.]').replace('*','.*') for s in IGNORE_ON_SYNC]
 
-DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST = [NORM_COMMAND_FILE.replace('.','[.]'), NORM_TMP_DIR + '/.*', 'wp-config-local\.php', '.htaccess$']
+try:
+    DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST = [NORM_COMMAND_FILE.replace('.','[.]'), NORM_TMP_DIR + '/.*', 'wp-config-local\.php', '.htaccess$']
+except:
+    DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST = [NORM_TMP_DIR + '/.*', 'wp-config-local\.php', '.htaccess$']
 
