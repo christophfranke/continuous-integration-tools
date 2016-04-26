@@ -25,6 +25,8 @@ import py.generate_password
 import py.create_htaccess
 import py.diff
 import py.optimize_images
+import py.setup_local_domain
+import py.restart
 
 def sync_db():
     py.sync_db.execute()
@@ -107,3 +109,9 @@ def diff():
 
 def optimize_images(quality = None):
     py.optimize_images.execute(quality)
+
+def setup_local_domain():
+    py.setup_local_domain.execute()
+
+def restart():
+    py.restart.execute()

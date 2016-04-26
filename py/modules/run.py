@@ -17,12 +17,16 @@ def test_module():
 
 #run command locally. easy.
 @out.indent
-def local(command, halt_on_stderr = True, retry = 0):
+def local(command, halt_on_stderr = True, retry = 0, sudo = False):
     #tell what happens
     out.log(command, 'local', out.LEVEL_VERBOSE)
 
     #create output array
     output_array = []
+
+    if sudo:
+        out.log('prepending sudo to command', 'local', out.LEVEL_VERBOSE)
+        command = 'sudo ' + command
 
     #run it using subprocess
     stderr_occured = False
