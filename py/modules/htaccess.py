@@ -17,7 +17,7 @@ def create_remote_symlink():
     out.log('creating remote .htaccess link', 'htaccess')
     run.remote('ln -s .htaccess.live .htaccess')
 
-def prepare(overwrite):
+def prepare(overwrite, upload=False):
     htaccess_file = os.path.abspath(engine.LOCAL_WWW_DIR + '/.htaccess')
     if os.path.isfile(htaccess_file):
         if overwrite == 'fail':
@@ -25,7 +25,8 @@ def prepare(overwrite):
             engine.quit()
         if overwrite == 'overwrite':
             run.local('rm ' + htaccess_file)
-            transfer.remove_remote('.htaccess')
+    if upload:
+        transfer.remove_remote('.htaccess')
 
 def assemble_htaccess_data(domain):
     ht_data = engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/signature.htaccess')
@@ -50,7 +51,7 @@ def create_local_file():
     engine.write_local_file(ht_data, filename = engine.LOCAL_WWW_DIR + '/.htaccess.local')
 
 @out.indent
-def create_live_file():
+def create_live_file(upload=False):
     out.log('creating .htaccess.live', 'htaccess')
     ht_data = assemble_htaccess_data('live')
     if engine.NEED_BASIC_AUTH:
@@ -63,3 +64,6 @@ def create_live_file():
 
     #write local
     engine.write_local_file(ht_data, filename = engine.LOCAL_WWW_DIR + '/.htaccess.live')
+    #write to remote
+    if upload:
+        engine.write_remote_file(ht_data, filename = '.htaccess.live')
