@@ -32,6 +32,12 @@ def assemble_htaccess_data(domain):
     ht_data = engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/signature.htaccess')
     ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/common.htaccess')
     ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/deflate.htaccess')
+    #caching only for live site
+    if domain == 'live':
+        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching.htaccess')
+    else:
+        #explicitly disable browsercaching for all assets for local development site
+        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/no-caching.htaccess')
     if os.path.isfile(engine.LOCAL_WWW_DIR + '/.htaccess.custom'):
         ht_data += engine.read_local_file(engine.LOCAL_WWW_DIR + '/.htaccess.custom')
     if engine.IS_WORDPRESS:

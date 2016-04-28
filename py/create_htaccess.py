@@ -26,7 +26,10 @@ def execute(overwrite = None):
         htaccess.create_remote_symlink()
 
     #ok
-    out.log('created files .htaccess.live and .htacces.local on local machine. symlinks to those files have been created locally and on the remote server. To upload the newly created .htaccess files, use the deploy command or specify the upload argument (fab create_htaccess:upload).')
+    if not upload_htaccess:
+        out.log('created files .htaccess.live and .htacces.local on local machine. symlinks to those files have been created locally. To upload the newly created .htaccess files, use the deploy command or specify the upload argument (fab create_htaccess:upload).')
+    else:
+        out.log('created files .htaccess.live and .htaccess.local on your local machine. symlinks to thos files have been created locally and on the remote server. .htaccess.live has been uploaded.')
 
 
 def help():

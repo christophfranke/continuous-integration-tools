@@ -1,24 +1,22 @@
-#cache images and flash content for one month
+FileETag INode MTime Size
+
+#cache images and flash content for one week
 <FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf)$">
-Header set Cache-Control "max-age=2592000"
+    Header set Cache-Control "max-age=302400, public"
 </FilesMatch>
 
-#cache text, css, and javascript files for one week
+#cache text, css, and javascript files for one day
 <FilesMatch ".(js|css|pdf|txt)$">
-Header set Cache-Control "max-age=604800"
+    Header set Cache-Control "max-age=43200, public"
 </FilesMatch>
 
 #cache html and htm files for one day
 <FilesMatch ".(html|htm)$">
-Header set Cache-Control "max-age=43200"
+    Header set Cache-Control "max-age=43200, public"
 </FilesMatch>
-
-#implement minimal caching during site development
-#<FilesMatch "\.(flv|gif|jpg|jpeg|png|ico|js|css|pdf|swf|html|htm|txt)$">
-#Header set Cache-Control "max-age=5"
-#</FilesMatch>
 
 #explicitly disable caching for scripts and other dynamic files
 <FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi)$">
-Header unset Cache-Control
-</FilesMatch
+    Header set Cache-Control "max-age=60"
+</FilesMatch>
+
