@@ -22,7 +22,7 @@ def optimize_jpg(quality = 100):
                 quality = '-m' + str(quality)
             else:
                 quality = ''
-                run.local('jpegoptim --strip-all ' + progressive + ' ' + quality + ' "' + root + '/' + filename + '"')
+                run.local('jpegoptim ' + progressive + ' ' + quality + ' "' + root + '/' + filename + '"')
 
 @out.indent
 def optimize_png():
