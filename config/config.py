@@ -221,7 +221,7 @@ except NameError:
 IGNORE_ON_SYNC_REGEX_LIST = [s.replace('REMOTE_COMMAND_FILE', COMMAND_URL_FOR_REGEX).replace('TMP_DIR', TMP_DIR + '/').replace('.', '[.]').replace('*','.*') for s in IGNORE_ON_SYNC]
 
 try:
-    DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST = [NORM_COMMAND_FILE.replace('.','[.]'), NORM_TMP_DIR + '/.*', 'wp-config-local\.php', '.htaccess$']
+    DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST = [NORM_COMMAND_FILE.replace('.','[.]'), NORM_TMP_DIR + '/.*', 'wp-config-local\.php$', '^.htaccess$']
 except:
-    DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST = [NORM_TMP_DIR + '/.*', 'wp-config-local\.php', '.htaccess$']
+    DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST = [NORM_TMP_DIR + '/.*', 'wp-config-local\.php$', '^.htaccess$']
 
