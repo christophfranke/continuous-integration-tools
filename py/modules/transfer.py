@@ -245,7 +245,7 @@ def escape(s):
     return s
 
 def ftp_path(filename):
-    return os.path.normpath(engine.FTP_WWW_DIR + '/' + filename)
+    return '"' + os.path.normpath(engine.FTP_WWW_DIR + '/' + filename) + '"'
 
 def ssh_path(filename):
-    return os.path.normpath(engine.SSH_WWW_DIR + '/' + filename)
+    return '"' + os.path.normpath(engine.SSH_WWW_DIR + '/' + filename) + '"'
