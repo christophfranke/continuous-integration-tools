@@ -1,4 +1,4 @@
-# we don't want fabric to be a dependency anymore, so this is here basically for legacy
+#importing all the modules
 import py.sync_db
 import py.create_db
 import py.execute
@@ -27,6 +27,67 @@ import py.diff
 import py.optimize_images
 import py.setup_local_domain
 import py.restart
+
+
+def get_command_list():
+    #use function attribute to cache result
+    try:
+        if get_command_list.exposed_func_list is not None:
+            return get_command_list.exposed_func_list
+    except AttributeError:
+        pass
+
+    #get all omported modules in the py scope
+    all_func_list = dir(globals()['py'])
+
+    #some of those are exposed using the same name as function here
+    get_command_list.exposed_func_list = []
+    not_exposed_func_list = []
+
+    #split the function list into exposed and non-exposed
+    for func in all_func_list:
+        if func in globals() and callable(globals()[func]):
+            get_command_list.exposed_func_list.append(func)
+        else:
+            not_exposed_func_list.append(func)
+
+    #return only the exposed ones, since these are garuanteed to work (at least better than the not exposed ones!)
+    get_command_list.exposed_func_list.sort()
+    return get_command_list.exposed_func_list
+
+#assumes valid command. You h ave to check yourself before calling this function.
+def display_help_text(command):
+    module = getattr(globals()['py'], command)
+    return module.help()
+
+
+def help(command = None):
+    import py.modules.out as out
+    if command is None or not command in get_command_list():
+        if command is not None:
+            out.log('Sorry, we Could not find the command ' + str(command))
+        out.log('Welcome. You are using deploy tools. You can use this file in two possible ways:')
+        out.log('As a fabric deploy script file, you can start all commands using the syntax')
+        out.log('')
+        out.log('fab <command>[:<argument1>][,<argument2>][,<argument3>] ...')
+        out.log('')
+        out.log('If you dont want to add fabric to your dependencies, you can also use the built in way of invoking commands:')
+        out.log('')
+        out.log('python fabfile.py <command> [<argument1>] [<argument2>] [<argument3>] ...')
+        out.log('')
+        out.log('A list of supported commands is:')
+
+        for func in get_command_list():
+            out.log(func)
+
+        out.log('')
+        out.log('For more specific help use the help command with the command as argument:')
+        out.log('fab help:<command>')
+        out.log('python fabfile.py help <command>')
+    else:
+        out.log('This is the help text for the command ' + command + ':')
+        display_help_text(command)
+
 
 def sync_db():
     py.sync_db.execute()
@@ -115,3 +176,17 @@ def setup_local_domain():
 
 def restart():
     py.restart.execute()
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) < 2:
+        help()
+    else:
+        func_name = sys.argv[1]
+        arg_list = sys.argv[2:]
+        if func_name in locals():
+            locals()[func_name](*arg_list)
+        else:
+            print 'Could not find command ' + func_name
+            help()
