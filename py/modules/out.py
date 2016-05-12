@@ -12,7 +12,7 @@ except ImportError:
 last_output_blocked = False
 output_blocked_from_parent = False
 
-filter_output = ['Warning: Using a password on the command line interface can be insecure.']
+filter_output = ['Warning: Using a password on the command line interface can be insecure.', 'mysqldump: [Warning] Using a password on the command line interface can be insecure.']
 
 #the indentation level, so you can see which function triggered what
 indentation = -1
