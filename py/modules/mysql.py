@@ -7,10 +7,16 @@ import out
 
 @out.indent
 def test_module():
-    out.log("Testing local mysql access...", 'mysql')
-    execute_local_statement('SHOW TABLES;')
-    out.log("Testing remote mysql access...", 'mysql')
-    execute_remote_statement('SHOW TABLES;')
+    if engine.LOCAL_DB_NAME is not None:
+        out.log("Testing local mysql access...", 'mysql')
+        execute_local_statement('SHOW TABLES;')
+    else:
+        out.log("Skipping local mysql access, because LOCAL_DB_NAME is not set.", 'mysql')
+    if engine.REMOTE_DB_NAME is not None:
+        out.log("Testing remote mysql access...", 'mysql')
+        execute_remote_statement('SHOW TABLES;')
+    else:
+        out.log('Skipping remote mysql access, because REMOTE_DB_NAME is not set.', 'mysql')
 
 def execute_remote_file(filename):
     run.remote(engine.REMOTE_MYSQL_CMD + ' <' + filename)
