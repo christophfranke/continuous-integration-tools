@@ -71,6 +71,8 @@ $table_prefix  = 'wp_';
 //wp debug might have been defined in a local environment. However, this file contains the settings for production, so we generally want to turn debug off
 if(!defined('WP_DEBUG'))
     define('WP_DEBUG', false);
+if(!defined('WP_DEBUG_DISPLAY'))
+    define('WP_DEBUG_DISPLAY', false);
 
 /* That's all, stop editing! Happy blogging. */
 
