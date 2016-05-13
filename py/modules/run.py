@@ -54,7 +54,7 @@ def local(command, halt_on_stderr = True, retry = 0, sudo = False):
             error = process.stderr.readline()
 
         #if there was no output, wait a little bit for the programm to finish
-        if not read_something:
+        if not read_something and process.poll() is None:
             time.sleep(0.05)
 
     #get the exit code and print stuff if something has gone wrong

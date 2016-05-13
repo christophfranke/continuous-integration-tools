@@ -3,29 +3,14 @@ import run
 import out
 import gzip
 import tar
+import ftp
 
 import os
 
 @out.indent
 def test_module():
     out.log("Testing FTP connection...", 'transfer')
-    execute_ftp_command('pwd')
-
-#writes the commands to file and executes the file. This way we circumvent all the escaping trouble.
-@engine.cleanup_tmp_files
-def execute_ftp_command(command, verbose = False):
-    #write the command into file
-    ftp_file = engine.write_local_file(command, 'ftp')
-    #set verbose or not verbose
-    if verbose:
-        out.log('The verbosity option for execute_command_file is currently not being used.','transfer', out.LEVEL_WARNING)
-        verbosity_option = '-v'
-    else:
-        verbosity_option = '-V'
-
-    #run the ftp file
-    ftp_command_line = 'ftp -i ' + engine.FTP_PROTOCOL + '://' + escape(engine.FTP_USER) + ':' + escape(engine.FTP_PASSWORD) + '@' + engine.FTP_HOST + ' <' + ftp_file
-    run.local(ftp_command_line, retry = 3)
+    ftp.execute('pwd')
 
 
 @out.indent
@@ -42,7 +27,7 @@ def get(remote_file, local_file = None, verbose = False, permissions = None):
     #get transfer system
     if engine.TRANSFER_SYSTEM == 'FTP':
         command = 'get ' + ftp_path(remote_file) + ' ' + local_file
-        execute_ftp_command(command, verbose)
+        ftp.execute(command)
     elif engine.TRANSFER_SYSTEM == 'SSH':
         out.log("Error: TRANSFER_SYSTEM SSH not implemented yet", 'download', out.LEVEL_ERROR)
         engine.quit()
@@ -75,7 +60,7 @@ def put(local_file, remote_file = None, verbose = False, permissions = None):
         if permissions is not None:
             command += "\nchmod " + str(permissions) + " " + ftp_path(remote_file)
         #...execute!
-        execute_ftp_command(command, verbose)
+        ftp.execute(command)
     elif engine.TRANSFER_SYSTEM == 'SSH':
         out.log("Error: TRANSFER_SYSTEM SSH not implemented yet", 'upload', out.LEVEL_ERROR)
     else:
@@ -142,7 +127,7 @@ def remove_local(filename):
 def remove_remote(filename):
     out.log('remove remote file: ' + filename, 'transfer')
     command = 'delete ' + ftp_path(filename)
-    execute_ftp_command(command)
+    ftp.execute(command)
 
 @out.indent
 def remove_local_multiple(file_list):
@@ -156,7 +141,7 @@ def remove_remote_multiple(file_list):
     command = ''
     for file in file_list:
         command += 'delete ' + ftp_path(file) + '\n'
-    execute_ftp_command(command)
+    ftp.execute(command)
 
 @out.indent
 def remove_local_directory_contents(directoy):
@@ -167,7 +152,7 @@ def remove_local_directory_contents(directoy):
 def remote_remote_directory_contents(directory):
     out.log('remove content of remote directory: ' + dircetory, 'transfer')
     command = 'delete ' + ftp_path(directory) + '/*'
-    execute_ftp_command(command)
+    ftp.execute(command)
 
 @out.indent
 def local_move(from_file, to_file):
@@ -178,7 +163,7 @@ def local_move(from_file, to_file):
 def remote_move(from_file, to_file):
     out.log('move remote file: ' + from_file + ' -> ' + to_file, 'transfer')
     command = 'rename ' + ftp_path(from_file) + ' ' + ftp_path(to_file)
-    execute_ftp_command(command)
+    ftp.execute(command)
 
 @out.indent
 def create_local_directory(directory, permissions = None):
@@ -193,7 +178,7 @@ def create_remote_directory(directory, permissions = None):
     command = 'mkdir ' + ftp_path(directory)
     if permissions is not None:
         command += "\nchmod " + str(permissions) + " " + ftp_path(directory)
-    execute_ftp_command(command)
+    ftp.execute(command)
 
 def set_local_mode(file, mode):
     out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer')
@@ -203,46 +188,8 @@ def set_local_mode(file, mode):
 def set_remote_mode(file, mode):
     out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer')
     command = "chmod " + str(mode) + ' ' + ftp_path(file)
-    execute_ftp_command(command)
+    ftp.execute(command)
 
-def escape(s):
-    escape_table = {
-        '!':'%20',
-        '"':'%22',
-        '#':'%23',
-        '$':'%24',
-        '%':'%25',
-        '&':'%26',
-        "'":'%27',
-        '(':'%28',
-        ')':'%29',
-        '*':'%2A',
-        '+':'%2B',
-        ',':'%2C',
-        '-':'%2D',
-        '.':'%2E',
-        '/':'%2F',
-        ':':'%3A',
-        ';':'%3B',
-        '<':'%3C',
-        '=':'%3D',
-        '>':'%3E',
-        '?':'%3F',
-        '@':'%40',
-        '[':'%5B',
-        '\\':'%5C',
-        ']':'%5D',
-        '^':'%5E',
-        '`':'%60',
-        '{':'%7B',
-        '|':'%7C',
-        '}':'%7D',
-        '~':'%7E'
-    }
-    for character in escape_table:
-        s = s.replace(character, escape_table[character])
-
-    return s
 
 def ftp_path(filename):
     return '"' + os.path.normpath(engine.FTP_WWW_DIR + '/' + filename) + '"'
