@@ -14,7 +14,8 @@ output_blocked_from_parent = False
 
 filter_output = ['Warning: Using a password on the command line interface can be insecure.',
                  'mysqldump: [Warning] Using a password on the command line interface can be insecure.',
-                 '[Warning] Using a password on the command line interface can be insecure.']
+                 '[Warning] Using a password on the command line interface can be insecure.',
+                 'mysql: [Warning] Using a password on the command line interface can be insecure.']
 
 #the indentation level, so you can see which function triggered what
 indentation = -1
