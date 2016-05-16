@@ -74,6 +74,9 @@ if(!defined('WP_DEBUG'))
 if(!defined('WP_DEBUG_DISPLAY'))
     define('WP_DEBUG_DISPLAY', false);
 
+if ( file_exists( dirname( __FILE__ ) . '/wp-config-custom.php' ) )
+	include( dirname( __FILE__ ) . '/wp-config-custom.php' );
+
 /* That's all, stop editing! Happy blogging. */
 
 /** Absolute path to the WordPress directory. */
