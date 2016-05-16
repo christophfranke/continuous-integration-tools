@@ -22,6 +22,3 @@ SetEnv TZ Europe/Berlin
  deny from all
 </Files>
 
-#disable directory browsing
-Options All -Indexes
-
