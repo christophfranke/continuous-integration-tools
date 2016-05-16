@@ -40,9 +40,6 @@ def prepare_and_clean(func):
         global start_time
         start_time = time.time()
         out.clear_logfile()
-        global COMMAND_SYSTEM_READY
-        if not COMMAND_SYSTEM_READY:
-            initialize()
         result = func(*args, **kwargs)
         cleanup()
         elapsed_time = "{:.3f}".format(time.time() - start_time)
