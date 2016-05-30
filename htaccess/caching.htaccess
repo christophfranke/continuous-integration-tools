@@ -1,7 +1,7 @@
 FileETag INode MTime Size
 
 #cache images and flash content for one week
-<FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf)$">
+<FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf|svg)$">
     Header set Cache-Control "max-age=604800, public"
 </FilesMatch>
 

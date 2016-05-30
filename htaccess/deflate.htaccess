@@ -11,5 +11,6 @@
     AddOutputFilterByType DEFLATE application/x-javascript
     AddOutputFilterByType DEFLATE application/font-woff
     AddOutputFilterByType DEFLATE application/x-font-woff
+    AddOutputFilterByType DEFLATE image/svg+xml
 </IfModule>
 
