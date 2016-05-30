@@ -28,6 +28,14 @@ else
 //home is site url by convention
 define('WP_HOME', WP_SITEURL);
 
+
+//caching (obviously works only with wp-super-cache) 
+define('WPCACHEHOME', dirname(__FILE__) . '/wp-content/plugins/wp-super-cache/');
+//enable cache only for production environment
+if(!defined('WP_CACHE'))
+    define('WP_CACHE', true);
+
+
 /** Database Charset to use in creating database tables. */
 define('DB_CHARSET', 'utf8');
 
