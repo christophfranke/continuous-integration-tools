@@ -6,7 +6,7 @@ import run
 
 #compress a single file
 @out.indent
-def compress(uncompressed_file, run_func, rename_tmp_func = None):
+def compress(uncompressed_file, run_func, rename_tmp_func = None, fast = False):
     #this will be the name of the compressed file
     compressed_file = uncompressed_file + '.gz'
 
@@ -17,8 +17,13 @@ def compress(uncompressed_file, run_func, rename_tmp_func = None):
     if rename_tmp_func is not None:
         rename_tmp_func(uncompressed_file, compressed_file)
 
+    #assemble args
+    args = ''
+    if fast:
+        args = '--fast '
+
     #compress
-    run_func('gzip ' + uncompressed_file)
+    run_func('gzip ' + args + uncompressed_file)
 
     #return file
     return compressed_file
@@ -60,12 +65,12 @@ def uncompress_local(filename, tell_engine = False):
         rename_tmp_func = None
     return uncompress(filename, run.local, rename_tmp_func)
 
-def compress_remote(filename, tell_engine = False):
+def compress_remote(filename, tell_engine = False, fast=False):
     if tell_engine:
         rename_tmp_func = engine.rename_remote_file
     else:
         rename_tmp_func = None
-    return compress(filename, run.remote, rename_tmp_func)
+    return compress(filename, run.remote, rename_tmp_func, fast)
 
 def uncompress_remote(filename, tell_engine = False):
     if tell_engine:

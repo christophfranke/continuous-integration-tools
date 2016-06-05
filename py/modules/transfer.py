@@ -69,9 +69,9 @@ def put(local_file, remote_file = None, verbose = False, permissions = None):
     #return filename of uploaded file
     return remote_file
 
-def get_compressed(remote_file, local_file = None, verbose = False, permissions = None):
+def get_compressed(remote_file, local_file = None, verbose = False, permissions = None, fast_compression = False):
     #compress remote file
-    compressed_remote = gzip.compress_remote(remote_file)
+    compressed_remote = gzip.compress_remote(remote_file, fast=fast_compression)
     #download
     compressed_local = get(compressed_remote, gzip.compressed_filename(local_file), verbose, permissions)
     filesize = os.path.getsize(compressed_local)
@@ -112,7 +112,7 @@ def put_multiple(file_list, destructive = False):
 
 def get_multiple(file_list, destructive = False):
     remote_tar = tar.pack_remote_list(file_list)
-    local_tar = get_compressed(remote_tar)
+    local_tar = get_compressed(remote_tar, fast_compression = True)
     tar.unpack_local(local_tar)
 
 def put_verbose(local_file, remote_file=None):
