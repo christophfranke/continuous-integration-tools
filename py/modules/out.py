@@ -37,7 +37,13 @@ def log(msg, domain = 'command', output_level = LEVEL_INFO):
         indentation_string += '  '
 
     #assemble output
-    output = str(indentation_string) + '[' + str(domain) + '] ' + str(msg).rstrip()
+    try:
+        output = str(indentation_string) + '[' + str(domain) + '] ' + str(msg.encode('ascii','ignore')).rstrip()
+    except:
+        try:
+            output = unicode(indentation_string) + u'[' + unicode(domain) + u'] ' + unicode(msg.encode('utf-8','ignore'))
+        except:
+            output = msg
 
     #just log everything to output file
     log_to_output_file(output)

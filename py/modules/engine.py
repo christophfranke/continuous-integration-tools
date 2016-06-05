@@ -318,7 +318,7 @@ def write_local_file(content, suffix = None, permissions = None, filename = None
     if filename is None:
         filename = get_new_local_file(suffix)
     file = open(filename, 'w')
-    file.write(content)
+    file.write(content.encode('utf-8'))
     file.close()
     return filename
 
