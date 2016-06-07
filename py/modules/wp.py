@@ -46,6 +46,7 @@ def create_wp_config_local(when_exists = 'overwrite'):
         file.write("define('WP_SITEURL', '" + engine.LOCAL_ROOT_URL + "');\n")
         file.write("define('WP_DEBUG', True);\n")
         file.write("define('WP_DEBUG_DISPLAY', True);\n")
+        file.write("define('WP_CACHE', False);\n")
         #done, close
         file.close()
 
