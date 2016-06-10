@@ -180,11 +180,19 @@ def create_remote_directory(directory, permissions = None):
         command += "\nchmod " + str(permissions) + " " + ftp_path(directory)
     ftp.execute(command)
 
+@out.indent
+def remove_remote_directory(directory):
+    out.log('remove remote directory: ' + directory, 'transfer')
+    command = 'rmdir ' + ftp_path(directory)
+    ftp.execute(command)
+
+@out.indent
 def set_local_mode(file, mode):
     out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer')
     command = "chmod " + str(mode) + ' ' + file
     run.local(command)
 
+@out.indent
 def set_remote_mode(file, mode):
     out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer')
     command = "chmod " + str(mode) + ' ' + ftp_path(file)

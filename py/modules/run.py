@@ -141,3 +141,17 @@ def upload_command_file():
 
     out.log('uploading command file to ' + engine.NORM_COMMAND_FILE, 'run')
     transfer.put(engine.SCRIPT_DIR + '/php/cmd.php', engine.NORM_COMMAND_FILE)
+
+@out.indent
+def remove_command_file():
+    out.log('removing command file', 'run')
+    try:
+        engine.NORM_COMMAND_FILE
+    except:
+        out.log("Error: Could not find NORM_COMMAND_FILE. No file to remove", 'run', out.LEVEL_WARNING)
+        return
+    transfer.remove_remote(engine.NORM_COMMAND_FILE)
+
+
+
+
