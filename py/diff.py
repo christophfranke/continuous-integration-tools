@@ -4,6 +4,7 @@ from modules import sync
 
 @engine.prepare_and_clean
 def execute(mode = None):
+    out.log('Diff between local files and remote files...')
     sync.diff()
 
 

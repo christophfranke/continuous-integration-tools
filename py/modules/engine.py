@@ -67,18 +67,17 @@ def cleanup_tmp_files(func):
 @out.indent
 def initialize():
     import transfer
-    import run
+    import php
     out.log('initializing...', 'engine', out.LEVEL_VERBOSE)
     transfer.create_remote_directory(NORM_TMP_DIR, 777)
     transfer.set_remote_mode(NORM_WWW_DIR, 777)
-    run.upload_command_file()
 
 @out.indent
 def finalize():
     import transfer
-    import run
+    import php
     out.log('finalizing...', 'engine', out.LEVEL_VERBOSE)
-    run.remove_command_file()
+    php.remove_command_file()
     transfer.remove_remote_directory(NORM_TMP_DIR)
 
 

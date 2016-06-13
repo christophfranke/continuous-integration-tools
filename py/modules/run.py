@@ -6,7 +6,7 @@ import engine
 import run
 import out
 import transfer
-
+import php
 
 @out.indent
 def test_module():
@@ -81,26 +81,9 @@ def remote(command):
     #tell what happens
     out.log(command, 'remote', out.LEVEL_VERBOSE)
 
-    #write command to file and upload it. We do it this way, althouth this is quite inefficient, but otherwise we'd have tremendous problems with escaping characters.
-    #althouth, TODO: escape special characters in command
-    script_content = '#!/bin/bash\n' + command
-    filename = engine.write_remote_file(script_content, 'sh', permissions = '777')
-
     #choose the correct command system
     if engine.COMMAND_SYSTEM == 'PHP':
-        #reserve a remote .log file
-        output_file = engine.get_new_local_file('log', True);
-        #run the command via php access and tell the server to put the commands output into the remote output file
-        curl_command = 'curl --silent --output ' + output_file
-        #account for basic auth
-        if engine.NEED_BASIC_AUTH:
-            curl_command += ' -u ' + engine.AUTH_USER + ':' + engine.AUTH_PASSWORD
-        #continue assembling curl command
-        curl_command += ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename
-        #and go
-        run.local(curl_command, False) #False indicates, that we do not treat any output on stderr as error, because curl uses this for showing additional non-error information
-        #log output to screen
-        out.file(output_file, 'php exec')
+        php.execute(command)
     elif engine.COMMAND_SYSTEM == 'SSH':
         #not implemented
         out.log("Error: COMMAND_SYSTEM SSH not implemented yet", 'remote', out.LEVEL_ERROR)
