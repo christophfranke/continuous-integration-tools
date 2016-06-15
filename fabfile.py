@@ -63,6 +63,10 @@ def display_help_text(command):
 
 def help(command = None):
     import py.modules.out as out
+    if command == 'sync':
+        out.log('sync is not a command but a shurtcut which executes the commands sync_db and sync_files in that order.')
+        out.log('It takes one argument and passes it to sync_files. Please refer to sync_db and sync_files for further details.')
+        return
     if command is None or not command in get_command_list():
         if command is not None:
             out.log('Sorry, we Could not find the command ' + str(command))
