@@ -1,6 +1,7 @@
 import engine
 import out
 import transfer
+import os
 
 
 command_file_ready = False
