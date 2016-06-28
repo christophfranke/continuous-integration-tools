@@ -114,11 +114,14 @@ def download(force_download = False, destructive = False):
 @out.indent
 def diff():
     out.log('comparing remote files with local files', 'sync')
-    in_sync = True
 
     #create md5 tables
     files_local = create_md5_table()
     files_remote = create_remote_md5_table()
+
+    local_new = 0
+    remote_new = 0
+    modified = 0
 
     #local files not on server
     for f in files_local:
@@ -129,7 +132,7 @@ def diff():
                 out.log('skipping new local ignored file: ' + f, 'sync', out.LEVEL_VERBOSE)
             else:
                 out.log('new local file: ' + f, 'sync')
-                in_sync = False
+                local_new += 1
     #remote files not on local
     for f in files_remote:
         if not f in files_local:
@@ -139,7 +142,7 @@ def diff():
                 out.log('skipping new remote ignored file: ' + f, 'sync', out.LEVEL_VERBOSE)
             else:
                 out.log('new remote file: ' + f, 'sync')
-                in_sync = False
+                remote_new += 1
     #modified files
     for f in files_local:
         if f in files_remote and files_local[f] != files_remote[f]:
@@ -149,10 +152,16 @@ def diff():
                 out.log('skipping modified ignored file: ' + f, 'sync', out.LEVEL_VERBOSE)
             else:
                 out.log('modified file: ' + f, 'sync')
-                in_sync = False
+                modified += 1
 
-    if in_sync:
+
+    out.log('Summary:', 'sync')
+    if local_new == 0 and remote_new == 0 and modified == 0:
         out.log('All files are in sync.', 'sync')
+    else:
+        out.log('New local files: ' + str(local_new), 'sync')
+        out.log('New remote files: ' + str(remote_new), 'sync')
+        out.log('Modified files: ' + str(modified), 'sync')
 
 
 def match_file(file, regex_list):
