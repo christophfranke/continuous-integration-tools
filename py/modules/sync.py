@@ -198,7 +198,7 @@ def load_md5_table(filename):
         md5_table_file.close()
     except:
         #if that fails: return empty table
-        out.log('unable to load hashtable from ' + filename + ', creating empty table.', 'sync', out.LEVEL_VERBOSE)
+        out.log('unable to load hashtable from ' + filename + ', creating empty table.', 'sync', out.LEVEL_WARNING)
         md5_table = {}
 
     #give back
