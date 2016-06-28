@@ -11,6 +11,7 @@ import string
 import time
 from datetime import datetime
 import re
+from codecs import open
 
 import out
 
@@ -324,7 +325,9 @@ def write_local_file(content, suffix = None, permissions = None, filename = None
         out.log('Error: Setting permissions in write_local_file is not implemented yet.', 'engine', out.LEVEL_ERROR)
     if filename is None:
         filename = get_new_local_file(suffix)
-    file = open(filename, 'w')
+    if isinstance(content, str):
+        content = unicode(content, 'utf-8' )
+    file = open(filename, 'w', encoding='utf-8')
     file.write(content)
     file.close()
     return filename
@@ -340,7 +343,7 @@ def write_remote_file(content, suffix = None, permissions = None, filename = Non
     return remote_file
 
 def read_local_file(filename):
-    file = open(filename, 'r')
+    file = open(filename, 'r', encoding='utf-8')
     data = file.read()
     file.close()
     return data
