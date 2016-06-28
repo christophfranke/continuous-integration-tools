@@ -7,6 +7,7 @@ import run
 import out
 import transfer
 import php
+import ssh
 
 @out.indent
 def test_module():
@@ -85,9 +86,7 @@ def remote(command):
     if engine.COMMAND_SYSTEM == 'PHP':
         php.execute(command)
     elif engine.COMMAND_SYSTEM == 'SSH':
-        #not implemented
-        out.log("Error: COMMAND_SYSTEM SSH not implemented yet", 'remote', out.LEVEL_ERROR)
-        engine.quit()
+        ssh.execute(command)
     else:
         #even less implemented
         out.log("Error Unknown COMMAND_SYSTEM " + engine.COMMAND_SYSTEM, 'remote', out.LEVEL_ERROR)
