@@ -7,6 +7,11 @@ import json
 import hashlib
 import transfer
 import re
+import unicodedata
+from codecs import open
+
+
+NORMALIZE_UNICODE_FILENAMES = False
 
 #upload local files using ftp
 @out.indent
@@ -163,6 +168,13 @@ def diff():
         out.log('New remote files: ' + str(remote_new), 'sync')
         out.log('Modified files: ' + str(modified), 'sync')
 
+    file = open('tmp/local.md5', 'w')
+    json.dump(files_local, file)
+    file.close()
+    file = open('tmp/remote.md5', 'w')
+    json.dump(files_remote, file)
+    file.close()
+
 
 def match_file(file, regex_list):
     for regex in regex_list:
@@ -184,7 +196,7 @@ def md5sum(filename):
     return md5.hexdigest()
 
 def save_md5_table(md5_table):
-    md5_table_file = open(engine.LOCAL_MD5_TABLE_FILE, 'w')
+    md5_table_file = open(engine.LOCAL_MD5_TABLE_FILE, 'w', encoding='utf-8')
     json.dump(md5_table, md5_table_file)
     md5_table_file.close()
 
@@ -193,13 +205,23 @@ def load_md5_table(filename):
     out.log('loading hash table from ' + filename, 'sync')
     try:
         #load form file
-        md5_table_file = open(filename, 'r')
+        md5_table_file = open(filename, 'r', encoding='utf-8')
         md5_table = json.load(md5_table_file)
         md5_table_file.close()
     except:
         #if that fails: return empty table
         out.log('unable to load hashtable from ' + filename + ', creating empty table.', 'sync', out.LEVEL_WARNING)
         md5_table = {}
+
+    #normalize unicode entries
+    if NORMALIZE_UNICODE_FILENAMES:
+        normalized_md5_table = {}
+        for key in md5_table:
+            if isinstance(key, str):
+                key = unicode(key, 'utf-8')
+            normalized_key = unicodedata.normalize('NFKC', key)
+            normalized_md5_table[normalized_key] = md5_table[key]
+        md5_table = normalized_md5_table
 
     #give back
     return md5_table
@@ -230,6 +252,10 @@ def create_md5_table():
         for filename in filenames:
             abs_file = os.path.join(root, filename)
             rel_file = abs_file[len(engine.LOCAL_WWW_DIR)+1:]
+            if isinstance(rel_file, str):
+                rel_file = unicode(rel_file, 'utf-8')
+            if NORMALIZE_UNICODE_FILENAMES:
+                rel_file = unicodedata.normalize('NFKC', rel_file)
             files.append(rel_file)
 
     for f in files:

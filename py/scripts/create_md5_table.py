@@ -2,6 +2,7 @@ import json
 import hashlib
 import os
 import sys
+from codecs import open
 
 
 def md5sum(filename):
@@ -12,7 +13,7 @@ def md5sum(filename):
     return md5.hexdigest()
 
 def save_md5_table(md5_table, filename):
-    md5_table_file = open(filename, 'w')
+    md5_table_file = open(filename, 'w', encoding='utf-8')
     json.dump(md5_table, md5_table_file)
     md5_table_file.close()
 
