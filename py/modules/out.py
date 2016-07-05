@@ -8,6 +8,7 @@ except ImportError:
     print "Could not import config package. Try navigating to script folder before starting the script."
     exit()
 
+from codecs import open
 
 last_output_blocked = False
 output_blocked_from_parent = False
@@ -37,13 +38,12 @@ def log(msg, domain = 'command', output_level = LEVEL_INFO):
         indentation_string += '  '
 
     #assemble output
+    if isinstance(msg, str):
+        msg = unicode(msg, 'utf-8' )
     try:
-        output = str(indentation_string) + '[' + str(domain) + '] ' + str(msg.encode('ascii','ignore')).rstrip()
+        output = unicode(indentation_string) + u'[' + unicode(domain) + u'] ' + msg
     except:
-        try:
-            output = unicode(indentation_string) + u'[' + unicode(domain) + u'] ' + unicode(msg.encode('utf-8','ignore'))
-        except:
-            output = msg
+        output = msg
 
     #just log everything to output file
     log_to_output_file(output)
@@ -85,7 +85,7 @@ def decrease_indentation(levels = 1):
 def log_to_output_file(output):
     if LOG_FILE is None:
         return
-    file = open(LOG_FILE, 'a')
+    file = open(LOG_FILE, 'a', encoding='utf-8')
     file.write(output + "\n")
     file.close
 
