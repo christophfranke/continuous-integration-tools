@@ -40,8 +40,8 @@ def prepare_and_clean(func):
         import out
         global start_time
         start_time = time.time()
-        initialize()
         out.clear_logfile()
+        initialize()
         result = func(*args, **kwargs)
         cleanup()
         finalize()
