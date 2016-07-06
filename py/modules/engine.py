@@ -361,6 +361,17 @@ def get_remote_www_dir_abspath():
     run.remote('pwd >' + filename)
     return read_remote_file(filename).rstrip()
 
+def split_by_encoding(item_list):
+    ascii_list = []
+    non_ascii_list = []
+    for item in item_list:
+        try:
+            x = item.encode('ascii')
+            ascii_list.append(item)
+        except UnicodeEncodeError:
+            non_ascii_list.append(item)
+    return ascii_list, non_ascii_list
+
 def escape(s):
     escape_table = {
         '!':'%20',

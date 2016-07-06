@@ -11,7 +11,8 @@ import unicodedata
 from codecs import open
 
 
-NORMALIZE_UNICODE_FILENAMES = False
+NORMALIZE_UNICODE_FILENAMES = True
+NORMALIZATION_FORM = 'NFKC'
 
 #upload local files using ftp
 @out.indent
@@ -219,7 +220,7 @@ def load_md5_table(filename):
         for key in md5_table:
             if isinstance(key, str):
                 key = unicode(key, 'utf-8')
-            normalized_key = unicodedata.normalize('NFKC', key)
+            normalized_key = unicodedata.normalize(NORMALIZATION_FORM, key)
             normalized_md5_table[normalized_key] = md5_table[key]
         md5_table = normalized_md5_table
 
@@ -255,7 +256,7 @@ def create_md5_table():
             if isinstance(rel_file, str):
                 rel_file = unicode(rel_file, 'utf-8')
             if NORMALIZE_UNICODE_FILENAMES:
-                rel_file = unicodedata.normalize('NFKC', rel_file)
+                rel_file = unicodedata.normalize(NORMALIZATION_FORM, rel_file)
             files.append(rel_file)
 
     for f in files:

@@ -95,22 +95,35 @@ def put_compressed(local_file, remote_file = None, verbose = False, permissions 
     return gzip.uncompress_remote(compressed_remote, True)
 
 #mirror complete directory recursively
-def get_directory(directory, destructive = False):
+def get_directory(directory):
     remote_tar = tar.pack_remote(directory)
     local_tar = get_compressed(remote_tar)
     tar.unpack_local(local_tar)
 
-def put_directory(directory, destructive = False):
+def put_directory(directory):
     local_tar = tar.pack_local(directory)
     remote_tar = put_compressed(local_tar)
     tar.unpack_remote(remote_tar)
 
-def put_multiple(file_list, destructive = False):
-    local_tar = tar.pack_local_list(file_list)
+@out.indent
+def put_multiple(file_list):
+    #split into ascii and non-ascii
+    ascii_files, non_ascii_files = engine.split_by_encoding(file_list)
+
+    #pack ascii files, upload compressed and unpack on server
+    out.log('uploading files with ascii compatible names', 'transfer')
+    local_tar = tar.pack_local_list(ascii_files)
     remote_tar = put_compressed(local_tar)
     tar.unpack_remote(remote_tar)
 
-def get_multiple(file_list, destructive = False):
+    #take the non-ascii files and upload them one after another using ftp
+    out.log('uploading files with non-ascii filename', 'transfer')
+    command = ''
+    for f in non_ascii_files:
+        command += u'put ' + engine.LOCAL_WWW_DIR + '/' + f + u' ' + ftp_path(f) + u'\n'
+    ftp.execute(command)
+
+def get_multiple(file_list):
     remote_tar = tar.pack_remote_list(file_list)
     local_tar = get_compressed(remote_tar, fast_compression = True)
     tar.unpack_local(local_tar)
