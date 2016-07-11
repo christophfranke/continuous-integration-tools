@@ -111,17 +111,19 @@ def put_multiple(file_list):
     ascii_files, non_ascii_files = engine.split_by_encoding(file_list)
 
     #pack ascii files, upload compressed and unpack on server
-    out.log('uploading files with ascii compatible names', 'transfer')
-    local_tar = tar.pack_local_list(ascii_files)
-    remote_tar = put_compressed(local_tar)
-    tar.unpack_remote(remote_tar)
+    if len(ascii_files) > 0:
+        out.log('uploading files with ascii compatible names', 'transfer')
+        local_tar = tar.pack_local_list(ascii_files)
+        remote_tar = put_compressed(local_tar)
+        tar.unpack_remote(remote_tar)
 
     #take the non-ascii files and upload them one after another using ftp
-    out.log('uploading files with non-ascii filename', 'transfer')
-    command = ''
-    for f in non_ascii_files:
-        command += u'put ' + engine.LOCAL_WWW_DIR + '/' + f + u' ' + ftp_path(f) + u'\n'
-    ftp.execute(command)
+    if len(non_ascii_files) > 0:
+        out.log('uploading files with non-ascii filename', 'transfer')
+        command = ''
+        for f in non_ascii_files:
+            command += u'put ' + engine.LOCAL_WWW_DIR + '/' + f + u' ' + ftp_path(f) + u'\n'
+        ftp.execute(command)
 
 def get_multiple(file_list):
     remote_tar = tar.pack_remote_list(file_list)
