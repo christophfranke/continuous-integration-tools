@@ -65,7 +65,7 @@ def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_c
             out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), 'local', out.LEVEL_ERROR)
             engine.quit()
         if retry > 0:
-            out.log("Error executing `" + str(command) + "`. Retrying in " + str(engine.RETRY_TIMEOUT) + " seconds (" + str(retry) + " tries left)...", 'run', out.LEVEL_WARNING)
+            out.log("Error executing `" + str(command) + "`. Retrying in " + str(engine.RETRY_TIMEOUT) + " seconds (" + str(retry) + " retries left)...", 'run', out.LEVEL_WARNING)
             time.sleep(engine.RETRY_TIMEOUT)
             local(command, halt_on_stderr, retry-1)
     if (ignore_exit_code and exit_code != 0):

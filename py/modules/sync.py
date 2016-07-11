@@ -52,7 +52,9 @@ def upload(force_upload = False, destructive = False):
         for f in files_remote:
             if not f in files_local:
                 if system_file(f):
-                    out.log('skipping removal of ' + f, 'sync', out.LEVEL_VERBOSE)
+                    out.log('skipping removal of system file ' + f, 'sync', out.LEVEL_VERBOSE)
+                elif ignored_file(f):
+                    out.log('skipping removal of ignored file ' + f, 'sync', out.LEVEL_VERBOSE)
                 else:
                     out.log('scheduled for removal: ' + f, 'sync', out.LEVEL_INFO)
                     files_scheduled_for_removal.append(f)
@@ -98,7 +100,9 @@ def download(force_download = False, destructive = False):
         for f in files_local:
             if not f in files_remote:
                 if system_file(f):
-                    out.log('skipping removal of ' + f, 'sync', out.LEVEL_VERBOSE)
+                    out.log('skipping removal of system file ' + f, 'sync', out.LEVEL_VERBOSE)
+                elif ignored_file(f):
+                    out.log('skipping removal of ignored file ' + f, 'sync', out.LEVEL_VERBOSE)
                 else:
                     out.log('scheduled for removal: ' + f, 'sync', out.LEVEL_INFO)
                     files_scheduled_for_removal.append(os.path.abspath(engine.LOCAL_WWW_DIR + '/' + f))
