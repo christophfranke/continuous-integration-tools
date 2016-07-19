@@ -29,7 +29,9 @@ def log(msg, domain = 'command', output_level = LEVEL_INFO):
     global last_output_blocked
     global output_blocked_from_parent
 
-    if msg.rstrip() in filter_output:
+    msg = msg.rstrip()
+
+    if msg in filter_output:
         return
 
     #handle indentation
