@@ -81,7 +81,7 @@ def decrease_indentation(levels = 1):
     global indentation
     indentation -= levels
     if levels < -1:
-        log('[output] Warning: Indentation is smaller than -1. Set to -1.')
+        log('Warning: Indentation is smaller than -1. Set to -1.', 'output', LEVEL_WARNING)
         indentation = -1
 
 def log_to_output_file(output):
