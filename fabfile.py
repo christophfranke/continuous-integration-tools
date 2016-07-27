@@ -27,7 +27,7 @@ import py.diff
 import py.optimize_images
 import py.setup_local_domain
 import py.restart
-
+import py.upload_file
 
 def get_command_list():
     #use function attribute to cache result
@@ -180,6 +180,9 @@ def setup_local_domain():
 
 def restart():
     py.restart.execute()
+
+def upload_file(filename = None):
+    py.upload_file.execute(filename)
 
 
 if __name__ == '__main__':
