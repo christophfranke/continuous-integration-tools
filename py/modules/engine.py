@@ -70,8 +70,9 @@ def initialize():
     import transfer
     import php
     out.log('initializing...', 'engine', out.LEVEL_VERBOSE)
-    transfer.create_remote_directory(NORM_TMP_DIR, 777)
-    transfer.set_remote_mode(NORM_WWW_DIR, 777)
+    if transfer.available():
+        transfer.create_remote_directory(NORM_TMP_DIR, 777)
+        transfer.set_remote_mode(NORM_WWW_DIR, 777)
 
 @out.indent
 def finalize():
@@ -79,7 +80,8 @@ def finalize():
     import php
     out.log('finalizing...', 'engine', out.LEVEL_VERBOSE)
     php.remove_command_file()
-    transfer.remove_remote_directory(NORM_TMP_DIR)
+    if transfer.available():
+        transfer.remove_remote_directory(NORM_TMP_DIR)
 
 
 #cleanup is being run at the very end. cleans up all the files that have been created in the process.

@@ -239,3 +239,10 @@ def ftp_path(filename):
 
 def ssh_path(filename):
     return '"' + os.path.normpath(engine.SSH_WWW_DIR + '/' + filename) + '"'
+
+def available():
+    if engine.TRANSFER_SYSTEM == 'FTP':
+        return engine.FTP_HOST is not None and engine.FTP_USER is not None and engine.FTP_PASSWORD is not None
+    if engine.TRANSFER_SYSTEM == 'SSH':
+        return False
+    return False
