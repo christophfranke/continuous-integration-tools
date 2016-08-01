@@ -23,6 +23,7 @@ FTP_HOST = '' #empty string defaults to LIVE_DOMAIN
 #the path to the www dir as seen by the ftp client
 FTP_PATH_TO_WWW_DIR = None #we could provide the current path as standard here, but this could lead to chaotic behaviour, if this setting is wrong.
 FTP_PROTOCOL = 'ftp' #you may alternatively specify sftp here, though this is untested as for now
+FTP_CLIENT = 'ftp' #the command line client that is being used for the ftp connection. Usually there are no problems just using ftp, but in some cases it might be necessary to use sftp.
 
 #note that SSH is currently unavailable, as it is not implemented with the new system yet.
 #if an ssh account is provided, this should be preferred (it's faster and more secure)

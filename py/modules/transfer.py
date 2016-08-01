@@ -141,7 +141,13 @@ def remove_local(filename):
 @out.indent
 def remove_remote(filename):
     out.log('remove remote file: ' + filename, 'transfer')
-    command = 'delete ' + ftp_path(filename)
+    if engine.FTP_CLIENT == 'ftp':
+        command = 'delete ' + ftp_path(filename)
+    elif engine.FTP_CLIENT == 'sftp':
+        command = 'rm ' + ftp_path(filename)
+    else:
+        out.log('Unknown ftp client ' + engine.FTP_CLIENT, 'transfer', out.LEVEL_ERROR)
+        engine.quit()
     ftp.execute(command)
 
 @out.indent
@@ -155,7 +161,13 @@ def remove_remote_multiple(file_list):
     out.log('removing multiple remote files', 'transfer')
     command = ''
     for file in file_list:
-        command += 'delete ' + ftp_path(file) + '\n'
+        if engine.FTP_CLIENT == 'ftp':
+            command += 'delete ' + ftp_path(file) + '\n'
+        elif engine.FTP_CLIENT == 'sftp':
+            command += 'rm ' + ftp_path(file) + '\n'
+        else:
+            out.log('Unknown ftp client ' + engine.FTP_CLIENT, 'transfer', out.LEVEL_ERROR)
+            engine.quit()
     ftp.execute(command)
 
 @out.indent
@@ -166,7 +178,13 @@ def remove_local_directory_contents(directoy):
 @out.indent
 def remote_remote_directory_contents(directory):
     out.log('remove content of remote directory: ' + dircetory, 'transfer')
-    command = 'delete ' + ftp_path(directory) + '/*'
+    if engine.FTP_CLIENT == 'ftp':
+        command = 'delete ' + ftp_path(directory) + '/*'
+    elif engine.FTP_CLIENT == 'sftp':
+        command = 'rm ' + ftp_path(directory) + '/*'
+    else:
+        out.log('Unknown ftp client ' + engine.FTP_CLIENT, 'transfer', out.LEVEL_ERROR)
+        engine.quit()
     ftp.execute(command)
 
 @out.indent
@@ -191,6 +209,8 @@ def create_local_directory(directory, permissions = None):
 def create_remote_directory(directory, permissions = None):
     out.log('create remote directory: ' + directory, 'transfer')
     command = 'mkdir ' + ftp_path(directory)
+    if engine.FTP_CLIENT == 'sftp':
+        command = '-' + command
     if permissions is not None:
         command += "\nchmod " + str(permissions) + " " + ftp_path(directory)
     ftp.execute(command)
