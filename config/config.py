@@ -201,16 +201,17 @@ if TRANSFER_SYSTEM == 'FTP':
         print "Warning: You have set the TRANSFER_SYSTEM to 'FTP', but the variables FTP_USER, FTP_PASSWORD and FTP_HOST are not set correctly. Make sure you have these variables set in your project config. The transfer system will not work."
 
 
-if COMMAND_SYSTEM == 'PHP':
-    if REMOTE_ROOT_URL is not None:
-        try:
-            REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
-            NORM_COMMAND_FILE = os.path.normpath(SECURITY_HASH + '.php')
-        except:
+if REMOTE_ROOT_URL is not None:
+    try:
+        REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
+        NORM_COMMAND_FILE = os.path.normpath(SECURITY_HASH + '.php')
+    except:
+        if COMMAND_SYSTEM == 'PHP':
             const_warning('REMOTE_COMMAND_URL', 'SECURITY_HASH')
             const_warning('NORM_COMMAND_FILE', 'SECURITY_HASH')
-    else:
-        const_subsequent('REMOTE_COMMAND_URL', 'REMOTE_ROOT_URL')
+else:
+    const_subsequent('REMOTE_COMMAND_URL', 'REMOTE_ROOT_URL')
+
 
 #don't fail to assemble the regex when the command url is not set, because that would break execution completely (which is not what we want obviously).
 try:
