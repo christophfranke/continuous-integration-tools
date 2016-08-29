@@ -28,6 +28,7 @@ import py.optimize_images
 import py.setup_local_domain
 import py.restart
 import py.upload_file
+import py.add_ssh_key
 
 def get_command_list():
     #use function attribute to cache result
@@ -183,6 +184,9 @@ def restart():
 
 def upload_file(filename = None):
     py.upload_file.execute(filename)
+
+def add_ssh_key():
+    py.add_ssh_key.execute()
 
 
 if __name__ == '__main__':
