@@ -8,12 +8,22 @@ import engine
 
 @out.indent
 def append_to_hosts():
+    try:
+        engine.LOCAL_DOMAIN
+    except:
+        out.log('Your LOCAL_DOMAIN variable has not been set. Please specify a valid hostname and try again.')
+        return
     out.log('appending ' + engine.LOCAL_DOMAIN + ' to ' + engine.LOCAL_ETC_HOSTS, 'apache')
     run.local('echo "127.0.0.1  ' + engine.LOCAL_DOMAIN + ' # appended by fabric deploy script." >>' + engine.LOCAL_ETC_HOSTS, sudo=True)
 
 #todo: needs a safeguard to not append twice
 @out.indent
 def append_to_server_config():
+    try:
+        engine.LOCAL_DOMAIN
+    except:
+        out.log('Your LOCAL_DOMAIN variable has not been set. Please specify a valid hostname and try again.')
+        return
     out.log('appending virtual hosts and directory directive to ' + engine.LOCAL_HTTPD_CONF, 'apache')
     run.local('echo "# virtual host set up by fabric deploy script." >>' + engine.LOCAL_HTTPD_CONF, sudo=True)
     run.local('echo "<VirtualHost *:80>" >>' + engine.LOCAL_HTTPD_CONF, sudo=True)
