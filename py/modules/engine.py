@@ -376,11 +376,9 @@ def split_by_encoding(item_list):
 
 def escape(s):
     escape_table = {
-        '!':'%20',
         '"':'%22',
         '#':'%23',
         '$':'%24',
-        '%':'%25',
         '&':'%26',
         "'":'%27',
         '(':'%28',
@@ -407,6 +405,10 @@ def escape(s):
         '}':'%7D',
         '~':'%7E'
     }
+    #make sure to escape % first
+    s = s.replace('%', '%25')
+
+    #escape all other characters
     for character in escape_table:
         s = s.replace(character, escape_table[character])
 
