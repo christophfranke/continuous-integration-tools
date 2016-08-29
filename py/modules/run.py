@@ -102,7 +102,7 @@ def remote_python_script(script_name, arguments = ''):
     remote_script = transfer.put(script_name)
 
     #run
-    remote('python ' + remote_script + ' ' + arguments)
+    remote('HOME=. python ' + remote_script + ' ' + arguments)
 
 #make sure the command file is online and everything is setup correctly. this funciton will be called automatically, if COMMAND_SYSTEM_READY is not  set in the project config
 @out.indent
