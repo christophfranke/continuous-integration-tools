@@ -5,9 +5,9 @@ FileETag INode MTime Size
     Header set Cache-Control "max-age=604800, public"
 </FilesMatch>
 
-#cache text, css, and javascript files for one day
+#cache text, css, and javascript files for two day
 <FilesMatch ".(js|css|pdf|txt)$">
-    Header set Cache-Control "max-age=86400, public"
+    Header set Cache-Control "max-age=172800, public"
 </FilesMatch>
 
 #cache html and htm files for one day
