@@ -44,3 +44,23 @@ def append_to_server_config():
 def restart():
     out.log('restarting server', 'apache')
     run.local('apachectl graceful', sudo=True)
+
+@out.indent
+def allow_read(location = 'local'):
+    command = 'chmod -R a+r ./*'
+    if location == 'local':
+        command = 'cd ' + engine.LOCAL_WWW_DIR + ' && ' + command
+    if location == 'local':
+        run.local(command)
+    if location == 'remote':
+        run.remote(command)
+
+@out.indent
+def allow_write(location = 'local'):
+    command = 'chmod -R a+w ./*'
+    if location == 'local':
+        command = 'cd ' + engine.LOCAL_WWW_DIR + ' && ' + command
+    if location == 'local':
+        run.local(command)
+    if location == 'remote':
+        run.remote(command)

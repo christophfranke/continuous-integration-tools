@@ -29,6 +29,8 @@ import py.setup_local_domain
 import py.restart
 import py.upload_file
 import py.add_ssh_key
+import py.allow_read
+import py.allow_write
 
 def get_command_list():
     #use function attribute to cache result
@@ -188,6 +190,11 @@ def upload_file(filename = None):
 def add_ssh_key():
     py.add_ssh_key.execute()
 
+def allow_read(location = None):
+    py.allow_read.execute(location)
+
+def allow_write(location = None):
+    py.allow_write.execute(location)
 
 if __name__ == '__main__':
     import sys
