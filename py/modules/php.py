@@ -36,7 +36,11 @@ def execute(command, halt_on_output = True):
     run.local(curl_command, halt_on_output) #halt_on_output strongly depends on the command
 
     #log output to screen
-    out.file(output_file, 'php exec')
+    if halt_on_output:
+        log_level = out.LEVEL_ERROR
+    else:
+        log_level = out.LEVEL_INFO
+    out.file(output_file, 'php exec', log_level)
 
     return
 

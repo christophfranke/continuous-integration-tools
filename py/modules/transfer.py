@@ -11,6 +11,7 @@ import os
 def test_module():
     out.log("Testing FTP connection...", 'transfer')
     ftp.execute('pwd')
+    out.log("FTP connection successful", 'transfer')
 
 
 @out.indent

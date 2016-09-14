@@ -63,7 +63,7 @@ def log(msg, domain = 'command', output_level = LEVEL_INFO):
     print output
 
 #reads a file and logs it onto screen using log
-def file(filename, domain,output_level = LEVEL_INFO):
+def file(filename, domain, output_level = LEVEL_INFO):
     import os
     if not os.path.isfile(filename):
         return

@@ -11,10 +11,9 @@ import ssh
 
 @out.indent
 def test_module():
-    out.log("Testing local command...", 'local')
-    run.local('pwd')
-    out.log("Testing remote command...", 'local')
+    out.log("Testing remote command...", 'run')
     run.remote('pwd')
+    out.log("Remote command has run successfully", 'run')
 
 #run command locally. easy.
 @out.indent
