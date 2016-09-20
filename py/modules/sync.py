@@ -75,24 +75,28 @@ def download(force_download = False, destructive = False):
     out.log('ignoring files matching these regex patterns: ' + str(engine.IGNORE_ON_SYNC_REGEX_LIST), 'sync', out.LEVEL_DEBUG)
     out.log('comparing md5 hashes of local and remote files', 'sync')
 
-    #recalculate all md5 hashes
-    files_local = create_md5_table()
-    #calculate remote files
-    files_remote = create_remote_md5_table()
+    if not force_download or destructive:
+        #recalculate all md5 hashes
+        files_local = create_md5_table()
+        #calculate remote files
+        files_remote = create_remote_md5_table()
 
-    #check which have changed
-    files_scheduled = []
-    for f in files_remote:
-        if not (ignored_file(f) or system_file(f)) and (force_download or not f in files_local or not files_local[f] == files_remote[f]):
-            out.log('scheduled for download: ' + f, 'sync', out.LEVEL_INFO)
-            files_scheduled.append(f)
+        #check which have changed
+        files_scheduled = []
+        for f in files_remote:
+            if not (ignored_file(f) or system_file(f)) and (force_download or not f in files_local or not files_local[f] == files_remote[f]):
+                out.log('scheduled for download: ' + f, 'sync', out.LEVEL_INFO)
+                files_scheduled.append(f)
 
-    #upload new or modified files
-    if len(files_scheduled) > 0:
-        out.log('downloading ' + str(len(files_scheduled)) + ' files.', 'sync')
-        transfer.get_multiple(files_scheduled)
+        #download new or modified files
+        if len(files_scheduled) > 0:
+            out.log('downloading ' + str(len(files_scheduled)) + ' files.', 'sync')
+            transfer.get_multiple(files_scheduled)
+        else:
+            out.log('all files are up to date, not downloading any files.', 'sync')
     else:
-        out.log('all files are up to date, not downloading any files.', 'sync')
+        out.log('downloading all files', 'sync')
+        transfer.get_directory('.')
 
     #delete all other files
     if destructive:
