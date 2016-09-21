@@ -26,6 +26,8 @@ remote_tmp_files['global'] = []
 
 start_time = time.time()
 
+remote_tmp_dir_created = False
+
 def get_random_id():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
 
@@ -65,14 +67,10 @@ def cleanup_tmp_files(func):
         return result
     return cleanup_immediately_func
 
+#initializing made lazy
 @out.indent
 def initialize():
-    import transfer
-    import php
-    out.log('initializing...', 'engine', out.LEVEL_VERBOSE)
-    if transfer.available():
-        transfer.create_remote_directory(NORM_TMP_DIR, 777)
-        transfer.set_remote_mode(NORM_WWW_DIR, 777)
+    pass
 
 @out.indent
 def finalize():
@@ -80,7 +78,7 @@ def finalize():
     import php
     out.log('finalizing...', 'engine', out.LEVEL_VERBOSE)
     php.remove_command_file()
-    if transfer.available():
+    if remote_tmp_dir_created:
         transfer.remove_remote_directory(NORM_TMP_DIR)
 
 
@@ -150,6 +148,9 @@ def get_local_tmp_dir():
 
 #returns the name of the remote tmp dir and ensures it exists.
 def get_remote_tmp_dir():
+    if not remote_tmp_dir_created:
+        transfer.create_remote_directory(NORM_TMP_DIR, 777)
+        remote_tmp_dir_created = True
     return NORM_TMP_DIR
 
 def clean_local_tmp_dir():
