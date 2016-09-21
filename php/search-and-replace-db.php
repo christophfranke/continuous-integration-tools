@@ -182,8 +182,10 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
         $result->fetch_all();
 
         //traverse all rows
+        $counter = 0;
         foreach($result as $row)
         {
+            $counter++;
             if($primary_key == NULL)
                 $id = NULL;
             else
@@ -191,6 +193,12 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
                 $id = $row[$primary_key];
                 if(!is_numeric($id))
                     $id = "'$id'";
+            }
+
+            if($counter % 10000 == 0)
+            {
+                echo ".";
+                flush();
             }
 
             //traverse all keys
