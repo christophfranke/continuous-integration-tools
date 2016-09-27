@@ -40,7 +40,7 @@ def execute(command, halt_on_output = True):
         log_level = out.LEVEL_ERROR
         if os.stat(output_file).st_size > 0:
             out.log('error executing "' + command + '" via php command system.', 'php', out.LEVEL_ERROR)
-            out.file(output_file, 'php exec', out.LEVEL_INFO)
+            out.file(output_file, 'php exec', out.LEVEL_ERROR)
             engine.quit()
 
     out.file(output_file, 'php exec', out.LEVEL_INFO)
