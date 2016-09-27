@@ -43,7 +43,7 @@ if(!empty($command))
         exec("cd $cwd && $command 2>&1", $output_array, $return_value);
     else
         exec("$command 2>&1", $output_array, $return_value);
-    if($return_value !== 0)
+    if($return_value != 0)
     {
         echo "$command returned with status code $return_value\n";
         //http_response_header(500);
