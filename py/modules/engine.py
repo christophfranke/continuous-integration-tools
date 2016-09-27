@@ -134,6 +134,7 @@ def get_suffix(filename):
 
 def quit():
     cleanup()
+    finalize()
     out.log('Exited with errors. Look at output/output.log for a detailed log.', 'engine', out.LEVEL_ERROR)
     exit()
 
