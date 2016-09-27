@@ -74,6 +74,7 @@ def initialize():
 
 @out.indent
 def finalize():
+    global remote_tmp_dir_created
     import transfer
     import php
     out.log('finalizing...', 'engine', out.LEVEL_VERBOSE)
@@ -148,6 +149,8 @@ def get_local_tmp_dir():
 
 #returns the name of the remote tmp dir and ensures it exists.
 def get_remote_tmp_dir():
+    import transfer
+    global remote_tmp_dir_created
     if not remote_tmp_dir_created:
         transfer.create_remote_directory(NORM_TMP_DIR, 777)
         remote_tmp_dir_created = True
