@@ -17,7 +17,7 @@ def test_module():
 
 #run command locally. easy.
 @out.indent
-def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_code = False):
+def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_code = False, halt_on_stdout = False):
     #tell what happens
     out.log(command, 'local', out.LEVEL_VERBOSE)
 
@@ -30,6 +30,7 @@ def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_c
 
     #run it using subprocess
     stderr_occured = False
+    stdout_occured = False
     process = subprocess.Popen(command, shell = True, stdin = None, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     while process.poll() is None:
         read_something = False
@@ -38,6 +39,7 @@ def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_c
         output = process.stdout.readline()
         while output != '':
             read_something = True
+            stdout_occured = True
             out.log(output, 'local')
             output_array.append(output)
             output = process.stdout.readline()
@@ -53,13 +55,13 @@ def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_c
             read_something = True
             error = process.stderr.readline()
 
-        #if there was no output, wait a little bit for the programm to finish
+        #if there was no output, wait a little bit for the program
         if not read_something and process.poll() is None:
             time.sleep(0.05)
 
     #get the exit code and print stuff if something has gone wrong
     exit_code = process.poll()
-    if (not ignore_exit_code and exit_code != 0) or (halt_on_stderr and stderr_occured):
+    if (not ignore_exit_code and exit_code != 0) or (halt_on_stderr and stderr_occured) or (halt_on_stdout and stdout_occured):
         if retry == 0:
             out.log("Error executing `" + str(command) + "`: Exit Code " + str(exit_code), 'local', out.LEVEL_ERROR)
             engine.quit()

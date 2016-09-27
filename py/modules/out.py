@@ -43,7 +43,8 @@ def log(msg, domain = 'command', output_level = LEVEL_INFO):
     if isinstance(msg, str):
         msg = unicode(msg, 'utf-8' )
     try:
-        output = unicode(indentation_string) + u'[' + unicode(domain) + u'] ' + msg
+        prefix = unicode(indentation_string) + u'[' + unicode(domain) + u'] '
+        output = prefix + msg.replace('\n', '\n' + prefix)
     except:
         output = msg
 
