@@ -70,6 +70,11 @@ try:
 except:
     print "Warning: REMOTE_HTTP_ROOT could not be assembled by script. Try running update_config to have them set automatically or edit your project_config.py."
 
+try:
+    PHP_COMMAND_FILE = REMOTE_HTTP_ROOT + '/' + SECURITY_HASH + '.php'
+except:
+    print "Warning: PHP_COMMAND_FILE could not be assembled by script. Try running update_config to have them set automatically or edit your project_config.py."
+
 REMOTE_WWW_FOLDER = REMOTE_ROOT_FOLDER + '/' + WWW_FOLDER
 try:
     LOCAL_MYSQL = 'mysql -u ' + LOCAL_DB_USER + ' --password=' + LOCAL_DB_PASSWORD + ' ' + LOCAL_DB_NAME + ' '

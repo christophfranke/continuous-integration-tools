@@ -3,15 +3,16 @@
 define('MAX_RECURSION_DEPTH', 50);
 define('VERBOSE', false);
 define('DEBUG', false);
-define('WRITE_SQL_FILE_INSTEAD', false);
-define('SEARCH_AND_REPLACE_SQL_FILE', 'search_and_replace.sql');
+define('WRITE_SQL_FILE', true);
+define('PERFORMCE_MYSQL_STATEMENTS', true);
+define('SEARCH_AND_REPLACE_SQL_FILE', 'output/replace.sql');
 define('SEARCH_LOG_FILE', 'output/search.log');
 
 $skip_tables = array();
 //$whitelist_tables = array('wp_options');
 /*************************/
 
-//Set memory limit to 8GB to enable traversing very large databases
+//Set memory limit to 8GB to enable traversing very large tables
 ini_set('memory_limit', '8192M');
 
 
@@ -124,9 +125,15 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
     $db_entries_serialized = 0;
     $db_entries_changed = 0;
 
-    $log_file_content = "";
+    //messy timezone problems...
+    date_default_timezone_set( 'Europe/Berlin' );
 
-    $out_file_content = "SET NAMES 'utf8';\n";
+    $log_file_content = "Logfile created by search-and-replace-db.php on " . date('d. M Y') . " at " . date('H:i') . "\n";
+    $log_file_content .= "Searching database for the term: $find\n\n";
+
+    $out_file_content = "#Script created by search-and-replace-db.php on " . date('d. M Y') . " at " . date('H:i') . "\n";
+    $out_file_content .= "#replacing $find with $replace.\n\n";
+    $out_file_content .= "SET NAMES 'utf8';\n";
     $made_sql_statement = false;
 
     $time = microtime(true);
@@ -169,14 +176,16 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
         //fetch table
         $sql = "SELECT * FROM $table;";
         echo "Traversing $table...";
-        if(WRITE_SQL_FILE_INSTEAD)
+        if(WRITE_SQL_FILE)
             $out_file_content .= "#Traversing $table...\n";
         $result = $conn->query($sql);
         $result->fetch_all();
 
         //traverse all rows
+        $counter = 0;
         foreach($result as $row)
         {
+            $counter++;
             if($primary_key == NULL)
                 $id = NULL;
             else
@@ -184,6 +193,12 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
                 $id = $row[$primary_key];
                 if(!is_numeric($id))
                     $id = "'$id'";
+            }
+
+            if($counter % 10000 == 0)
+            {
+                echo ".";
+                flush();
             }
 
             //traverse all keys
@@ -252,29 +267,42 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
                     else
                         $where = "$primary_key=$id";
                     $sql = "UPDATE `$table` SET $col='$new_data' WHERE $where;";
-                    if(WRITE_SQL_FILE_INSTEAD)
+                    $query_failed = false;
+                    if(PERFORMCE_MYSQL_STATEMENTS)
                     {
-                        $out_file_content .= $sql . "\n";
-                        $made_sql_statement = true;
-                    }
-                    else
+                        //perform query
                         $update_result = $conn->query($sql);
 
-                    //tell about failed result but recover
-                    if($update_result === false)
-                    {
-                        $replaced = $replaced_old;
-                        echo "\nMySQL query failed: \nmysql> $sql\nError: $conn->error\n";
-                    }
-                    else
-                    {
-                        if(VERBOSE)
+                        //tell about failed result but recover
+                        if($update_result === false)
                         {
-                            $num_changed = $replaced - $replaced_old;
-                            echo "Changed id: $id ($num_changed values)\n";
+                            $query_failed = true;
+                            $replaced = $replaced_old;
+                            echo "\nMySQL query failed: \nmysql> $sql\nError: $conn->error\n";
                         }
-                        $db_entries_changed++;
+                        else
+                        {
+                            if(VERBOSE)
+                            {
+                                $num_changed = $replaced - $replaced_old;
+                                echo "Changed id: $id ($num_changed values)\n";
+                            }
+                            $db_entries_changed++;
+                        }
                     }
+                    if(WRITE_SQL_FILE)
+                    {
+                        if($query_failed)
+                        {
+                            echo "MySQL update query failed. Skipping this query in SQL outfile.";
+                        }
+                        else
+                        {
+                            $out_file_content .= $sql . "\n";
+                            $made_sql_statement = true;
+                        }
+                    }
+
 
                     //unit test: nothing should have changed in this case
                     if(DEBUG && ($find === $replace || $replaced_old === $replaced))
@@ -304,14 +332,14 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
         else
         {
             echo "Done. Replaced $replaced values.\n";
-            if (WRITE_SQL_FILE_INSTEAD)
+            if (WRITE_SQL_FILE)
                 $out_file_content .= "#Done. Replaced $replaced values.\n";
         }
         $reached_max_recursion = 0;
         $replaced_total += $replaced;
     }
 
-    if(WRITE_SQL_FILE_INSTEAD)
+    if(WRITE_SQL_FILE)
     {
         if($made_sql_statement)
         {
@@ -319,7 +347,7 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
             echo "SQL Statements written to " . SEARCH_AND_REPLACE_SQL_FILE . "\n";
         }
         else
-            echo "No SQL Statements were created by your query. No SQL File has been written.\n";
+            echo "No SQL Statements were created. No SQL File has been written.\n";
     }
 
     if($replace === NULL)

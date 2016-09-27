@@ -1,0 +1,11 @@
+{
+    "description": "crawl.js is the deploy tools crawler. Basically, it crawls a domain, logs all cookies and 404s and outputs you some timing information.",
+    "repository":"unavailable",
+    "readme":"There is no readme available yet, sorry.",
+    "license":"UNLICENSED",
+    "dependencies":
+    {
+        "performance-now" : ">=0.2.0",
+        "simplecrawler" : ">=0.6.2"
+    }
+}

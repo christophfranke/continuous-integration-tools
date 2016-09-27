@@ -10,7 +10,7 @@ LESS_FILE = $(SRC)/less/style.less
 JS_SRC = $(shell find $(SRC)/js -name "*.js")
 LESS_SRC = $(shell find $(SRC)/less -name "*.less")
 
-COMPILER = compiler.jar
+COMPILER = ../java/js-compiler.jar
 
 ESCAPED_SRC_DIR = $(shell echo $(SRC)|sed 's\#/\#\\/\#g')
 ESCAPED_SRC_URL = $(shell echo /$(SRC_URL)|sed 's\#/\#\\/\#g')
