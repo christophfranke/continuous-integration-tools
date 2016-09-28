@@ -47,4 +47,3 @@ if __name__ == '__main__':
         table_file = os.path.abspath(sys.argv[2])
         table = create_md5_table(root_dir)
         save_md5_table(table, table_file)
-        print "Done."

@@ -12,7 +12,7 @@ import ssh
 @out.indent
 def test_module():
     out.log("Testing remote command...", 'run')
-    run.remote('pwd')
+    run.remote('pwd', halt_on_output = False)
     out.log("Remote command has run successfully", 'run')
 
 #run command locally. easy.
@@ -79,13 +79,13 @@ def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_c
 #run command on remote. a bit harder.
 @out.indent
 @engine.cleanup_tmp_files
-def remote(command):
+def remote(command, halt_on_output = True):
     #tell what happens
     out.log(command, 'remote', out.LEVEL_VERBOSE)
 
     #choose the correct command system
     if engine.COMMAND_SYSTEM == 'PHP':
-        php.execute(command)
+        php.execute(command, halt_on_output)
     elif engine.COMMAND_SYSTEM == 'SSH':
         ssh.execute(command)
     else:
