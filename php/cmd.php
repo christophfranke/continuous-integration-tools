@@ -39,6 +39,8 @@ if(!empty($file))
 
 if(!empty($command))
 {
+    //five minutes is hopefully enough
+    set_time_limit(300);
     if(!empty($cwd))
         exec("cd $cwd && $command 2>&1", $output_array, $return_value);
     else
