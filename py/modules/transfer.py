@@ -135,9 +135,9 @@ def put_verbose(local_file, remote_file=None):
     put(local_file, remote_file, True)
 
 @out.indent
-def remove_local(filename):
+def remove_local(filename, recover_from_error = False):
     out.log('remove local file: ' + filename, 'transfer')
-    run.local('rm ' + filename)
+    run.local('rm ' + filename, halt_on_stderr = recover_from_error)
 
 @out.indent
 def remove_remote(filename):
