@@ -7,7 +7,7 @@ import os
 command_file_ready = False
 
 @out.indent
-def execute(command, halt_on_output = True):
+def execute(command, halt_on_output = False):
     import run
     upload_command_file()
 
@@ -39,8 +39,8 @@ def execute(command, halt_on_output = True):
     if halt_on_output:
         log_level = out.LEVEL_ERROR
         if os.stat(output_file).st_size > 0:
-            out.log('error executing "' + command + '" via php command system.', 'php', out.LEVEL_ERROR)
             out.file(output_file, 'php exec', out.LEVEL_ERROR)
+            out.log('error executing "' + command + '" via php command system.', 'php', out.LEVEL_ERROR)
             engine.quit()
 
     out.file(output_file, 'php exec', out.LEVEL_INFO)

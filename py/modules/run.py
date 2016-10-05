@@ -79,7 +79,7 @@ def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_c
 #run command on remote. a bit harder.
 @out.indent
 @engine.cleanup_tmp_files
-def remote(command, halt_on_output = True):
+def remote(command, halt_on_output = False):
     #tell what happens
     out.log(command, 'remote', out.LEVEL_VERBOSE)
 
