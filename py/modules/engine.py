@@ -81,6 +81,7 @@ def finalize():
     php.remove_command_file()
     if remote_tmp_dir_created:
         transfer.remove_remote_directory(NORM_TMP_DIR)
+        remote_tmp_dir_created = False
 
 
 #cleanup is being run at the very end. cleans up all the files that have been created in the process.

@@ -82,5 +82,6 @@ def remove_command_file():
         out.log("Error: Could not find NORM_COMMAND_FILE. No file to remove", 'php', out.LEVEL_WARNING)
         return
     transfer.remove_remote(engine.NORM_COMMAND_FILE)
+    command_file_ready = False
 
 
