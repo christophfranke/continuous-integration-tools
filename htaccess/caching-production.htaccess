@@ -1,0 +1,17 @@
+FileETag INode MTime Size
+
+#cache for 4 weeks
+<FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf|svg)$">
+    Header set Cache-Control "max-age=2419200, public"
+</FilesMatch>
+
+#cache for one week
+<FilesMatch ".(js|css|pdf|txt|htm|html)$">
+    Header set Cache-Control "max-age=604800, public"
+</FilesMatch>
+
+#cache for five minutes
+<FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi)$">
+    Header set Cache-Control "max-age=300"
+</FilesMatch>
+

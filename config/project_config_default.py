@@ -97,6 +97,12 @@ DEPLOYED_MD5_TABLE_FILE = 'deployed_files.json' #relative to local root director
 #if we do not always recalculate this table, we use the saved md5 values in our table file DEPLOYED_MD5_TABLE_FILE. However, it seems to be save to always recalculate.
 ALWAYS_RECALCULATE_MD5_TABLE = True #the only reason you want to set this to false is if there is no python on the remote, or you are working on a server alone, want to save some time and know what you're doing.
 
+#compression method: possible values are DEFLATE, GZIP, PRECOMPRESSION, NONE
+COMPRESSION = 'DEFLATE'
+
+#browser-caching for remote server. The local server always uses no caching. Allowed values are PRODUCTION, DEVELOPMENT, NONE
+CACHING = 'DEVELOPMENT'
+
 #these files will be ignored in all sync operations. PHP_COMMAND_FILE and TMP_DIR expand to their corresponding value, * expands to anything (including the empty string)
 #Note that the files are evaluated relative to the www folder.
 IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '.DS_Store', '.gitignore', 'wp-content/cache/']

@@ -26,10 +26,12 @@ $(JS_FILE) $(JS_MAP_FILE): $(JS_SRC)
 	echo "//# sourceMappingURL=$(MAIN_JS_MAP)" >> $(JS_FILE)
 	sed -i '' -e 's/$(ESCAPED_SRC_DIR)/$(ESCAPED_SRC_URL)/g' $(JS_MAP_FILE)
 	sed -i '' -e 's/$(ESCAPED_BUILD_DIR)/$(ESCAPED_BUILD_URL)/g' $(JS_MAP_FILE)
+	cd $(BUILD) && gzip -c $(MAIN_JS) > $(MAIN_JS).gz
 
 less: $(CSS_FILE)
 
 $(CSS_FILE): $(LESS_SRC)
 	lessc --source-map --verbose --clean-css $(LESS_FILE) $(CSS_FILE)
+	cd $(BUILD) && gzip -c style.css > style.css.gz
 
 all: js less

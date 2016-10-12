@@ -1,0 +1,17 @@
+FileETag INode MTime Size
+
+#cache images and flash content for one day
+<FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf|svg)$">
+    Header set Cache-Control "max-age=86400, public"
+</FilesMatch>
+
+#cache text, css, and javascript files for one hour
+<FilesMatch ".(js|css|pdf|txt|htm|html)$">
+    Header set Cache-Control "max-age=3600, public"
+</FilesMatch>
+
+#cache dynamic files for 60 seconds
+<FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi)$">
+    Header set Cache-Control "max-age=60"
+</FilesMatch>
+

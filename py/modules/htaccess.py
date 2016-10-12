@@ -31,13 +31,29 @@ def prepare(overwrite, upload=False):
 def assemble_htaccess_data(domain):
     ht_data = engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/signature.htaccess')
     ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/common.htaccess')
-    ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/deflate.htaccess')
+    if engine.COMPRESSION == 'DEFLATE':
+        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/deflate.htaccess')
+    elif engine.COMPRESSION == 'GZIP':
+        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/gzip.htaccess')
+    elif engine.COMPRESSION == 'PRECOMPRESSION':
+        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/precompression.htaccess')
+    elif engine.COMPRESSION == None or engine.COMPRESSION == False or engine.COMPRESSION == 'NONE':
+        pass
+    else:
+        out.log('Error: Invalid value for COMPRESSION: ' + str(engine.COMPRESSION) + '. Use DEFLATE, GZIP, PRECOMPRESSION or NONE instead.', 'htaccess', out.LEVEL_ERROR)
     #caching only for live site
     if domain == 'live':
-        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching.htaccess')
+        if engine.CACHING == 'DEVELOPMENT':
+            ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching-development.htaccess')
+        elif engine.CACHING == 'PRODUCTION':
+            ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching-production.htaccess')
+        elif engine.CACHING == None or engine.CACHING == False or engine.CACHING == 'NONE':
+            ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching-none.htaccess')
+        else:
+            out.log('Warning: You have not specified a valid browser caching strategy: ' + str(engine.CACHING) + '. Use PRODUCTION, DEVELOPMENT or NONE instead.', 'htaccess', out.LEVEL_WARNING)
     else:
         #explicitly disable browsercaching for all assets for local development site
-        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/no-caching.htaccess')
+        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching-none.htaccess')
     if os.path.isfile(engine.LOCAL_WWW_DIR + '/.htaccess.custom'):
         ht_data += engine.read_local_file(engine.LOCAL_WWW_DIR + '/.htaccess.custom')
     if engine.IS_WORDPRESS:
