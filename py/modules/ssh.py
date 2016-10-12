@@ -9,7 +9,7 @@ def execute(command):
 
     #run the command
     ssh_command_line = 'ssh ' + engine.SSH_USER + '@' + engine.SSH_HOST + " 'cd " + engine.SSH_PATH_TO_WWW_DIR + ' && ' + command + "'"
-    run.local(ssh_command_line, retry = 3)
+    run.local(ssh_command_line, retry = 3, halt_on_stderr = False)
 
 
 def add_key_to_server():
