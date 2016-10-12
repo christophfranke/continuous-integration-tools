@@ -1,5 +1,5 @@
 
 #disable caching for local site development
-#<FilesMatch "\.(flv|gif|jpg|jpeg|png|ico|js|css|pdf|swf|html|htm|txt)$">
+#<FilesMatch "\.(flv|gif|jpg|jpeg|png|ico|js|css|pdf|swf|html|htm|txt|gz)$">
     Header set Cache-Control "no-store, no-cache"
 #</FilesMatch>
