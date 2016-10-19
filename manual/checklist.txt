@@ -1,0 +1,55 @@
+// This text file is a checklist for new website projects or website relaunches. 
+// With this list no required step of a project should be missed out and all important informations are listed in one place.
+// Feel free to reorder or add points to/in this list.
+
+
+// Project checklist
+
+/* Setup project */
+– repository (local and remote)
+– include script respository as submodule
+– enable build-system
+– include livereload
+– include ftp data (and also database data if needed) (adress, name, password, …)
+– if wordpress: create wp-files
+– setup a local domain
+
+/* Coding */
+– dependencies in javascipt files
+– encode mailto-links and adresses if possible
+– use variables and mixins in less if possible
+– dynamic and flexible content and templates
+– enable debug mode on local developing environment
+– erase all errors
+– include development files of scripts etc. and minify it with the aid of the build system
+
+/* CMS */
+– if wordpress: can the site be indexed? (settings)
+– if wordpress: is the Yoast plugin blocking any pages for indexation?
+– if wordpress: less plugins as possible
+
+/* SEO */
+– sitemap
+– alt- and title-tags in images
+– meta title and decription
+– one h1 on every page
+– caching (at least one week for css and js files)
+– optimize images
+– compress css and js files (resp. check for it)
+– any deadlinks?
+– clean URLs
+– is above-the-fold possible?
+– canonicals? 
+
+/* Server setup */
+– if wordpress: check php-version
+– is ssh available?
+– do we need a preview server/adress?
+
+/* Testing */
+– mobile device
+– tablet
+- laptop
+– Windows and IE
+– browser (Chrome, Safari, Firefox, …)
+
