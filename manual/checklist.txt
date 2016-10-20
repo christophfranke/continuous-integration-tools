@@ -18,6 +18,7 @@
 – dependencies in javascipt files
 – encode mailto-links and adresses if possible
 – use variables and mixins in less if possible
+– enable font-smoothing
 – dynamic and flexible content and templates
 – enable debug mode on local developing environment
 – erase all errors
