@@ -53,4 +53,5 @@
 - laptop
 – Windows and IE
 – browser (Chrome, Safari, Firefox, …)
+– W3C Prüfung (https://validator.w3.org/)
 
