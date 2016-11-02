@@ -40,13 +40,16 @@ def prepare_and_clean(func):
         import run
         import transfer
         import out
+        import ftp
         global start_time
         start_time = time.time()
         out.clear_logfile()
         initialize()
         result = func(*args, **kwargs)
+        ftp.start_buffer()
         cleanup()
         finalize()
+        ftp.end_buffer()
         elapsed_time = "{:.3f}".format(time.time() - start_time)
         out.log('Done. Took ' + elapsed_time + ' seconds.')
         return result
@@ -89,8 +92,7 @@ def finalize():
 def cleanup(namespace = None):
     #cleanup all namespaces
     if namespace is None:
-        import ftp
-        ftp.start_buffer()
+        out.log('cleaning up...', 'engine', out.LEVEL_VERBOSE)
 
         #guard for unwanted recursion
         global cleaning_up_already
@@ -103,9 +105,6 @@ def cleanup(namespace = None):
         #cleanup every entry of this list
         for name in up_for_delete_list:
             cleanup(name)
-
-        #do the actual work
-        ftp.end_buffer()
 
         #remove guard and exit
         cleaning_up_already = False
@@ -140,8 +139,10 @@ def get_suffix(filename):
         return filename_without_path[pos+1:]
 
 def quit():
+    ftp.start_buffer()
     cleanup()
     finalize()
+    ftp.end_buffer()
     out.log('Exited with errors. Look at output/output.log for a detailed log.', 'engine', out.LEVEL_ERROR)
     exit()
 
