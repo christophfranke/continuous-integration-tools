@@ -15,6 +15,9 @@ from codecs import open
 
 import out
 
+#enable ftp buffering for all ftp calls. This list contains all the commands that have been tested yet and work.
+enable_ftp_buffer = ['sync', 'sync_files', 'deploy', 'diff']
+
 current_tmp_file_namespace = 'global'
 finalizing_in_process = False
 
@@ -37,25 +40,21 @@ def get_random_secury_id():
 #decorator for preparation and cleanup
 def prepare_and_clean(func):
     import sys
-    enable_ftp_buffer = ['sync', 'sync_files', 'deploy', 'diff']
+    import out
     command = (sys._getframe(1).f_globals['__name__'])[3:]
+
+    @out.indent
     def decorated_func(*args, **kwargs):
-        import run
-        import transfer
-        import out
-        import ftp
         global start_time
         start_time = time.time()
-        out.clear_logfile()
-        if command in enable_ftp_buffer:
-            ftp.start_buffer()
-        initialize()
+        initialize(command)
         result = func(*args, **kwargs)
         finalize()
         elapsed_time = "{:.3f}".format(time.time() - start_time)
         out.log('Done. Took ' + elapsed_time + ' seconds.')
         return result
-    return out.indent(decorated_func)
+
+    return decorated_func
 
 #decorator for cleaning up immediately
 def cleanup_tmp_files(func):
@@ -73,9 +72,15 @@ def cleanup_tmp_files(func):
     return cleanup_immediately_func
 
 #initializing made lazy
-@out.indent
-def initialize():
-    pass
+def initialize(command):
+    import out
+    import ftp
+    out.clear_logfile()
+
+    global enable_ftp_buffer
+    if command in enable_ftp_buffer:
+        out.log('enabling complete ftp buffering for ' + command + ' command', 'engine', out.LEVEL_DEBUG)
+        ftp.start_buffer()
 
 @out.indent
 def finalize():
@@ -83,7 +88,7 @@ def finalize():
     import transfer
     import php
     import ftp
-    out.log('finalizing...', 'engine', out.LEVEL_INFO)
+    out.log('finalizing', 'engine', out.LEVEL_INFO)
 
     #remember we are already finalizing, so we don't want to finalize again when something goes wrong during finalizing.
     global finalizing_in_process

@@ -10,6 +10,7 @@ def buffered(func):
     func.name = str(func)
 
     #buffers when buffering is enabled
+    @out.indent
     def buffered_func(buffered_input, *args, **kwargs):
         if func.buffering_on:
             out.log('buffering call for ' + buffered_input, func.name, out.LEVEL_DEBUG)
@@ -19,6 +20,7 @@ def buffered(func):
             func(buffered_input, *args, **kwargs)
 
     #flush the buffer
+    @out.indent
     def flush(*args, **kwargs):
         if len(func.buffer) > 0:
             out.log('executing buffer', func.name, out.LEVEL_DEBUG)
@@ -26,11 +28,13 @@ def buffered(func):
             func.buffer = ''
 
     #start buffering
+    @out.indent
     def start():
         if not func.buffering_on:
             out.log('start buffer', func.name, out.LEVEL_DEBUG)        
             func.buffering_on = True
 
+    @out.indent
     def end():
         out.log('end buffer', func.name, out.LEVEL_DEBUG)
         flush()
