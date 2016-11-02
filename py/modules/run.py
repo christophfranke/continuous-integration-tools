@@ -78,7 +78,6 @@ def local(command, halt_on_stderr = True, retry = 0, sudo = False, ignore_exit_c
 
 #run command on remote. a bit harder.
 @out.indent
-@engine.cleanup_tmp_files
 def remote(command, halt_on_output = False):
     #tell what happens
     out.log(command, 'remote', out.LEVEL_VERBOSE)
@@ -94,7 +93,6 @@ def remote(command, halt_on_output = False):
         engine.quit()
 
 @out.indent
-@engine.cleanup_tmp_files
 def remote_python_script(script_name, arguments = ''):
     #tell
     out.log('running python script ' + script_name, 'remote', out.LEVEL_VERBOSE)

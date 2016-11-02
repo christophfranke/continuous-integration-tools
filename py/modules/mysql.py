@@ -23,7 +23,6 @@ def test_module():
 def execute_remote_file(filename):
     run.remote(engine.REMOTE_MYSQL_CMD + ' <' + filename)
 
-@engine.cleanup_tmp_files
 @out.indent
 def execute_remote_statement(statement):
     out.log('executing statement remotely: ' + statement, 'mysql', out.LEVEL_VERBOSE)
@@ -35,7 +34,6 @@ def execute_local_file(filename):
     run.local(engine.LOCAL_MYSQL_CMD + '<' + filename, False)
 
 #executes a mysql statement locally. This is done by writing a mysql file and then pass it to the mysql client via cli.
-@engine.cleanup_tmp_files
 @out.indent
 def execute_local_statement(statement):
     out.log('executing statement locally: ' + statement, 'mysql', out.LEVEL_VERBOSE)
@@ -47,7 +45,6 @@ def execute_local_file_nodb(filename):
     run.local(engine.LOCAL_MYSQL_NO_DB_CMD + '<' + filename, False)
 
 #executes a statement without selecting a database. You can for example create databases, users, etc..
-@engine.cleanup_tmp_files
 def execute_local_statement_nodb(statement):
     filename = engine.write_local_file(statement, 'sql')
     execute_local_file_nodb(filename)
