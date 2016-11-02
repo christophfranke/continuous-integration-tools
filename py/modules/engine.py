@@ -89,6 +89,9 @@ def finalize():
 def cleanup(namespace = None):
     #cleanup all namespaces
     if namespace is None:
+        import ftp
+        ftp.start_buffer()
+
         #guard for unwanted recursion
         global cleaning_up_already
         if cleaning_up_already:
@@ -100,6 +103,9 @@ def cleanup(namespace = None):
         #cleanup every entry of this list
         for name in up_for_delete_list:
             cleanup(name)
+
+        #do the actual work
+        ftp.end_buffer()
 
         #remove guard and exit
         cleaning_up_already = False
