@@ -5,11 +5,14 @@ from modules import mysql
 
 @engine.prepare_and_clean
 def execute():
-    out.log("Synchronizing local db...")
-    mysql.export_local_db()
-    remote_dump = mysql.create_remote_dump()
-    local_dump = transfer.get_compressed(remote_dump)
-    mysql.import_local_db(local_dump)
+    if engine.LOCAL_DB_NAME is not None:
+        out.log("Synchronizing local db...")
+        mysql.export_local_db()
+        remote_dump = mysql.create_remote_dump()
+        local_dump = transfer.get_compressed(remote_dump)
+        mysql.import_local_db(local_dump)
+    else:
+        out.log('No local database named, nothing to do.')
 
 
 def help():
