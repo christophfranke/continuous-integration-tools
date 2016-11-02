@@ -41,5 +41,6 @@ def buffered(func):
     buffered_func.set_name = name
     buffered_func.start_buffer = start
     buffered_func.flush_buffer = flush
+    buffered_func.end_buffer = end
 
     return buffered_func
