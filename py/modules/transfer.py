@@ -173,12 +173,12 @@ def remove_remote_multiple(file_list):
 
 @out.indent
 def remove_local_directory_contents(directoy):
-    out.log('remove content of local directory: ' + directory, 'transfer')
+    out.log('remove content of local directory: ' + directory, 'transfer', out.LEVEL_VERBOSE)
     run.local('rm ' + directory + '/*')
 
 @out.indent
 def remote_remote_directory_contents(directory):
-    out.log('remove content of remote directory: ' + dircetory, 'transfer')
+    out.log('remove content of remote directory: ' + dircetory, 'transfer', out.LEVEL_VERBOSE)
     if engine.FTP_CLIENT == 'ftp':
         command = 'delete ' + ftp_path(directory) + '/*'
     elif engine.FTP_CLIENT == 'sftp':
@@ -190,25 +190,25 @@ def remote_remote_directory_contents(directory):
 
 @out.indent
 def local_move(from_file, to_file):
-    out.log('move local file: ' + from_file + ' -> ' + to_file, 'transfer')
+    out.log('move local file: ' + from_file + ' -> ' + to_file, 'transfer', out.LEVEL_VERBOSE)
     run.local('mv ' + from_file + ' ' + to_file)
 
 @out.indent
 def remote_move(from_file, to_file):
-    out.log('move remote file: ' + from_file + ' -> ' + to_file, 'transfer')
+    out.log('move remote file: ' + from_file + ' -> ' + to_file, 'transfer', out.LEVEL_VERBOSE)
     command = 'rename ' + ftp_path(from_file) + ' ' + ftp_path(to_file)
     ftp.execute(command)
 
 @out.indent
 def create_local_directory(directory, permissions = None):
-    out.log('create local directory: ' + directory, 'transfer')
+    out.log('create local directory: ' + directory, 'transfer', out.LEVEL_VERBOSE)
     run.local('mkdir -p ' + directory)
     if permissions is not None:
         run.local('chmod ' + str(permissions) + ' ' + directory)
 
 @out.indent
 def create_remote_directory(directory, permissions = None):
-    out.log('create remote directory: ' + directory, 'transfer')
+    out.log('create remote directory: ' + directory, 'transfer', out.LEVEL_VERBOSE)
     command = 'mkdir ' + ftp_path(directory)
     if engine.FTP_CLIENT == 'sftp':
         command = '-' + command
@@ -218,19 +218,19 @@ def create_remote_directory(directory, permissions = None):
 
 @out.indent
 def remove_remote_directory(directory):
-    out.log('remove remote directory: ' + directory, 'transfer')
+    out.log('remove remote directory: ' + directory, 'transfer', out.LEVEL_VERBOSE)
     command = 'rmdir ' + ftp_path(directory)
     ftp.execute(command)
 
 @out.indent
 def set_local_mode(file, mode):
-    out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer')
+    out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer', out.LEVEL_VERBOSE)
     command = "chmod " + str(mode) + ' ' + file
     run.local(command)
 
 @out.indent
 def set_remote_mode(file, mode):
-    out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer')
+    out.log('setting mode ' + str(mode) + ' on ' + file, 'transfer', out.LEVEL_VERBOSE)
     command = "chmod " + str(mode) + ' ' + ftp_path(file)
     ftp.execute(command)
 
