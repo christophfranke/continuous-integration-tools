@@ -8,7 +8,7 @@ import buffering
 @buffering.buffered
 @out.indent
 def execute(command):
-    out.log('executing ' + command, 'ftp', out.LEVEL_VERBOSE)
+    out.log(command, 'ftp', out.LEVEL_VERBOSE)
     #write the command into file
     ftp_file = engine.write_local_file(command, 'ftp')
 

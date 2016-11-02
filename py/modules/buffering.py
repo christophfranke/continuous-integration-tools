@@ -13,10 +13,9 @@ def buffered(func):
     @out.indent
     def buffered_func(buffered_input, *args, **kwargs):
         if func.buffering_on:
-            out.log('buffering call for ' + buffered_input, func.name, out.LEVEL_DEBUG)
+            out.log('buffering ' + buffered_input, func.name, out.LEVEL_DEBUG)
             func.buffer += buffered_input + func.delimiter
         else:
-            out.log('executing call for ' + buffered_input, func.name, out.LEVEL_DEBUG)
             func(buffered_input, *args, **kwargs)
 
     #flush the buffer
@@ -41,7 +40,7 @@ def buffered(func):
         func.buffering_on = False
 
     def name(name):
-        func.name = name + '-buf'
+        func.name = name + '*'
 
     def non_empty():
         return len(func.buffer) > 0
