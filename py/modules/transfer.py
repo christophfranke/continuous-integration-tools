@@ -75,8 +75,11 @@ def get_compressed(remote_file, local_file = None, verbose = False, permissions 
     compressed_remote = gzip.compress_remote(remote_file, fast=fast_compression)
     #download
     compressed_local = get(compressed_remote, gzip.compressed_filename(local_file), verbose, permissions)
-    filesize = os.path.getsize(compressed_local)
-    out.log('downloaded compressed ' + str(filesize/1000.0) + ' kb file', 'transfer')
+    try:
+        filesize = os.path.getsize(compressed_local)
+        out.log('downloaded compressed ' + str(filesize/1000.0) + ' kb file', 'transfer')
+    except OSError:
+        pass
     #restore uncompressed remote file
     gzip.uncompress_remote(compressed_remote)
     #uncmopress local file
