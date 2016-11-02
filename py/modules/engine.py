@@ -16,7 +16,7 @@ from codecs import open
 import out
 
 current_tmp_file_namespace = 'global'
-cleaning_up_already = False
+finalizing_in_process = False
 
 #remember the files we have created for cleaning up later
 local_tmp_files = {}
@@ -36,6 +36,9 @@ def get_random_secury_id():
 
 #decorator for preparation and cleanup
 def prepare_and_clean(func):
+    import sys
+    enable_ftp_buffer = ['sync', 'sync_files', 'deploy', 'diff']
+    command = (sys._getframe(1).f_globals['__name__'])[3:]
     def decorated_func(*args, **kwargs):
         import run
         import transfer
@@ -44,12 +47,11 @@ def prepare_and_clean(func):
         global start_time
         start_time = time.time()
         out.clear_logfile()
+        if command in enable_ftp_buffer:
+            ftp.start_buffer()
         initialize()
         result = func(*args, **kwargs)
-        ftp.start_buffer()
-        cleanup()
         finalize()
-        ftp.end_buffer()
         elapsed_time = "{:.3f}".format(time.time() - start_time)
         out.log('Done. Took ' + elapsed_time + ' seconds.')
         return result
@@ -80,31 +82,37 @@ def finalize():
     global remote_tmp_dir_created
     import transfer
     import php
-    out.log('finalizing...', 'engine', out.LEVEL_VERBOSE)
+    import ftp
+    out.log('finalizing...', 'engine', out.LEVEL_INFO)
+
+    #remember we are already finalizing, so we don't want to finalize again when something goes wrong during finalizing.
+    global finalizing_in_process
+    finalizing_in_process = True
+
+    #always buffer finalization
+    ftp.start_buffer()
+    cleanup_remote()
     php.remove_command_file()
     if remote_tmp_dir_created:
         transfer.remove_remote_directory(NORM_TMP_DIR)
         remote_tmp_dir_created = False
+    #clean ftp buffer before cleaning up local, because we will create a local file in the process of ending the buffer
+    ftp.end_buffer()
+
+    cleanup_local()
 
 
 #cleanup is being run at the very end. cleans up all the files that have been created in the process.
 @out.indent
-def cleanup(namespace = None):
+def cleanup(namespace = None, local = True, remote = True):
     #cleanup all namespaces
     if namespace is None:
-        out.log('cleaning up...', 'engine', out.LEVEL_VERBOSE)
-
-        #guard for unwanted recursion
-        global cleaning_up_already
-        if cleaning_up_already:
-            return
-        cleaning_up_already = True
 
         #make a copy of the list before iterating over it
         up_for_delete_list = list(local_tmp_files)
         #cleanup every entry of this list
         for name in up_for_delete_list:
-            cleanup(name)
+            cleanup(name, local, remote)
 
         #remove guard and exit
         cleaning_up_already = False
@@ -113,16 +121,28 @@ def cleanup(namespace = None):
     import transfer
     out.log('Removing tmp files in namespace ' + namespace, 'cleanup', out.LEVEL_DEBUG)
     #remove remote files first, because there removal might cause local files to happen
-    for file in remote_tmp_files[namespace]:
-        transfer.remove_remote(file)
+    if remote:
+        for file in remote_tmp_files[namespace]:
+            transfer.remove_remote(file)
+            remote_tmp_files[namespace] = []
+
     #then remove local files
-    for file in local_tmp_files[namespace]:
-        transfer.remove_local(file)
+    if local:
+        for file in local_tmp_files[namespace]:
+            transfer.remove_local(file)
+            local_tmp_files[namespace] = []
 
     #reset namespace list, so it doesn't get cleaned up twice
-    remote_tmp_files[namespace] = []
-    local_tmp_files[namespace] = []
 
+@out.indent
+def cleanup_local():
+    out.log('cleaning up local tmp files...', 'engine', out.LEVEL_VERBOSE)
+    cleanup(remote = False)
+
+@out.indent
+def cleanup_remote():
+    out.log('cleaning up remote tmp files...', 'engine', out.LEVEL_VERBOSE)
+    cleanup(local = False)
 
 def get_suffix(filename):
     #find the last slash
@@ -139,12 +159,12 @@ def get_suffix(filename):
         return filename_without_path[pos+1:]
 
 def quit():
-    ftp.start_buffer()
-    cleanup()
-    finalize()
-    ftp.end_buffer()
-    out.log('Exited with errors. Look at output/output.log for a detailed log.', 'engine', out.LEVEL_ERROR)
-    exit()
+    if not finalizing_in_process:
+        finalize()
+        out.log('Exited with errors. Look at output/output.log for a detailed log.', 'engine', out.LEVEL_ERROR)
+        exit()
+    else:
+        out.log('An error occured during finalizing. We ignore it and try to finish finalization.', 'engine', out.LEVEL_ERROR)
 
 
 def local_is_not_empty(filename):
@@ -375,6 +395,10 @@ def get_remote_www_dir_abspath():
     filename = get_new_remote_file('out')
     run.remote('pwd >' + filename)
     return read_remote_file(filename).rstrip()
+
+def sync_ftp():
+    import ftp
+    ftp.flush_buffer()
 
 def split_by_encoding(item_list):
     ascii_list = []

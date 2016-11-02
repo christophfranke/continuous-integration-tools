@@ -103,11 +103,13 @@ def pack_remote_list(file_list):
     #and return packed file, of course
     return tar_file
 
+@out.indent
 def unpack_local(archive):
     out.log('unpacking locally: ' + archive, 'tar')
     unpack_command = 'tar xf ' + archive + ' -C ' + engine.LOCAL_WWW_DIR
     run.local(unpack_command)
 
+@out.indent
 def unpack_remote(archive):
     out.log('unpacking on remote: ' + archive, 'tar')
     unpack_command = 'tar xf ' + archive + ' --warning=no-unknown-keyword -C ' + engine.NORM_WWW_DIR

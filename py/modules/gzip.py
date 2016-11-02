@@ -22,6 +22,8 @@ def compress(uncompressed_file, run_func, rename_tmp_func = None, fast = False):
     if fast:
         args = '--fast '
 
+    engine.sync_ftp()
+
     #compress
     run_func('gzip ' + args + uncompressed_file)
 
@@ -43,6 +45,8 @@ def uncompress(compressed_file, run_func, rename_tmp_func = None):
     #tell engine
     if rename_tmp_func is not None:
         rename_tmp_func(compressed_file, uncompressed_file)
+
+    engine.sync_ftp()
 
     #uncompress
     run_func('gzip --uncompress ' + compressed_file)

@@ -212,6 +212,7 @@ def save_md5_table(md5_table):
 @out.indent
 def load_md5_table(filename):
     out.log('loading hash table from ' + filename, 'sync')
+    engine.sync_ftp()
     try:
         #load form file
         md5_table_file = open(filename, 'r', encoding='utf-8')

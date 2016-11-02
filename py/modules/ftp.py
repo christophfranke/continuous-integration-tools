@@ -28,3 +28,5 @@ def flush_buffer():
     execute.flush_buffer()
 def end_buffer():
     execute.end_buffer();
+def has_buffer():
+    return execute.has_buffer()

@@ -32,6 +32,9 @@ def execute(command, halt_on_output = False):
     #continue assembling curl command
     curl_command += ' ' + engine.REMOTE_COMMAND_URL + '?cmd=' + filename
 
+    #execute all buffered ftp commands
+    engine.sync_ftp()
+
     #and go
     run.local(curl_command, halt_on_stdout = halt_on_output) #halt_on_output strongly depends on the command
 
@@ -75,7 +78,7 @@ def remove_command_file():
     global command_file_ready
     if not command_file_ready:
         return
-    out.log('removing command file', 'php')
+    out.log('removing command file', 'php', out.LEVEL_VERBOSE)
     try:
         engine.NORM_COMMAND_FILE
     except:

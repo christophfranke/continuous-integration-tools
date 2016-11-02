@@ -7,6 +7,9 @@ def execute(command):
     import run
     #out.log('executing ' + command, 'ssh', out.LEVEL_VERBOSE)
 
+    #get in sync with all possibly buffered ftp commands
+    engine.sync_ftp()
+
     #run the command
     ssh_command_line = 'ssh ' + engine.SSH_USER + '@' + engine.SSH_HOST + " 'cd " + engine.SSH_PATH_TO_WWW_DIR + ' && ' + command + "'"
     run.local(ssh_command_line, retry = 3, halt_on_stderr = False)
