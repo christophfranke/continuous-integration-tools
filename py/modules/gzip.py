@@ -22,8 +22,6 @@ def compress(uncompressed_file, run_func, rename_tmp_func = None, fast = False):
     if fast:
         args = '--fast '
 
-    engine.sync_ftp()
-
     #compress
     run_func('gzip ' + args + uncompressed_file)
 
@@ -46,8 +44,6 @@ def uncompress(compressed_file, run_func, rename_tmp_func = None):
     if rename_tmp_func is not None:
         rename_tmp_func(compressed_file, uncompressed_file)
 
-    engine.sync_ftp()
-
     #uncompress
     run_func('gzip --uncompress ' + compressed_file)
 
@@ -60,6 +56,8 @@ def compress_local(filename, tell_engine = False):
         rename_tmp_func = engine.rename_local_file
     else:
         rename_tmp_func = None
+    #sync ftp only on local compression/uncompression, because on remote it get's synced anyway by the command system
+    engine.sync_ftp()
     return compress(filename, run.local, rename_tmp_func)
 
 def uncompress_local(filename, tell_engine = False):
@@ -67,6 +65,8 @@ def uncompress_local(filename, tell_engine = False):
         rename_tmp_func = engine.rename_local_file
     else:
         rename_tmp_func = None
+    #sync ftp only on local compression/uncompression, because on remote it get's synced anyway by the command system
+    engine.sync_ftp()
     return uncompress(filename, run.local, rename_tmp_func)
 
 def compress_remote(filename, tell_engine = False, fast=False):
