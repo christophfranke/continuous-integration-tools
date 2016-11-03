@@ -71,7 +71,12 @@ def export_local_db(compression = True):
 #writes a database dump to file and returns its name
 @out.indent
 def create_remote_dump(compression = False):
+    import php
     out.log('create remote database dump', 'mysql')
+
+    if engine.COMMAND_SYSTEM == 'PHP' and compression:
+        php.start_buffer();
+
     #export db on remote
     sql_file = engine.get_new_remote_file('sql')
     run.remote(engine.REMOTE_MYSQLDUMP_CMD + ' >' + sql_file)
@@ -83,6 +88,8 @@ def create_remote_dump(compression = False):
     else:
         #return sql file
         filename = sql_file
+
+    php.end_buffer()
 
     #done
     return filename
