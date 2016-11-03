@@ -70,7 +70,7 @@ def put(local_file, remote_file = None, verbose = False, permissions = None):
     #return filename of uploaded file
     return remote_file
 
-def get_compressed(remote_file, local_file = None, verbose = False, permissions = None, fast_compression = False):
+def get_compressed(remote_file, local_file = None, verbose = False, permissions = None, fast_compression = False, preserve_remote_file = False):
     #compress remote file
     compressed_remote = gzip.compress_remote(remote_file, fast=fast_compression)
     #download
@@ -80,8 +80,14 @@ def get_compressed(remote_file, local_file = None, verbose = False, permissions 
         out.log('downloaded compressed ' + str(filesize/1000.0) + ' kb file', 'transfer')
     except OSError:
         pass
-    #restore uncompressed remote file
-    gzip.uncompress_remote(compressed_remote)
+
+    if preserve_remote_file:
+        #restore uncompressed remote file
+        gzip.uncompress_remote(compressed_remote)
+    else:
+        #or tell the engine it has been renamed
+        engine.rename_remote_file(remote_file, compressed_remote)
+
     #uncmopress local file
     return gzip.uncompress_local(compressed_local, True)
 
