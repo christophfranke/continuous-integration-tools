@@ -1,18 +1,22 @@
 import engine
 import out
 import transfer
+import buffering
 import os
 
 
 command_file_ready = False
 
+@buffering.buffered
 @out.indent
 def execute(command, halt_on_output = False):
     import run
-    upload_command_file()
 
     #tell
-    out.log('executing ' + command, 'php', out.LEVEL_VERBOSE)
+    out.log(command, 'php', out.LEVEL_VERBOSE)
+
+    #make sure the command file is online
+    upload_command_file()
 
     #write command to file and upload it. We do it this way, althouth this is quite inefficient, but otherwise we'd have tremendous problems with escaping characters.
     #althouth, TODO: escape special characters in command
@@ -87,4 +91,14 @@ def remove_command_file():
     transfer.remove_remote(engine.NORM_COMMAND_FILE)
     command_file_ready = False
 
+#setup and expose buffering interface
+execute.set_name('php')
+def start_buffer():
+    execute.start_buffer()
+def flush_buffer():
+    execute.flush_buffer()
+def end_buffer():
+    execute.end_buffer();
+def has_buffer():
+    return execute.has_buffer()
 
