@@ -56,7 +56,7 @@ def create_local_db():
 
 @out.indent
 def export_local_db(compression = True):
-    filename = engine.get_database_dump_file()
+    filename = engine.get_database_dump_file(domain='local')
     if compression:
         final_filename = gzip.compressed_filename(filename)
     else:
@@ -100,6 +100,8 @@ def truncate_remote_db():
 
 @out.indent
 def import_local_db(filename, compression = None):
+    import os
+
     #is our file compressed?
     if compression is None:
         compression = gzip.is_compressed(filename)
@@ -110,13 +112,17 @@ def import_local_db(filename, compression = None):
         sql_file = filename
 
     #wipe old db
-    truncate_local_db()
+    if os.path.isfile(sql_file):
+        truncate_local_db()
+    else:
+        out.log('File not found: ' + filename, 'mysql', out.LEVEL_ERROR)
+        quit()
 
     #refill db
     out.log('importing local database from file ' + sql_file, 'mysql')
     execute_local_file(sql_file)
 
-    #compress again, so we have not really changed the file
+    #compress again, although it would have been better to not touch the compressed file in the first place
     if compression:
         gzip.compress_local(sql_file)
 

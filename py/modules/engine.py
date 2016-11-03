@@ -71,7 +71,7 @@ def cleanup_tmp_files(func):
         return result
     return cleanup_immediately_func
 
-#initializing made lazy
+#do not use out.indent on this, otherwise its output is indented and looks messy because there was no unindented output before
 def initialize(command):
     import out
     import ftp
@@ -346,18 +346,69 @@ def get_config(key = None):
         return config_vars
 
 
-def get_database_dump_file(compression = False):
+def get_database_dump_file(compression = False, domain = None):
     import run
     #mysql dump filenames
     if not os.path.isdir(LOCAL_DB_DIR):
         run.local('mkdir -p ' + LOCAL_DB_DIR)
-    filename = os.path.abspath(LOCAL_DB_DIR + '/dump-' + str(datetime.now()).replace(' ', '-') + '.sql')
+    description = get_database_file_description(domain)
+    filename = os.path.abspath(LOCAL_DB_DIR + '/' + description + '-' + str(datetime.now()).replace(' ', '-') + '.sql')
     if compression:
         filename += '.gz'
     return filename
 
-def get_latest_database_dump():
-    out.log('get_latest_database_dump is not implemented yet', 'engine', out.LEVEL_ERROR)
+def get_database_file_description(domain = None):
+    if domain == 'local':
+        description = 'dump-localhost'
+    elif domain == 'remote':
+        try:
+            description = 'dump-' + LIVE_DOMAIN
+        except NameError:
+            description = 'dump-remote-unknown'
+    elif domain is None:
+        description = 'dump'
+    else:
+        out.log('Unknown domain: ' + str(domain), 'engine', out.LEVEL_ERROR)
+        quit()
+
+    return description
+
+@out.indent
+def get_latest_database_dump(domain = None):
+    out.log('getting latest database dump file', 'engine', out.LEVEL_VERBOSE)
+    #filter all files by description
+    files = os.listdir(LOCAL_DB_DIR)
+    timestamps = []
+    description = get_database_file_description(domain)
+    for f in files:
+        if description in f:
+            suffix = get_suffix(f)
+            if suffix[-3:] == '.gz':
+                timestamp = f[-33:]
+                out.log('considering ' + f, 'engine', out.LEVEL_DEBUG)
+            elif suffix[-4:] == '.sql':
+                timestamp = f[-30:]
+                out.log('considering '  + f, 'engine', out.LEVEL_DEBUG)
+            else:
+                out.log('unknown suffix, not considering ' + f, 'engine', out.LEVEL_DEBUG)
+                continue
+
+            timestamps.append(timestamp)
+        else:
+            out.log('not matching domain, not considering ' + f, 'engine', out.LEVEL_DEBUG)
+
+    if len(timestamps) == 0:
+        out.log('There is no database dump file with the description ' + description + ' and a correct suffix (allowed .gz and .sql).', 'engine', out.LEVEL_ERROR)
+        quit()
+
+    timestamps.sort()
+    latest = timestamps[-1]
+    for f in files:
+        if description in f and latest in f:
+            out.log('Latest database dump matching the domain is ' + f, 'engine', out.LEVEL_DEBUG)
+            return os.path.join(LOCAL_DB_DIR, f)
+
+    out.log('Something has gone wrong, this is probably a bug.', 'engine', out.LEVEL_ERROR)
     quit()
 
 def write_local_file(content, suffix = None, permissions = None, filename = None):

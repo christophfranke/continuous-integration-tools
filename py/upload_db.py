@@ -8,7 +8,7 @@ def execute(filename = None):
 
     out.log("making a backup first")
     #make a backup first
-    backup_file = engine.get_database_dump_file(compression = True)
+    backup_file = engine.get_database_dump_file(compression = True, domain='remote')
     remote_dump = mysql.create_remote_dump(compression = True)
     transfer.get(remote_dump, backup_file)
 
@@ -21,4 +21,5 @@ def execute(filename = None):
 
 
 def help():
-    out.log("Uploads the database to the production server. Note that this is overwriting all files on the server.", 'help')
+    out.log("Uploads the database to the production server. Makes a backup of the remote database before overwriting it.", 'help')
+    out.log("Takes a filename as argument. If none given, uploads the local database.")
