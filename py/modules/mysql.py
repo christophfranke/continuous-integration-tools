@@ -62,7 +62,10 @@ def export_local_db(compression = True):
     else:
         final_filename = filename
     out.log('exporting local db to ' + final_filename, 'mysql')
-    run.local(engine.LOCAL_MYSQLDUMP_CMD + '>' + filename, False)
+    if(engine.MYSQL4_COMPATIBLE):
+        run.local(engine.LOCAL_MYSQLDUMP_CMD + ' --compatible=mysql4 >' + filename, False)
+    else:
+        run.local(engine.LOCAL_MYSQLDUMP_CMD + '>' + filename, False)
     if compression:
         return gzip.compress_local(filename)
     else:

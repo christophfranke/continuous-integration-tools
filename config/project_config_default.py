@@ -103,6 +103,9 @@ COMPRESSION = 'DEFLATE'
 #browser-caching for remote server. The local server always uses no caching. Allowed values are PRODUCTION, DEVELOPMENT, NONE
 CACHING = 'DEVELOPMENT'
 
+#ensure compatibility with mysql4 servers
+MYSQL4_COMPATIBLE = False
+
 #these files will be ignored in all sync operations. PHP_COMMAND_FILE and TMP_DIR expand to their corresponding value, * expands to anything (including the empty string)
 #Note that the files are evaluated relative to the www folder.
 IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '.DS_Store', '.gitignore', 'wp-content/cache/']
