@@ -16,7 +16,7 @@ from codecs import open
 import out
 
 #enable ftp buffering for all ftp calls. This list contains all the commands that have been tested yet and work.
-enable_ftp_buffer = ['sync', 'sync_files', 'deploy', 'diff', 'backup_db', 'sync_db']
+enable_ftp_buffer = ['sync', 'sync_files', 'deploy', 'diff', 'backup_db', 'sync_db', 'upload_db']
 
 current_tmp_file_namespace = 'global'
 finalizing_in_process = False
