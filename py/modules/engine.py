@@ -8,6 +8,7 @@ except ImportError:
 
 import random
 import string
+import hashlib
 import time
 from datetime import datetime
 import re
@@ -506,3 +507,13 @@ def escape(s):
         s = s.replace(character, escape_table[character])
 
     return s
+
+
+def md5sum(filename):
+    md5 = hashlib.md5()
+    with open(os.path.join(LOCAL_WWW_DIR, filename), 'rb') as f:
+        for chunk in iter(lambda: f.read(128 * md5.block_size), b''):
+            md5.update(chunk)
+    return md5.hexdigest()
+
+

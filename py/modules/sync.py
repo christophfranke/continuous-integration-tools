@@ -4,7 +4,6 @@ import os
 import fnmatch
 import run
 import json
-import hashlib
 import transfer
 import re
 import unicodedata
@@ -197,13 +196,6 @@ def ignored_file(file):
 def system_file(file):
     return match_file(file, engine.DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST)
 
-def md5sum(filename):
-    md5 = hashlib.md5()
-    with open(os.path.join(engine.LOCAL_WWW_DIR, filename), 'rb') as f:
-        for chunk in iter(lambda: f.read(128 * md5.block_size), b''):
-            md5.update(chunk)
-    return md5.hexdigest()
-
 def save_md5_table(md5_table):
     md5_table_file = open(engine.LOCAL_MD5_TABLE_FILE, 'w', encoding='utf-8')
     json.dump(md5_table, md5_table_file)
@@ -271,7 +263,7 @@ def create_md5_table():
     for f in files:
         if not (ignored_file(f) or system_file(f)):
             try:
-                md5_table[f] = md5sum(f)
+                md5_table[f] = engine.md5sum(f)
             except IndexError:
                 pass
             except IOError:
