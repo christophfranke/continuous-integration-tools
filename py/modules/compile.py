@@ -31,9 +31,14 @@ def po():
 
 def less():
     run.local('cd ' + engine.LOCAL_MAKE_DIR + ' && make ' + engine.MAKEFILE_VARS + ' less', False)
+    md5_file = append_md5(engine.BUILD_URL + '/style.css', copy_zipped = True)
+    save_to_php(engine.LOCAL_WWW_DIR + '/' + engine.CSS_INCLUDE_FILE, '/' + md5_file)
+
 
 def js():
     run.local('cd ' + engine.LOCAL_MAKE_DIR + ' && make ' + engine.MAKEFILE_VARS + ' js', False)
+    md5_file = append_md5(engine.BUILD_URL + '/main.js', copy_zipped = True)
+    save_to_php(engine.LOCAL_WWW_DIR + '/' + engine.JS_INCLUDE_FILE, '/' + md5_file)
 
 @out.indent
 def all():
@@ -43,3 +48,30 @@ def all():
     js()
     out.log('compiling po files...', 'complete')
     po()
+
+#copies the file and appends its md5sum
+#we could use a symlink, but some hosts don't like that
+def append_md5(filename, copy_zipped = False):
+    suffix = engine.get_suffix(filename)
+    base = filename[:-len(suffix)]
+    md5hash = engine.md5sum(filename)
+
+    new_filename = base + md5hash + '.' + suffix
+
+    run.local('cd ' + engine.LOCAL_WWW_DIR + ' && cp ' + filename + ' ' + new_filename)
+    if copy_zipped:
+        run.local('cd ' + engine.LOCAL_WWW_DIR + ' && cp ' + filename + '.gz ' + new_filename + '.gz')
+
+    return new_filename
+    
+#saves a variable to file
+def save_to_php(filename, data):
+    content = "<?php return "
+    if type(data) == str:
+        content += "'" + data + "';"
+    else:
+        out.log('save_to_php does not support type ' + str(type(data)) + '.', 'compile', out.LEVEL_ERROR)
+        engine.quit()
+
+    engine.write_local_file(content, filename = filename)
+

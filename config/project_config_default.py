@@ -106,6 +106,11 @@ CACHING = 'DEVELOPMENT'
 #ensure compatibility with mysql4 servers
 MYSQL4_COMPATIBLE = False
 
+#filenames to include to get the current style.css respectively main.js filenames with hash appended
+#paths are allowed here, all files are seen relative to www dir
+CSS_INCLUDE_FILE = 'style_css.php'
+JS_INCLUDE_FILE = 'main_js.php'
+
 #these files will be ignored in all sync operations. PHP_COMMAND_FILE and TMP_DIR expand to their corresponding value, * expands to anything (including the empty string)
 #Note that the files are evaluated relative to the www folder.
 IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '.DS_Store', '.gitignore', 'wp-content/cache/']
