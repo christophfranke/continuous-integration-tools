@@ -204,7 +204,7 @@ def clean_remote_tmp_dir():
     #import transfer
     import run
     remote_tmp_dir = get_remote_tmp_dir()
-    run.remote('rm ' + remote_tmp_dir + '/tmp_file_*')
+    run.remote('rm -f ' + remote_tmp_dir + '/*')
 
 def clean_build_dir():
     import run
