@@ -32,13 +32,13 @@ def po():
 def less():
     run.local('cd ' + engine.LOCAL_MAKE_DIR + ' && make ' + engine.MAKEFILE_VARS + ' less', False)
     md5_file = append_md5(engine.path_join(engine.BUILD_URL, 'style.css'), copy_zipped = True)
-    save_to_php(engine.LOCAL_WWW_DIR + '/' + engine.CSS_INCLUDE_FILE, '/' + md5_file)
+    save_to_php(engine.LOCAL_WWW_DIR + '/' + engine.CSS_INCLUDE_FILE, engine.force_absolute(md5_file))
 
 
 def js():
     run.local('cd ' + engine.LOCAL_MAKE_DIR + ' && make ' + engine.MAKEFILE_VARS + ' js', False)
     md5_file = append_md5(engine.path_join(engine.BUILD_URL, '/main.js'), copy_zipped = True)
-    save_to_php(engine.LOCAL_WWW_DIR + '/' + engine.JS_INCLUDE_FILE, '/' + md5_file)
+    save_to_php(engine.LOCAL_WWW_DIR + '/' + engine.JS_INCLUDE_FILE, engine.force_absolute(md5_file))
 
 @out.indent
 def all():

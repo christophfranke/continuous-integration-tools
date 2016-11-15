@@ -522,6 +522,12 @@ def force_relative(path):
     else:
         return path
 
+def force_absolute(path):
+    if path[0] != '/':
+        return '/' + path
+    else:
+        return path
+
 def path_join(*args):
     if(len(args)) == 0:
         return ''
