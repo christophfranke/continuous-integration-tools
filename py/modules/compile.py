@@ -54,13 +54,13 @@ def all():
 def append_md5(filename, copy_zipped = False):
     suffix = engine.get_suffix(filename)
     base = filename[:-len(suffix)]
-    md5hash = engine.md5sum(filename)
+    md5hash = engine.md5sum(engine.path_join(engine.LOCAL_WWW_DIR, filename))
 
     new_filename = base + md5hash + '.' + suffix
 
-    run.local('cd ' + engine.LOCAL_WWW_DIR + ' && cp ' + filename + ' ' + new_filename)
+    run.local('cd ' + engine.LOCAL_WWW_DIR + ' && cp ' + engine.force_relative(filename) + ' ' + engine.force_relative(new_filename))
     if copy_zipped:
-        run.local('cd ' + engine.LOCAL_WWW_DIR + ' && cp ' + filename + '.gz ' + new_filename + '.gz')
+        run.local('cd ' + engine.LOCAL_WWW_DIR + ' && cp ' + engine.force_relative(filename) + '.gz ' + engine.force_relative(new_filename) + '.gz')
 
     return new_filename
     

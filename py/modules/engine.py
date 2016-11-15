@@ -516,6 +516,11 @@ def md5sum(filename):
             md5.update(chunk)
     return md5.hexdigest()
 
+def force_relative(path):
+    if path[0] == '/':
+        return path[1:]
+    else:
+        return path
 
 def path_join(*args):
     if(len(args)) == 0:
