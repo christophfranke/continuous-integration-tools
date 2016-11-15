@@ -517,3 +517,20 @@ def md5sum(filename):
     return md5.hexdigest()
 
 
+def path_join(*args):
+    if(len(args)) == 0:
+        return ''
+    if(len(args)) == 1:
+        return args[0]
+    if len(args) > 2:
+        return path_join(args[0], path_join(*args[1:]))
+
+    #make sure we do not have neither trailing slash in a nor leading slash in b
+    a = args[0]
+    b = args[1]
+    if a[-1] == '/':
+        a = a[:-1]
+    if b[0] == '/':
+        b = b[1:]
+
+    return a + '/' + b
