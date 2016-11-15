@@ -93,6 +93,7 @@ def help(command = None):
         out.log('python fabfile.py help <command>')
     else:
         out.log('This is the help text for the command ' + command + ':')
+        out.log('')
         display_help_text(command)
 
 

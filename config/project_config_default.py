@@ -113,4 +113,7 @@ JS_INCLUDE_FILE = 'main_js.php'
 
 #these files will be ignored in all sync operations. PHP_COMMAND_FILE and TMP_DIR expand to their corresponding value, * expands to anything (including the empty string)
 #Note that the files are evaluated relative to the www folder.
-IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '.DS_Store', '.gitignore', 'wp-content/cache/']
+IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '.DS_Store', '.gitignore', 'wp-content/cache/', '.htaccess.custom', '.htaccess.local']
+
+#these directories are subject to change by site user / customer and we probably don't want to overwrite files in there without confirming this before
+SERVER_OWNED = ['content/', 'wp-content/uploads/']

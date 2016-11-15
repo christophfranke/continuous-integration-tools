@@ -15,8 +15,10 @@ NORMALIZATION_FORM = 'NFKC'
 
 #upload local files using ftp
 @out.indent
-def upload(force_upload = False, destructive = False):
+def upload(force_upload = False, destructive = False, server_owned = None):
     out.log('comparing md5 hashes of local and remote files', 'sync')
+
+    respect_server_owned = (server_owned != 'server-owned')
 
     #recalculate all md5 hashes
     files_local = create_md5_table()
@@ -35,8 +37,11 @@ def upload(force_upload = False, destructive = False):
             if ignored_file(f) or system_file(f):
                 out.log('ignoring ' + f, 'sync', out.LEVEL_DEBUG)
             else:
-                out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
-                files_scheduled.append(f)
+                if respect_server_owned and (f in files_remote) and server_owned_file(f):
+                    out.log('ignoring server owned file ' + f, 'sync', out.LEVEL_INFO)
+                else:
+                    out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
+                    files_scheduled.append(f)
 
     #upload new or modified files
     if len(files_scheduled) > 0:
@@ -195,6 +200,9 @@ def ignored_file(file):
 
 def system_file(file):
     return match_file(file, engine.DEPLOY_TOOLS_SYSTEM_FILES_REGEX_LIST)
+
+def server_owned_file(file):
+    return match_file(file, engine.SERVER_OWNED_REGEX_LIST)
 
 def save_md5_table(md5_table):
     md5_table_file = open(engine.LOCAL_MD5_TABLE_FILE, 'w', encoding='utf-8')
