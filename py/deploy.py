@@ -24,14 +24,14 @@ def execute(mode = None, server_owned = None):
 
     if mode == 'mirror':
         sync.upload(True, True, server_owned)
-    if mode == 'clean':
+    elif mode == 'clean':
         sync.upload(False, True, server_owned)
-    if mode == 'sync':
+    elif mode == 'sync':
         sync.upload(False, False, server_owned)
-    if mode == 'all':
+    elif mode == 'all':
         sync.upload(True, False, server_owned)
-
-    out.log("invalid mode, did nothing.", 'command', out.LEVEL_ERROR)
+    else:
+        out.log("invalid mode, did nothing.", 'command', out.LEVEL_ERROR)
 
 
 
