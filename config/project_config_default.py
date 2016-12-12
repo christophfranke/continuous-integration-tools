@@ -116,4 +116,7 @@ JS_INCLUDE_FILE = 'main_js.php'
 IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '.DS_Store', '.gitignore', 'wp-content/cache/', '.htaccess.custom', '.htaccess.local']
 
 #these directories are subject to change by site user / customer and we probably don't want to overwrite files in there without confirming this before
-SERVER_OWNED = ['content/', 'wp-content/uploads/']
+SERVER_OWNED = ['/content/', '/wp-content/uploads/']
+
+
+

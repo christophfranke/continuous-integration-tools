@@ -213,14 +213,20 @@ else:
     const_subsequent('REMOTE_COMMAND_URL', 'REMOTE_ROOT_URL')
 
 
+def replace_first_slash(s):
+    if s[0] == '/':
+        return '^/?' + s[1:]
+    else:
+        return s
+
 #don't fail to assemble the regex when the command url is not set, because that would break execution completely (which is not what we want obviously).
 try:
     COMMAND_URL_FOR_REGEX = SECURITY_HASH + '.php'
 except NameError:
     COMMAND_URL_FOR_REGEX = 'REMOTE_COMMAND_FILE'
 #assambling a regex list from the ignore on sync list
-IGNORE_ON_SYNC_REGEX_LIST = [s.replace('REMOTE_COMMAND_FILE', COMMAND_URL_FOR_REGEX).replace('TMP_DIR', TMP_DIR + '/').replace('.', '[.]').replace('*','.*') for s in IGNORE_ON_SYNC]
-SERVER_OWNED_REGEX_LIST = [s.replace('.', '[.]').replace('*','.*') for s in SERVER_OWNED]
+IGNORE_ON_SYNC_REGEX_LIST = [replace_first_slash(s.replace('REMOTE_COMMAND_FILE', COMMAND_URL_FOR_REGEX).replace('TMP_DIR', TMP_DIR + '/').replace('.', '[.]').replace('*','.*')) for s in IGNORE_ON_SYNC]
+SERVER_OWNED_REGEX_LIST = [replace_first_slash(s.replace('.', '[.]').replace('*','.*')) for s in SERVER_OWNED]
 
 
 try:
