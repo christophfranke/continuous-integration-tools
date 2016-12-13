@@ -133,8 +133,8 @@ def phpinfo():
 def compile(types = None):
     py.compile.execute(types)
 
-def deploy(mode = None):
-    py.deploy.execute(mode)
+def deploy(arg1 = None, arg2 = None):
+    py.deploy.execute(arg1, arg2)
 
 def sync_files(mode = None):
     py.sync_files.execute(mode)

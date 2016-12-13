@@ -4,23 +4,30 @@ from modules import compile
 from modules import sync
 
 @engine.prepare_and_clean
-def execute(mode = None, server_owned = None):
+def execute(arg1 = None, arg2 = None):
     if engine.ENABLE_BUILD_SYSTEM:
         out.log('compiling first...')
         compile.all()
 
+    if arg1 == 'server-owned':
+        mode = arg2
+        server_owned = True
+    elif arg2 == 'server-owned':
+        mode = arg1
+        server_owned = True
+    else:
+        mode = arg1
+        server_owned = False
+
+
     if mode is None:
         mode = 'sync'
-    if mode == 'server-owned':
-        if server_owned is None:
-            mode = 'sync'
-        else:
-            mode = server_owned
-        server_owned = 'server-owned'
 
-    out.log("deploying to server (" + mode + " mode)...")
-    if server_owned == 'server-owned':
-        out.log("overwriting server owned files (server-owned mode).")
+    out.log("deploying to server in " + mode + " mode...")
+    if server_owned:
+        out.log("overwriting server owned files.")
+    else:
+        out.log("skipping server owned files.")
 
     if mode == 'mirror':
         sync.upload(True, True, server_owned)
