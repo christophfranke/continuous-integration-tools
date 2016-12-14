@@ -15,11 +15,11 @@ NORMALIZATION_FORM = 'NFKC'
 
 #upload local files using ftp
 @out.indent
-def upload(force_upload = False, destructive = False, server_owned = None):
+def upload(force_upload = False, destructive = False, overwrite_server_owned = None):
     out.log('comparing md5 hashes of local and remote files', 'sync')
 
-    if server_owned is None:
-        server_owned = False
+    if overwrite_server_owned is None:
+        overwrite_server_owned = False
 
     #recalculate all md5 hashes
     files_local = create_md5_table()
@@ -35,14 +35,15 @@ def upload(force_upload = False, destructive = False, server_owned = None):
     files_scheduled = []
     for f in files_local:
         if force_upload or (not f in files_remote) or (not files_local[f] == files_remote[f]):
-            if ignored_file(f) or system_file(f):
-                out.log('ignoring ' + f, 'sync', out.LEVEL_DEBUG)
+            if system_file(f):
+                out.log('skipping system file ' + f, 'sync', out.LEVEL_DEBUG)
+            elif ignored_file(f):
+                out.log('skipping ignored file ' + f, 'sync', out.LEVEL_VERBOSE)
+            elif (not overwrite_server_owned) and (f in files_remote) and server_owned_file(f):
+                out.log('skipping server owned file ' + f, 'sync', out.LEVEL_INFO)
             else:
-                if server_owned and (f in files_remote) and server_owned_file(f):
-                    out.log('ignoring server owned file ' + f, 'sync', out.LEVEL_INFO)
-                else:
-                    out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
-                    files_scheduled.append(f)
+                out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
+                files_scheduled.append(f)
 
     #upload new or modified files
     if len(files_scheduled) > 0:
@@ -57,9 +58,11 @@ def upload(force_upload = False, destructive = False, server_owned = None):
         for f in files_remote:
             if not f in files_local:
                 if system_file(f):
-                    out.log('skipping removal of system file ' + f, 'sync', out.LEVEL_VERBOSE)
+                    out.log('skipping removal of system file ' + f, 'sync', out.LEVEL_DEBUG)
                 elif ignored_file(f):
                     out.log('skipping removal of ignored file ' + f, 'sync', out.LEVEL_VERBOSE)
+                elif (not overwrite_server_owned) and server_owned_file(f):
+                    out.log('skipping removal of server owned file ' + f, 'sync', out.LEVEL_INFO)
                 else:
                     out.log('scheduled for removal: ' + f, 'sync', out.LEVEL_INFO)
                     files_scheduled_for_removal.append(f)
@@ -72,7 +75,7 @@ def upload(force_upload = False, destructive = False, server_owned = None):
             out.log('no unwanted files found, not removing any files.', 'sync')
 
 
-    #save current local list to file, butu only if it is being actually used
+    #save current local list to file, but only if it is being actually used
     if not engine.ALWAYS_RECALCULATE_MD5_TABLE:
         save_md5_table(files_local)
 
