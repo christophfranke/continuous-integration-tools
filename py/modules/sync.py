@@ -18,7 +18,8 @@ NORMALIZATION_FORM = 'NFKC'
 def upload(force_upload = False, destructive = False, server_owned = None):
     out.log('comparing md5 hashes of local and remote files', 'sync')
 
-    respect_server_owned = (server_owned != 'server-owned')
+    if server_owned is None:
+        server_owned = False
 
     #recalculate all md5 hashes
     files_local = create_md5_table()
@@ -37,7 +38,7 @@ def upload(force_upload = False, destructive = False, server_owned = None):
             if ignored_file(f) or system_file(f):
                 out.log('ignoring ' + f, 'sync', out.LEVEL_DEBUG)
             else:
-                if respect_server_owned and (f in files_remote) and server_owned_file(f):
+                if server_owned and (f in files_remote) and server_owned_file(f):
                     out.log('ignoring server owned file ' + f, 'sync', out.LEVEL_INFO)
                 else:
                     out.log('scheduled for upload: ' + f, 'sync', out.LEVEL_INFO)
