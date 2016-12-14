@@ -77,7 +77,8 @@ def upload(force_upload = False, destructive = False, overwrite_server_owned = N
 
     #save current local list to file, but only if it is being actually used
     if not engine.ALWAYS_RECALCULATE_MD5_TABLE:
-        save_md5_table(files_local)
+        import file
+        file.save_md5_table(files_local, engine.LOCAL_MD5_TABLE_FILE)
 
 def download(force_download = False, destructive = False):
     out.log('ignoring files matching these regex patterns: ' + str(engine.IGNORE_ON_SYNC_REGEX_LIST), 'sync', out.LEVEL_DEBUG)
@@ -129,12 +130,13 @@ def download(force_download = False, destructive = False):
 
     #save current remote list to file, but don't bother if it is not being used anyway
     if not engine.ALWAYS_RECALCULATE_MD5_TABLE:
-        save_md5_table(files_remote)
+        file.save_md5_table(files_remote, engine.REMOTE_MD5_TABLE_FILE)
 
 
 #print a diff between the server and the 
 @out.indent
 def diff():
+    import file
     out.log('comparing remote files with local files', 'sync')
 
     #create md5 tables
@@ -185,13 +187,8 @@ def diff():
         out.log('New remote files: ' + str(remote_new), 'sync')
         out.log('Modified files: ' + str(modified), 'sync')
 
-    file = open('tmp/local.md5', 'w')
-    json.dump(files_local, file)
-    file.close()
-    file = open('tmp/remote.md5', 'w')
-    json.dump(files_remote, file)
-    file.close()
-
+    file.save_md5_table(files_local, 'tmp/local.md5')
+    file.save_md5_table(files_remote, 'tmp/remote.md5')
 
 def match_file(file, regex_list):
     for regex in regex_list:
@@ -207,11 +204,6 @@ def system_file(file):
 
 def server_owned_file(file):
     return match_file(file, engine.SERVER_OWNED_REGEX_LIST)
-
-def save_md5_table(md5_table):
-    md5_table_file = open(engine.LOCAL_MD5_TABLE_FILE, 'w', encoding='utf-8')
-    json.dump(md5_table, md5_table_file)
-    md5_table_file.close()
 
 @out.indent
 def load_md5_table(filename):
@@ -258,6 +250,7 @@ def create_remote_md5_table():
 
 @out.indent
 def create_md5_table():
+    import file
     out.log('calculating local md5 hashes', 'sync')
     files = []
     md5_table = {}
@@ -275,7 +268,7 @@ def create_md5_table():
     for f in files:
         if not (ignored_file(f) or system_file(f)):
             try:
-                md5_table[f] = engine.md5sum(f)
+                md5_table[f] = file.md5sum(f)
             except IndexError:
                 pass
             except IOError:

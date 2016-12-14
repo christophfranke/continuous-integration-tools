@@ -106,6 +106,7 @@ def remote_python_script(script_name, arguments = ''):
 #make sure the command file is online and everything is setup correctly. this funciton will be called automatically, if COMMAND_SYSTEM_READY is not  set in the project config
 @out.indent
 def upload_command_file():
+    import conf
     #look for existing hash
     try:
         engine.REMOTE_ROOT_URL
@@ -116,7 +117,7 @@ def upload_command_file():
         engine.NORM_COMMAND_FILE
     except AttributeError:
         new_hash = engine.get_random_secury_id()
-        engine.add_config('SECURITY_HASH', new_hash)
+        conf.add_config('SECURITY_HASH', new_hash)
         engine.NORM_COMMAND_FILE = os.path.normpath(engine.SECURITY_HASH + '.php')
         engine.REMOTE_COMMAND_URL = engine.REMOTE_ROOT_URL + '/' + engine.NORM_COMMAND_FILE
 

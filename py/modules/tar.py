@@ -52,6 +52,7 @@ def pack_local(files):
 
 @out.indent
 def pack_local_list(file_list):
+    import file
     #tell
     out.log('packing a bunch of local files', 'tar')
 
@@ -65,7 +66,7 @@ def pack_local_list(file_list):
 
     #register list file
     list_file_content = "\n".join(file_list)
-    list_file = engine.write_local_file(list_file_content, 'files')
+    list_file = file.write_local(list_file_content, 'files')
 
     #assemble packing command. Always pack from www dir
     pack_command = 'tar cf ' + tar_file + ' -C ' + engine.LOCAL_WWW_DIR + ' --files-from ' + list_file
@@ -79,6 +80,7 @@ def pack_local_list(file_list):
 
 @out.indent
 def pack_remote_list(file_list):
+    import file
     #tell
     out.log('packing a bunch of remote files', 'tar')
 
@@ -92,7 +94,7 @@ def pack_remote_list(file_list):
 
     #register list file
     list_file_content = "\n".join(file_list)
-    list_file = engine.write_remote_file(list_file_content, 'files')
+    list_file = file.write_remote(list_file_content, 'files')
 
     #assemble packing command. Always pack from www dir
     pack_command = 'tar cf ' + tar_file + ' -C ' + engine.NORM_WWW_DIR + ' --files-from ' + list_file
@@ -122,5 +124,6 @@ def validate_files_list(files_array):
 
     #no absolute path detected, we should be save now
     return True
+    
 def validate_files(files):
     return validate_files_list(files.split())

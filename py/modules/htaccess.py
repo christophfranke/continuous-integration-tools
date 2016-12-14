@@ -1,9 +1,7 @@
 import engine
 import out
 import run
-import transfer
 
-import os
 
 
 
@@ -18,25 +16,31 @@ def create_remote_symlink():
     run.remote('ln -s .htaccess.live .htaccess')
 
 def prepare(overwrite, upload=False):
+    import os
+    import file
+
     htaccess_file = os.path.abspath(engine.LOCAL_WWW_DIR + '/.htaccess')
-    if os.path.isfile(htaccess_file):
+    if file.local_not_empty(htaccess_file):
         if overwrite == 'fail':
             out.log('.htaccess already exists. Specify overwrite as parameter or delete the file manually before trying again.', 'htaccess', out.LEVEL_ERROR)
             engine.quit()
         if overwrite == 'overwrite':
             run.local('rm ' + htaccess_file)
     if upload:
+        import transfer
         transfer.remove_remote('.htaccess')
 
 def assemble_htaccess_data(domain):
-    ht_data = engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/signature.htaccess')
-    ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/common.htaccess')
+    import file
+
+    ht_data = file.read_local(engine.SCRIPT_DIR + '/htaccess/signature.htaccess')
+    ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/common.htaccess')
     if engine.COMPRESSION == 'DEFLATE':
-        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/deflate.htaccess')
+        ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/deflate.htaccess')
     elif engine.COMPRESSION == 'GZIP':
-        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/gzip.htaccess')
+        ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/gzip.htaccess')
     elif engine.COMPRESSION == 'PRECOMPRESSION':
-        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/precompression.htaccess')
+        ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/precompression.htaccess')
     elif engine.COMPRESSION == None or engine.COMPRESSION == False or engine.COMPRESSION == 'NONE':
         pass
     else:
@@ -44,36 +48,39 @@ def assemble_htaccess_data(domain):
     #caching only for live site
     if domain == 'live':
         if engine.CACHING == 'DEVELOPMENT':
-            ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching-development.htaccess')
+            ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/caching-development.htaccess')
         elif engine.CACHING == 'PRODUCTION':
-            ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching-production.htaccess')
+            ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/caching-production.htaccess')
         elif engine.CACHING == None or engine.CACHING == False or engine.CACHING == 'NONE':
-            ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching-none.htaccess')
+            ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/caching-none.htaccess')
         else:
             out.log('Warning: You have not specified a valid browser caching strategy: ' + str(engine.CACHING) + '. Use PRODUCTION, DEVELOPMENT or NONE instead.', 'htaccess', out.LEVEL_WARNING)
     else:
         #explicitly disable browsercaching for all assets for local development site
-        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/caching-none.htaccess')
-    if os.path.isfile(engine.LOCAL_WWW_DIR + '/.htaccess.custom'):
-        ht_data += engine.read_local_file(engine.LOCAL_WWW_DIR + '/.htaccess.custom')
+        ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/caching-none.htaccess')
+    if file.local_not_empty(engine.LOCAL_WWW_DIR + '/.htaccess.custom'):
+        ht_data += file.read_local(engine.LOCAL_WWW_DIR + '/.htaccess.custom')
     if engine.IS_WORDPRESS:
-        ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/wordpress.htaccess')
+        ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/wordpress.htaccess')
 
     if domain == 'live':
         if engine.NEED_BASIC_AUTH:
-            ht_data += engine.read_local_file(engine.SCRIPT_DIR + '/htaccess/basic-auth.htaccess')
+            ht_data += file.read_local(engine.SCRIPT_DIR + '/htaccess/basic-auth.htaccess')
 
     return ht_data
 
 @out.indent
 def create_local_file():
+    import file
     out.log('creating .htaccess.local', 'htacecss')
 
     ht_data = assemble_htaccess_data('local')
-    engine.write_local_file(ht_data, filename = engine.LOCAL_WWW_DIR + '/.htaccess.local')
+    file.write_local(ht_data, filename = engine.LOCAL_WWW_DIR + '/.htaccess.local')
 
 @out.indent
 def create_live_file(upload=False):
+    import file
+
     out.log('creating .htaccess.live', 'htaccess')
     ht_data = assemble_htaccess_data('live')
     if engine.NEED_BASIC_AUTH:
@@ -85,7 +92,7 @@ def create_live_file(upload=False):
         transfer.put(engine.LOCAL_WWW_DIR + '/.htpasswd', '.htpasswd')
 
     #write local
-    engine.write_local_file(ht_data, filename = engine.LOCAL_WWW_DIR + '/.htaccess.live')
+    file.write_local(ht_data, filename = engine.LOCAL_WWW_DIR + '/.htaccess.live')
     #write to remote
     if upload:
-        engine.write_remote_file(ht_data, filename = '.htaccess.live')
+        file.write_remote(ht_data, filename = '.htaccess.live')

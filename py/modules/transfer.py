@@ -85,8 +85,9 @@ def get_compressed(remote_file, local_file = None, verbose = False, permissions 
         #restore uncompressed remote file
         gzip.uncompress_remote(compressed_remote)
     else:
-        #or tell the engine it has been renamed
-        engine.rename_remote_file(remote_file, compressed_remote)
+        #or tell the tmp register it has been renamed
+        import tmp
+        tmp.rename_remote_file(remote_file, compressed_remote)
 
     #uncmopress local file
     return gzip.uncompress_local(compressed_local, True)

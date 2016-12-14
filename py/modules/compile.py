@@ -73,5 +73,5 @@ def save_to_php(filename, data):
         out.log('save_to_php does not support type ' + str(type(data)) + '.', 'compile', out.LEVEL_ERROR)
         engine.quit()
 
-    engine.write_local_file(content, filename = filename)
+    file.write_local(content, filename = filename)
 

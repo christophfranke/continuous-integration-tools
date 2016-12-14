@@ -11,6 +11,7 @@ command_file_ready = False
 @out.indent
 def execute(command, halt_on_output = False):
     import run
+    import file
 
     #tell
     out.log(command, 'php', out.LEVEL_VERBOSE)
@@ -21,7 +22,7 @@ def execute(command, halt_on_output = False):
     #write command to file and upload it. We do it this way, althouth this is quite inefficient, but otherwise we'd have tremendous problems with escaping characters.
     #althouth, TODO: escape special characters in command
     script_content = '#!/bin/bash\n' + command
-    filename = engine.write_remote_file(script_content, 'sh', permissions = '777')
+    filename = file.write_remote(script_content, 'sh', permissions = '777')
 
     #reserve a remote .log file
     output_file = engine.get_new_local_file('log', True);
@@ -45,7 +46,7 @@ def execute(command, halt_on_output = False):
     #log output to screen
     if halt_on_output:
         log_level = out.LEVEL_ERROR
-        if os.stat(output_file).st_size > 0:
+        if file.local_not_empty(output_file):
             out.file(output_file, 'php exec', out.LEVEL_ERROR)
             out.log('error executing "' + command + '" via php command system.', 'php', out.LEVEL_ERROR)
             engine.quit()

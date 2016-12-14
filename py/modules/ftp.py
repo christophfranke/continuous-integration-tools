@@ -1,5 +1,4 @@
 import engine
-import run
 import out
 import buffering
 
@@ -8,9 +7,12 @@ import buffering
 @buffering.buffered
 @out.indent
 def execute(command):
+    import run
+    import file
+
     out.log(command, 'ftp', out.LEVEL_VERBOSE)
     #write the command into file
-    ftp_file = engine.write_local_file(command, 'ftp')
+    ftp_file = file.write_local(command, 'ftp')
 
     #run the ftp file
     if engine.FTP_CLIENT == 'ftp':

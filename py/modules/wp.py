@@ -5,16 +5,17 @@ import os
 
 
 @out.indent
-def overwrite_allowed(file, when_exists = 'quit'):
-    if os.path.isfile(file):
+def overwrite_allowed(filename, when_exists = 'quit'):
+    import file
+    if file.local_not_empty(filename):
         if when_exists == 'quit':
-            out.log(file + ' already exists.', 'wordpress', out.LEVEL_ERROR)
+            out.log(filename + ' already exists.', 'wordpress', out.LEVEL_ERROR)
             engine.quit()
         if when_exists == 'skip':
-            out.log(file + ' already exists. skipped.', 'wordpress')
+            out.log(filename + ' already exists. skipped.', 'wordpress')
             return False
         if when_exists == 'overwrite':
-            out.log(file + ' already exists. overwriting.', 'wordpress')
+            out.log(filename + ' already exists. overwriting.', 'wordpress')
             return True
     else:
         return True
@@ -31,24 +32,25 @@ def copy_wp_config(when_exists = 'skip'):
 
 @out.indent
 def create_wp_config_local(when_exists = 'overwrite'):
+    import file
     out.log('create wp-config-local.php in wordpress directory...', 'wordpress')
     if overwrite_allowed(engine.LOCAL_WP_DIR + '/wp-config-local.php', when_exists):
-        #open file
-        file = open(engine.LOCAL_WP_DIR + '/wp-config-local.php', 'w')
-        #delete content
-        file.truncate()
-        #write new content
-        file.write("<?php\n")
-        file.write("define('DB_NAME', '" + engine.LOCAL_DB_NAME + "');\n")
-        file.write("define('DB_USER', '" + engine.LOCAL_DB_USER + "');\n")
-        file.write("define('DB_PASSWORD', '" + engine.LOCAL_DB_PASSWORD + "');\n")
-        file.write("define('DB_HOST', '" + engine.LOCAL_DB_HOST + "');\n")
-        file.write("define('WP_SITEURL', '" + engine.LOCAL_ROOT_URL + "');\n")
-        file.write("define('WP_DEBUG', True);\n")
-        file.write("define('WP_DEBUG_DISPLAY', True);\n")
-        file.write("define('WP_CACHE', False);\n")
-        #done, close
-        file.close()
+        #assemble filenmae
+        filename = engine.LOCAL_WP_DIR + '/wp-config-local.php', 'w'
+
+        #assemble content
+        content = "<?php\n"
+        content = content + "define('DB_NAME', '" + engine.LOCAL_DB_NAME + "');\n"
+        content = content + "define('DB_USER', '" + engine.LOCAL_DB_USER + "');\n"
+        content = content + "define('DB_PASSWORD', '" + engine.LOCAL_DB_PASSWORD + "');\n"
+        content = content + "define('DB_HOST', '" + engine.LOCAL_DB_HOST + "');\n"
+        content = content + "define('WP_SITEURL', '" + engine.LOCAL_ROOT_URL + "');\n"
+        content = content + "define('WP_DEBUG', True);\n"
+        content = content + "define('WP_DEBUG_DISPLAY', True);\n"
+        content = content + "define('WP_CACHE', False);\n"
+
+        #write file
+        file.write_local(content, filename = filename)
 
 @out.indent
 def create_wp_salt(when_exists = 'skip'):
@@ -59,19 +61,18 @@ def create_wp_salt(when_exists = 'skip'):
 
 @out.indent
 def create_wp_config_live(when_exists = 'overwrite'):
+    import file
     out.log('create wp-config-live.php in wordpress directory...', 'wordpress')
     filename = engine.LOCAL_WP_DIR + '/wp-config-live.php'
     if overwrite_allowed(filename, when_exists):
-        #open file
-        file = open(filename, 'w')
-        #delete current content
-        file.truncate()
-        #write new content
-        file.write("<?php\n")
-        file.write("define('DB_NAME', '" + engine.REMOTE_DB_NAME + "');\n")
-        file.write("define('DB_USER', '" + engine.REMOTE_DB_USER + "');\n")
-        file.write("define('DB_PASSWORD', '" + engine.REMOTE_DB_PASSWORD + "');\n")
-        file.write("define('DB_HOST', '" + engine.REMOTE_DB_HOST + "');\n")
-        file.write("define('WP_SITEURL', '" + engine.REMOTE_ROOT_URL + "');\n")
-        #done, close
-        file.close()
+
+        #assemble new content
+        content = "<?php\n"
+        content = content + "define('DB_NAME', '" + engine.REMOTE_DB_NAME + "');\n"
+        content = content + "define('DB_USER', '" + engine.REMOTE_DB_USER + "');\n"
+        content = content + "define('DB_PASSWORD', '" + engine.REMOTE_DB_PASSWORD + "');\n"
+        content = content + "define('DB_HOST', '" + engine.REMOTE_DB_HOST + "');\n"
+        content = content + "define('WP_SITEURL', '" + engine.REMOTE_ROOT_URL + "');\n"
+
+        #done, write
+        file.write_local(content, filename = filename)

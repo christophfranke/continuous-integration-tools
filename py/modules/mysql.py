@@ -25,8 +25,10 @@ def execute_remote_file(filename):
 
 @out.indent
 def execute_remote_statement(statement):
+    import file
+
     out.log('executing statement remotely: ' + statement, 'mysql', out.LEVEL_VERBOSE)
-    filename = engine.write_remote_file(statement, 'sql')
+    filename = file.write_remote(statement, 'sql')
     execute_remote_file(filename)
 
 #executes a mysql file locally
@@ -36,8 +38,10 @@ def execute_local_file(filename):
 #executes a mysql statement locally. This is done by writing a mysql file and then pass it to the mysql client via cli.
 @out.indent
 def execute_local_statement(statement):
+    import file
+
     out.log('executing statement locally: ' + statement, 'mysql', out.LEVEL_VERBOSE)
-    filename = engine.write_local_file(statement, 'sql')
+    filename = file.write_local(statement, 'sql')
     execute_local_file(filename)
 
 #executes a mysql file locally without selecting a db first. Useful for creating a database, for example
@@ -46,7 +50,9 @@ def execute_local_file_nodb(filename):
 
 #executes a statement without selecting a database. You can for example create databases, users, etc..
 def execute_local_statement_nodb(statement):
-    filename = engine.write_local_file(statement, 'sql')
+    import file
+
+    filename = file.write_local(statement, 'sql')
     execute_local_file_nodb(filename)
 
 @out.indent
@@ -153,3 +159,4 @@ def upload_to_remote_db(filename, compression = None):
     truncate_remote_db()
     out.log('import remote database', 'mysql')
     execute_remote_file(remote_uncompressed)
+    

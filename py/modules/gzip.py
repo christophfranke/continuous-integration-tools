@@ -2,6 +2,7 @@
 import engine
 import out
 import run
+import tmp
 
 
 #compress a single file
@@ -53,7 +54,7 @@ def uncompress(compressed_file, run_func, rename_tmp_func = None):
 
 def compress_local(filename, tell_engine = False):
     if tell_engine:
-        rename_tmp_func = engine.rename_local_file
+        rename_tmp_func = tmp.rename_local_file
     else:
         rename_tmp_func = None
     #sync ftp only on local compression/uncompression, because on remote it get's synced anyway by the command system
@@ -62,7 +63,7 @@ def compress_local(filename, tell_engine = False):
 
 def uncompress_local(filename, tell_engine = False):
     if tell_engine:
-        rename_tmp_func = engine.rename_local_file
+        rename_tmp_func = tmp.rename_local_file
     else:
         rename_tmp_func = None
     #sync ftp only on local compression/uncompression, because on remote it get's synced anyway by the command system
@@ -71,14 +72,14 @@ def uncompress_local(filename, tell_engine = False):
 
 def compress_remote(filename, tell_engine = False, fast=False):
     if tell_engine:
-        rename_tmp_func = engine.rename_remote_file
+        rename_tmp_func = tmp.rename_remote_file
     else:
         rename_tmp_func = None
     return compress(filename, run.remote, rename_tmp_func, fast)
 
 def uncompress_remote(filename, tell_engine = False):
     if tell_engine:
-        rename_tmp_func = engine.rename_remote_file
+        rename_tmp_func = tmp.rename_remote_file
     else:
         rename_tmp_func = None
     return uncompress(filename, run.remote, rename_tmp_func)
