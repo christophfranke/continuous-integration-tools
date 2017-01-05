@@ -53,7 +53,7 @@ GIT_BRANCH = '' #optional, but it's good practice to set this to the correct bra
 DB_DIR = 'Datenbank'
 
 #Do we have a Wordpress install here?
-IS_WORDPRESS = True
+IS_WORDPRESS = False
 
 #the wordpress root folder relative to the www dir. Only needed if IS_WORDPRESS is set to True. You only need to touch this if your wordpress installation is in a subfolder.
 WP_DIR = '.'
