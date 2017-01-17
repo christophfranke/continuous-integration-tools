@@ -71,8 +71,10 @@ def put(local_file, remote_file = None, verbose = False, permissions = None):
     return remote_file
 
 def get_compressed(remote_file, local_file = None, verbose = False, permissions = None, fast_compression = False, preserve_remote_file = False):
+    import php
     #compress remote file
     compressed_remote = gzip.compress_remote(remote_file, fast=fast_compression)
+    php.flush_buffer() #in case we were buffering php execution, it is time to execute now
     #download
     compressed_local = get(compressed_remote, gzip.compressed_filename(local_file), verbose, permissions)
     try:
@@ -136,9 +138,34 @@ def put_multiple(file_list):
         ftp.execute(command)
 
 def get_multiple(file_list):
-    remote_tar = tar.pack_remote_list(file_list)
-    local_tar = get_compressed(remote_tar, fast_compression = True)
-    tar.unpack_local(local_tar)
+    import php
+    #split into ascii and non-ascii
+    ascii_files, non_ascii_files = engine.split_by_encoding(file_list)
+
+    if engine.FORCE_FTP_FILE_TRANSFER:
+        ascii_files = []
+        non_ascii_files = file_list
+
+    #ascii files
+    if len(ascii_files) > 0:
+        #use buffering
+        had_buffer = php.has_buffer()
+        php.start_buffer()
+
+        remote_tar = tar.pack_remote_list(ascii_files)
+        local_tar = get_compressed(remote_tar, fast_compression = True) #will flush php buffer
+
+        if had_buffer:
+            php.end_buffer()
+
+        tar.unpack_local(local_tar)
+
+    #take the non-ascii files and upload them one after another using ftp
+    if len(non_ascii_files) > 0:
+        command = ''
+        for f in non_ascii_files:
+            command += u'get ' + ftp_path(f) + u' ' + engine.LOCAL_WWW_DIR + '/' + f + u'\n'
+        ftp.execute(command)
 
 def put_verbose(local_file, remote_file=None):
     put(local_file, remote_file, True)

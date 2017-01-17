@@ -118,5 +118,8 @@ IGNORE_ON_SYNC = ['REMOTE_COMMAND_FILE', 'TMP_DIR', 'wp-config-local.php', '.DS_
 #these directories are subject to change by site user / customer and we probably don't want to overwrite files in there without confirming this before
 SERVER_OWNED = ['/content/', '/wp-content/uploads/']
 
+#only use ftp to sync and deploy
+FORCE_FTP_FILE_TRANSFER = False
+
 
 

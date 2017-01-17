@@ -77,7 +77,7 @@ def create_remote_dump(compression = False):
     import php
     out.log('create remote database dump', 'mysql')
 
-    if engine.COMMAND_SYSTEM == 'PHP' and compression:
+    if compression:
         php.start_buffer();
 
     #export db on remote
