@@ -545,3 +545,14 @@ def path_join(*args):
         b = b[1:]
 
     return a + '/' + b
+
+def get_all_directories(file_list):
+    dir_list = []
+    for file in file_list:
+        directory = os.path.dirname(file)
+        while not directory in dir_list:
+            dir_list.append(directory)
+            directory = os.path.dirname(directory)
+    #sort by length of dir, so directory dependencies get resolved correctly
+    dir_list.sort(lambda x,y: cmp(len(x), len(y)))
+    return dir_list

@@ -122,6 +122,10 @@ def put_multiple(file_list):
     #split into ascii and non-ascii
     ascii_files, non_ascii_files = engine.split_by_encoding(file_list)
 
+    if engine.FORCE_FTP_FILE_TRANSFER:
+        ascii_files = []
+        non_ascii_files = file_list
+
     #pack ascii files, upload compressed and unpack on server
     if len(ascii_files) > 0:
         out.log('uploading files with ascii compatible names', 'transfer')
@@ -132,6 +136,9 @@ def put_multiple(file_list):
     #take the non-ascii files and upload them one after another using ftp
     if len(non_ascii_files) > 0:
         out.log('uploading files with non-ascii filename', 'transfer')
+        directories = engine.get_all_directories(non_ascii_files)
+        for directory in directories:
+            create_remote_directory(directory)
         command = ''
         for f in non_ascii_files:
             command += u'put ' + engine.LOCAL_WWW_DIR + '/' + f + u' ' + ftp_path(f) + u'\n'
