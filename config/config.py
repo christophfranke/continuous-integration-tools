@@ -203,8 +203,8 @@ if TRANSFER_SYSTEM == 'FTP':
 
 if REMOTE_ROOT_URL is not None:
     try:
-        REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + '.php'
-        NORM_COMMAND_FILE = os.path.normpath(SECURITY_HASH + '.php')
+        REMOTE_COMMAND_URL = REMOTE_ROOT_URL + '/' + SECURITY_HASH + COMMAND_FILE_SUFFIX
+        NORM_COMMAND_FILE = os.path.normpath(SECURITY_HASH + COMMAND_FILE_SUFFIX)
     except:
         if COMMAND_SYSTEM == 'PHP':
             const_warning('REMOTE_COMMAND_URL', 'SECURITY_HASH')
@@ -221,7 +221,7 @@ def replace_first_slash(s):
 
 #don't fail to assemble the regex when the command url is not set, because that would break execution completely (which is not what we want obviously).
 try:
-    COMMAND_URL_FOR_REGEX = SECURITY_HASH + '.php'
+    COMMAND_URL_FOR_REGEX = SECURITY_HASH + COMMAND_FILE_SUFFIX
 except NameError:
     COMMAND_URL_FOR_REGEX = 'REMOTE_COMMAND_FILE'
 #assambling a regex list from the ignore on sync list

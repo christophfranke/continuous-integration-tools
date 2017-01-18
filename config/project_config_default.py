@@ -39,6 +39,7 @@ RETRY_TIMEOUT = 5
 TRANSFER_SYSTEM = '' #automatic detection (empty string) will use SSH if SSH_USER, SSH_PASSWORD and SSH_HOST are provided. Possible values are 'FTP' and 'SSH'
 #the command system decides, what api is used to execute shell commands on the remote host
 COMMAND_SYSTEM = '' #automatic detection works exactly as with the transfer system. Possible values are 'PHP' and 'SSH'. Will use SSH if credentials are provided.
+COMMAND_FILE_SUFFIX = '.php'
 
 #the www folder relative to the project root
 WWW_DIR = 'www' #use '.', if the project root is your www folder. Note, that this is not recommended, this is why we propose a www subfolder as a standard config.
