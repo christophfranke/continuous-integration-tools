@@ -152,6 +152,15 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
     foreach($result->fetch_all() as $row)
         array_push($tables, $row[0]);
 
+    $final_skip_tables = array();
+    foreach($skip_tables as $table)
+    {
+        $pattern = str_replace('*', '.*', $table);
+        $pattern = "/^$pattern$/";
+        $final_skip_tables = array_merge( $final_skip_tables, preg_grep($pattern, $tables) );
+    }
+    $skip_tables = $final_skip_tables;
+
     //traverse all tables
     foreach($tables as $table)
     {
@@ -218,13 +227,13 @@ function search_and_replace($find, $replace, $host, $user, $password, $database,
                 $data = @unserialize($key);
                 if($data === false)
                 {
-                    //failed to serialize
+                    //failed to unserialize
                     $serialized = false;
                     $data = $key;
                 }
                 else
                 {
-                    //managed to serialize
+                    //managed to unserialize
                     $serialized = true;
                     $db_entries_serialized++;
                 }
