@@ -273,12 +273,12 @@ def create_md5_table():
             files.append(rel_file)
 
     for f in files:
-        if not (ignored_file(f) or system_file(f)):
-            try:
-                md5_table[f] = engine.md5sum(f)
-            except IndexError:
-                pass
-            except IOError:
+        try:
+            md5_table[f] = engine.md5sum(f)
+        except IndexError:
+            pass
+        except IOError:
+            if not (ignored_file(f) or system_file(f)):
                 out.log('could not open ' + f, 'sync', out.LEVEL_WARNING)
 
     return md5_table
